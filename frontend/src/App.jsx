@@ -10,7 +10,6 @@ const App = () => {
 
   useEffect(()=>{
     localStorage.getItem("theme") ? setActive(true) : setActive(false)
-
   }, [])
   
   const changeTheme = (data) => {

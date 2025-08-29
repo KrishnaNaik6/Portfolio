@@ -1,9 +1,10 @@
+import TypingText from '../../TypingText/Typing';
 import './Welcome.css'
 
 const Welcome = () => {
     return (
         <div className='welcome'>
-            <h1 >Hey there!! Welcome to my Portfolio</h1>
+            <TypingText text="Hey there!! Welcome to my Portfolio" speed={120}/>
         </div>
     )
 }

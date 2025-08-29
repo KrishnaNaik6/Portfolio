@@ -1,0 +1,8 @@
+.footer {
+    background-color: bisque;
+    height: 5%;
+    width: 100%;
+    display: flex;
+    position: fixed;
+    bottom: 0;
+}

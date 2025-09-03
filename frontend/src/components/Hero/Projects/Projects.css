@@ -1,0 +1,37 @@
+.projects {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    margin: 1vh 1vw;
+    border: 1px solid red;
+    width: 21vw;
+    height: auto;
+    min-height: 29vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.card p {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.card h3 {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+
+    .card {
+        width: 40vw;
+    }
+}

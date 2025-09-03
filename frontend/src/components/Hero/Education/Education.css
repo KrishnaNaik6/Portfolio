@@ -1,0 +1,18 @@
+.educations {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.education {
+    margin: 1vh 1vw;
+    border: 1px solid red;
+    width: 21vw;
+    height: auto;
+    min-height: 14vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+}

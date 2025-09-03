@@ -10,7 +10,7 @@
 }
 
 .navbar {
-    width: 70%;
+    width: 60%;
     height: 100%;
     display: flex;
     flex-direction: row;
@@ -103,6 +103,28 @@ a :active {
     cursor: pointer;
 }
 
+.rotater {
+    animation: circle 2s linear infinite;
+}
+
+.bouncer {
+    animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes circle {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px); /* how high it bounces */
+  }
+}
+
 /* Keep your existing CSS, just add a "dark-header" for better control */
 
 .dark-header {
@@ -128,13 +150,15 @@ a :active {
     cursor: pointer;
 }
 
+
+
 /* On mobile */
 @media (max-width: 768px) {
     .navbar {
         position: absolute;
-        top: 8vh;
+        top: 0.5vh;
         right: 0;
-        width: 57vw;
+        width: 44vw;
         height: 100vh;
         flex-direction: column;
         gap: 30px;
@@ -147,6 +171,9 @@ a :active {
         display: flex;
         align-items: center;
         justify-content: flex-start;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
     }
 
     .div_clock {
@@ -157,13 +184,15 @@ a :active {
         transform: translateX(0);
         opacity: 1;
         pointer-events: auto;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
 
     .hamburger {
         display: block;
-        margin: 0 5%;
+        margin: 0 0;
         position: absolute;
-        right: 3%;
+        right: 0%;
     }
 
     .dark-header .name {
@@ -172,7 +201,13 @@ a :active {
 
     .mode {
         position: absolute;
-        right: 14vw;
+        right: 4vw;
+        margin: 0 18px;
+    }
+
+    .swipe {
+        right: 42vw;
+        transition: all 0.3s ease-in-out;
     }
 
     .name {
@@ -183,5 +218,9 @@ a :active {
     .open li {
         padding: 2%;
     }
-}
 
+    .header {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+}

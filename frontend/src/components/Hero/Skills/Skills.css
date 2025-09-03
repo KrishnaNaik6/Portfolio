@@ -1,0 +1,48 @@
+.skills {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.technical {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.technical div {
+    margin: 0 1%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.soft {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.skills ul {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.skills li {
+    list-style: none;
+}
+
+.heading {
+    border-bottom: 2px groove rgb(192, 1, 144);
+}

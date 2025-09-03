@@ -33,11 +33,11 @@ const Header = ({ toParent }) => {
                 <li><a href="#skill">Skills</a></li>
             </ul>
 
-            <div className="mode">
+            <div className={`mode ${menuOpen ? 'swipe' : ''}`}>
                 {darkMode ? (
-                    <Sun onClick={() => { setDarkMode(false); toParent(false); }} />
+                    <Sun className="rotater" onClick={() => { setDarkMode(false); toParent(false); }} />
                 ) : (
-                    <Moon onClick={() => { setDarkMode(true); toParent(true); }} />
+                    <Moon className="bouncer" onClick={() => { setDarkMode(true); toParent(true); }} />
                 )}
             </div>
 

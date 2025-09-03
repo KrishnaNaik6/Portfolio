@@ -4,4 +4,46 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+    width: inherit;
 }
+
+.anim_sec {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    justify-content: space-evenly;
+    justify-items: center;
+    /* padding: 0 2vh; */
+}
+
+.hero section {
+    margin: 2vh 0;
+}
+
+section h3 {
+    margin: 2vh 0;
+}
+
+@media (max-width: 768px) {
+    .hero section {
+        margin: 1vh 0;
+    }
+
+    section h3 {
+        margin: 1vh 0;
+    }
+
+}
+
+/* @keyframes appear {
+    from {
+        opacity: 0;
+        clip-path: inset(100% 100% 0 0);
+    }
+
+    to {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+    }
+} */

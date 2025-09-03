@@ -5,7 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ['e1a96982753c.ngrok-free.app']
+    host: '0.0.0.0',
+    port: 5173,
+    allowedHosts: [
+      'hudz18lts.localto.net'  // 👈 add your Localtonet hostname here
+    ]
   }
 })
 

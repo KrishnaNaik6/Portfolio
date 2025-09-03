@@ -32,6 +32,6 @@ html {
 /* Phones (≤576px) */
 @media (max-width: 576px) {
   body {
-    font-size: 12px;
+    font-size: 10px;
   }
 }

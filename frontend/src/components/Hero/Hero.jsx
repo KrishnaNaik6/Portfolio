@@ -58,7 +58,7 @@ const Hero = () => {
         </section>,
         <section>
             <h3>Reach Out</h3>
-            <p>“Don’t hesitate to say hello 👋. I enjoy networking and learning from people across the world.”</p>
+            <p style={{textAlign:"center"}}>“Don’t hesitate to say hello 👋. I enjoy networking and learning from people across the world.” As a lifelong learner, I welcome opportunities to grow — reach out if you’d like to work together.</p>
             <Contact contact={details['contact']} />
         </section>,
         "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus, impedit!",

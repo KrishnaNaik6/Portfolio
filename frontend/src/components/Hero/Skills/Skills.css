@@ -1,25 +1,12 @@
 .skills {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
     justify-content: center;
 }
 
 .technical {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-}
-
-
-.technical div {
-    margin: 0 1%;
-    display: flex;
-    justify-content: center;
     flex-direction: column;
-    align-content: center;
-    flex-wrap: wrap;
     align-items: center;
 }
 
@@ -27,8 +14,26 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
 }
+
+.tskills{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+
+.tskills div {
+    margin: 0 1%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-content: center;
+    align-self: flex-start;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
 
 .skills ul {
     display: flex;
@@ -41,6 +46,9 @@
 
 .skills li {
     list-style: none;
+    display: flex;
+    text-align: center;
+    
 }
 
 .heading {

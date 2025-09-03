@@ -74,7 +74,7 @@ a {
     background: rgba(35, 8, 8, 0.1);
 }
 
-li:hover {
+.navbar li:hover {
     transform: scale(1.1);
     box-shadow: 2px 3px 9px black;
     border: 0.5px solid rgba(255, 255, 255, 0.1);

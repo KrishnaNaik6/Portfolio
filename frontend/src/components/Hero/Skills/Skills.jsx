@@ -5,18 +5,20 @@ const Skills = ({ skillData }) => {
     return (
         <div className="skills">
             {/* Technical Skills */}
-            <h3 className="heading">Technical Skills</h3>
             <div className="technical">
-                {Object.entries(skillData.Technical).map(([category, items], i) => (
-                    <div key={i}>
-                        <h4 className="">{category}</h4>
-                        <ul className="">
-                            {items.map((skill, index) => (
-                                <li key={index}>{skill}</li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
+                <h3 className="heading">Technical Skills</h3>
+                <div className="tskills">
+                    {Object.entries(skillData.Technical).map(([category, items], i) => (
+                        <div key={i}>
+                            <h4 className="">{category}</h4>
+                            <ul className="">
+                                {items.map((skill, index) => (
+                                    <li key={index}>{skill}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Soft Skills */}

@@ -24,6 +24,7 @@
 .card button {
     margin: 0.5em 0;
     padding: 3px;
+    background-color: rgb(207, 232, 232);
 }
 
 .card .collabed {

@@ -6,7 +6,7 @@ import { Sun, Moon, Menu, X } from "lucide-react";
 const Header = ({ toParent, activeSection }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [darkMode, setDarkMode] = useState(
-        localStorage.getItem("theme") === "dark"
+        true
     );
     const navbarRef = useRef(null);
 

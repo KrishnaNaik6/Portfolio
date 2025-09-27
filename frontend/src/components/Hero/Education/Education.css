@@ -1,0 +1,21 @@
+.educations {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.education {
+    margin: 1vh 1vw;
+    padding: 1em;
+    border: 1px solid rgba(228, 157, 204, 0.2);
+    border-radius: 1em;
+    width: 21vw;
+    height: auto;
+    min-height: 14vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: 1px 0px 17px 2px rgba(228, 157, 204, 0.2);
+}

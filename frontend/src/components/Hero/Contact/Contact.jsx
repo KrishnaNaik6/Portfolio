@@ -7,8 +7,8 @@ const Contact = ({ contact }) => {
     return (
         <div className='contacts'>
             <div className='contact'>
-                <h3 style={{alignSelf:"center"}}>Drop a message</h3>
-                <p style={{textAlign:'center'}}>I’m always open to feedback, opportunities, and collaborations in tech, AI, and development. Feel free to drop a message below!</p>
+                <h3 style={{ alignSelf: "center" }}>Drop a message</h3>
+                <p style={{ textAlign: 'center' }}>I’m always open to feedback, opportunities, and collaborations in tech, AI, and development. Feel free to drop a message below!</p>
 
                 {/* Direct message section */}
                 <div className='dms'>
@@ -67,7 +67,7 @@ const Contact = ({ contact }) => {
                 </div>
             </div>
             <p className='pstyle' style={{ alignSelf: "center" }}>I usually reply within 24–48 hours</p>
-            <p className='resume' onClick={()=> window.open('/resume.pdf')}>--- My Resume</p>
+            <p className='resume' onClick={() => window.open('/resume.pdf')}>--- My Resume👈</p>
         </div>
     )
 }

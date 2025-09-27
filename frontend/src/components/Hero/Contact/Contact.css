@@ -1,6 +1,7 @@
 .pstyle {
   position: relative;
-  padding-left: 16px; /* space for the border */
+  padding-left: 16px;
+  /* space for the border */
 }
 
 .pstyle::before {
@@ -9,7 +10,62 @@
   top: 0;
   left: 0;
   height: 100%;
-  width: 4px; /* border thickness */
-  background: #333; /* border color */
-  border-radius: 9999px; /* makes top & bottom ends rounded */
+  width: 4px;
+  /* border thickness */
+  background: #333;
+  /* border color */
+  border-radius: 9999px;
+  /* makes top & bottom ends rounded */
+}
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid rgba(156, 236, 156, 0.3);
+  border-radius: 2em;
+  margin: 1.5rem 0;
+  padding: 1em;
+}
+
+.dms {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1em;
+}
+
+.dms div {
+  margin: 0 1em;
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+}
+
+.dm {
+  display: flex;
+  flex-direction: column;
+}
+
+.dm div {
+  display: flex;
+  flex-direction: column;
+}
+
+.dms a {
+  display: flex;
+  align-items: center;
+  margin: 0.2em;
+}
+
+.resume {
+  margin: 2em;
+}
+
+.resume:hover {
+  cursor: pointer;
 }

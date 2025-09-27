@@ -1,4 +1,5 @@
 import './Experience.css'
+import { SquareArrowOutUpRight } from 'lucide-react';
 
 const Experience = ({ expData }) => {
     return (
@@ -6,14 +7,14 @@ const Experience = ({ expData }) => {
             {expData.map((data, i) => (
                 <div key={i} className="p-4 border rounded-lg shadow-md bg-white mb-4">
                     {console.log("experience data", data)}
-                    <h2 className="text-xl font-semibold">
+                    <h2 className="text-xl font-semibold Cname">
                         <a
                             href={data.link}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                         >
-                            {data.company}
+                            {data.company} <SquareArrowOutUpRight />
                         </a>
                     </h2>
                     <p className="text-gray-700">

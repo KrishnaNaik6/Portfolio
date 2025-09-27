@@ -1,8 +1,6 @@
 .footer {
-    background-color: bisque;
-    height: 5%;
-    width: 100%;
+    width: inherit;
     display: flex;
-    position: fixed;
-    bottom: 0;
+    align-items: center;
+    flex-direction: column;
 }

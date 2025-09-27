@@ -1,48 +1,48 @@
 import './Projects.css'
 import { useEffect, useState } from 'react'
 import { Octokit } from "@octokit/core";
-import SwipeCards from '../../SwipeCards/SwipeCards';
 import Animated from '../AnimatedBlock/Animated';
 
 const octokit = new Octokit({
-    auth: import.meta.env.VITE_GITHUB_TOKEN, // from .env
+    auth: import.meta.env.VITE_GITHUB_TOKEN,
 });
 
-
-const Projects = ({ load }) => {
+const Projects = () => {
     const [loading, setLoading] = useState(true);
     const [repos, setRepos] = useState([]);
 
     useEffect(() => {
         const fetchRepos = async () => {
             try {
-                // Step 1: Get repos
-                const res = await fetch("https://api.github.com/users/KrishnaNaik6/repos");
-                const data = await res.json();
+                const res = await octokit.request("GET /user/repos", {
+                    affiliation: "owner,collaborator",
+                    visibility: "public",
+                    per_page: 100,
+                });
 
-                // Step 2: Filter repos that have projects
-                const filtered = data.filter(item => item.has_projects);
+                let filtered = res.data.filter(repo =>
+                    repo.has_projects && repo.name !== "Internship-2024-exercise-1"
+                );
 
-                // Step 3: For each repo, check collaborators
                 const withCollabs = await Promise.all(
                     filtered.map(async (repo) => {
                         try {
-                            const collabs = await octokit.request("GET /repos/{owner}/{repo}/collaborators", {
-                                owner: "KrishnaNaik6",
-                                repo: repo.name,
-                                headers: { "X-GitHub-Api-Version": "2022-11-28" },
-                            })
-                            console.log(`Repo: ${repo.name}, Collaborators: ${collabs.data.length}`);
+                            const collabs = await octokit.request(
+                                "GET /repos/{owner}/{repo}/collaborators",
+                                {
+                                    owner: repo.owner.login,
+                                    repo: repo.name,
+                                    headers: { "X-GitHub-Api-Version": "2022-11-28" },
+                                }
+                            );
+
                             return {
                                 name: repo.name,
                                 description: repo.description,
                                 link: { git: repo.html_url, live: repo.homepage },
-                                collabed: collabs.data.length > 1, // true if has collaborators
+                                collabed: collabs.data.length > 1,
                             };
                         } catch (err) {
-                            if (err.status === 404) {
-                                console.warn(`No collaborators found for ${repo.name}`);
-                            }
                             return {
                                 name: repo.name,
                                 description: repo.description,
@@ -53,6 +53,25 @@ const Projects = ({ load }) => {
                     })
                 );
 
+                try {
+                    const specificRepo = await octokit.request(
+                        "GET /repos/{owner}/{repo}",
+                        {
+                            owner: "Canara-Tech-Labs",
+                            repo: "sprentzo-webapp",
+                        }
+                    );
+
+                    withCollabs.push({
+                        name: specificRepo.data.name,
+                        description: specificRepo.data.description,
+                        link: { git: specificRepo.data.html_url, live: specificRepo.data.homepage },
+                        collabed: true,
+                    });
+                } catch (err) {
+                    console.warn("Error fetching specific repo:", err);
+                }
+
                 setRepos(withCollabs);
                 setLoading(false);
             } catch (err) {
@@ -61,33 +80,30 @@ const Projects = ({ load }) => {
             }
         };
 
-        fetchRepos().then(() =>
-            console.log("the repos", repos)
-        )
-    }, [loading]);
+        fetchRepos();
+    }, []);
 
     return (
-        <div className='projects' style={{ width: 'inherit' }}>
-            {loading ? '' : load()}
+        <div className='projects'>
             {loading ? (
-                <p>loading..</p>
+                <p>Loading...</p>
             ) : (
-                repos.map((card, i) =>
-                    // <SwipeCards cards={repos} />
-
-                    <Animated key={i}>
-                        <div className='card'>
+                repos.map((card, i) => (
+                    <Animated key={i} width='auto'>
+                        <div className='card easeElem'>
                             <h3>{card.name}</h3>
                             <p>{card.description}</p>
-                            <p>{card.collabed ? 'Callabed Project' : 'Solo Project'}</p>
-                            {<button onClick={() => window.open(card.link.git)}>GitHub link</button>}
-                            {card.link.live != null ? card.link.live.length != 0 ? <button onClick={() => window.open(card.link.live)}>live website</button> : 'Not hosted' : 'Not hosted'}
+                            <p className="collabed">{card.collabed ? 'Collaborated Project' : 'Solo Project'}</p>
+                            {card.link.live ? (
+                                card.link.live.length !== 0 ?
+                                    <button onClick={() => window.open(card.link.live)}>Live Website</button>
+                                    : <p className='collabed'>Not Hosted</p>
+                            ) : <p className='collabed'>Not Hosted</p>}
+                            <button onClick={() => window.open(card.link.git)}>GitHub link</button>
                         </div>
                     </Animated>
-                )
-
+                ))
             )}
-
         </div>
     );
 };

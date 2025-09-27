@@ -21,7 +21,7 @@ const Education = ({ eduData }) => {
             }
             {
                 eduData.map((edu, index) => (
-                    <div key={index} className="education">
+                    <div key={index} className="easeElem education">
                         <h4>{edu.edu}</h4>
                         <p>
 

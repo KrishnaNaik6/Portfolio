@@ -7,24 +7,26 @@ import Hero from './components/Hero/Hero';
 
 const App = () => {
   const [active, setActive] = useState(true)
+  const [activeSection, setActiveSection] = useState("");
 
-  useEffect(()=>{
+  useEffect(() => {
     localStorage.getItem("theme") ? setActive(true) : setActive(false)
   }, [])
-  
+
   const changeTheme = (data) => {
     setActive(data)
   }
 
-  return (
-      <div className="main">
-        <Header toParent={changeTheme} />
 
-        <div className='cond_re'>
-          <Hero />
-        </div>
-        {/* <Footer /> */}
+  return (
+    <div className="main">
+      <Header toParent={changeTheme} activeSection={activeSection} />
+
+      <div className='cond_re'>
+        <Hero onSectionChange={setActiveSection} />
       </div>
+      {/* <Footer /> */}
+    </div>
   );
 };
 

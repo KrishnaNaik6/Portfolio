@@ -16,7 +16,7 @@
     align-items: center;
 }
 
-.tskills{
+.tskills {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -48,9 +48,34 @@
     list-style: none;
     display: flex;
     text-align: center;
-    
+
 }
 
 .heading {
     border-bottom: 2px groove rgb(192, 1, 144);
+}
+
+.Scard {
+    margin: 1vh 1vw;
+    padding: 1em;
+    border: 1px solid rgba(228, 157, 204, 0.2);
+    border-radius: 1em;
+    width: 16vw;
+    height: auto;
+    min-height: 25vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: center;
+    box-shadow: 1px 0px 17px 2px rgba(228, 157, 204, 0.2);
+}
+.Scard li {
+    padding: 2px;
+}
+
+.Scard li:hover {
+    border: 1px solid green;
+    padding: 2px;
 }

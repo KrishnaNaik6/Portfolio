@@ -60,7 +60,7 @@ a {
 
 .navbar li {
     list-style: none;
-    margin: 0 3%;
+    margin: 0 1%;
     padding: 0.5%;
     /* border: 1px solid rgba(255, 255, 255, 0.1); */
     border-radius: 5px;
@@ -80,7 +80,7 @@ a {
     border: 0.5px solid rgba(255, 255, 255, 0.1);
 }
 
-a :active {
+.navactive {
     transform: scale(1.1);
     box-shadow: 2px 3px 9px black;
     border: 0.5px solid rgba(255, 255, 255, 0.1);
@@ -171,8 +171,7 @@ a :active {
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        
 
     }
 
@@ -217,10 +216,5 @@ a :active {
 
     .open li {
         padding: 2%;
-    }
-
-    .header {
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
     }
 }

@@ -38,4 +38,10 @@ section {
   body {
     font-size: 10px;
   }
+  p {
+    font-size: 8px;
+  }
+  .footer small {
+    font-size: 5px;
+  }
 }

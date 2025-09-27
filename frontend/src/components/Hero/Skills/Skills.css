@@ -20,6 +20,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
 }
 
 
@@ -60,9 +61,10 @@
     padding: 1em;
     border: 1px solid rgba(228, 157, 204, 0.2);
     border-radius: 1em;
-    width: 16vw;
+    min-width: 22vw;
+    width: auto;
     height: auto;
-    min-height: 25vh;
+    min-height: 17vh;
     display: flex;
     align-items: center;
     flex-direction: column;

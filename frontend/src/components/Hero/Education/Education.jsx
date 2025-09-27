@@ -22,14 +22,14 @@ const Education = ({ eduData }) => {
             {
                 eduData.map((edu, index) => (
                     <div key={index} className="easeElem education">
-                        <h4>{edu.edu}</h4>
+                        <h4 style={{margin:'0.5em 0', borderBottom:'1px solid rgba(228, 157, 204, 0.2)'}}>{edu.edu}</h4>
                         <p>
 
                             at {edu.college}
                         </p>
                         <p>
 
-                            {edu.status} {edu.year && `- ${edu.year}`}
+                            {edu.status}{edu.year && `-${edu.year}`}
                         </p>
                     </div>
                 ))

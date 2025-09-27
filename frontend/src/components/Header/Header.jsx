@@ -4,10 +4,9 @@ import Clock from "../Clock/Clock";
 import { Sun, Moon, Menu, X } from "lucide-react";
 
 const Header = ({ toParent, activeSection }) => {
+    localStorage.setItem("them", "dark")
     const [menuOpen, setMenuOpen] = useState(false);
-    const [darkMode, setDarkMode] = useState(
-        true
-    );
+    const [darkMode, setDarkMode] = useState(true);
     const navbarRef = useRef(null);
 
     useEffect(() => {

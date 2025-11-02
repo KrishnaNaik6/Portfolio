@@ -12,12 +12,12 @@
     border-radius: 1em;
     width: 21vw;
     height: auto;
-    min-height: 33vh;
+    min-height: 25vh;
     display: flex;
     align-items: center;
     flex-direction: column;
     justify-content: flex-start;
-    box-shadow: 5px 4px 10px 2px #52c41a85
+    box-shadow: 1px 0px 17px 2px rgba(228, 157, 204, 0.2);
 
 }
 
@@ -37,11 +37,10 @@
     text-align: center;
 }
 
-.card h2 {
+.card h3 {
     display: flex;
     justify-content: center;
     text-align: center;
-    color: rgb(66, 200, 227);
 }
 
 @media (max-width: 768px) {

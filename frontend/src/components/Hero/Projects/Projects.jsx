@@ -91,7 +91,7 @@ const Projects = () => {
                 repos.map((card, i) => (
                     <Animated key={i} width='auto'>
                         <div className='card easeElem'>
-                            <h2 style={{textAlign:'justify', borderBottom:'1px solid rgba(228, 157, 204, 0.2)'}}>{card.name}</h2>
+                            <h3 style={{textAlign:'justify', borderBottom:'1px solid rgba(228, 157, 204, 0.2)'}}>{card.name}</h3>
                             <p>{card.description}</p>
                             <p className="collabed">{card.collabed ? 'Collaborated Project' : 'Solo Project'}</p>
                             {card.link.live ? (

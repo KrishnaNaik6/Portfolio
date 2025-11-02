@@ -1,5 +1,5 @@
 .header {
-    height: 9vh;
+    height: 6vh;
     width: 100%;
     position: fixed;
     top: 2%;
@@ -128,6 +128,7 @@ a {
 /* Keep your existing CSS, just add a "dark-header" for better control */
 
 .dark-header {
+    height: 6vh;
     background: rgba(20, 20, 20, 0.5);
     color: white;
     display: flex;

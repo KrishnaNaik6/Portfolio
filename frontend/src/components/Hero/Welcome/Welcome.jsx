@@ -10,18 +10,20 @@ const Welcome = ({ show }) => {
     }
     
     useEffect(() => {
-        if (complete) {
-            show();
-        }
+
+        { complete ? show() : '' }
     }, [complete, show])
+
 
     return (
         <div className='welcome' style={{ display: 'block' }}>
             <h1>
-                <TypingText speed={52} onComplete={() => completed()}>
+
+                <TypingText speed={52} Oncomplete={() => completed()}>
                     Hey there!! Welcome to my Portfolio
                 </TypingText>
             </h1>
+
         </div>
     )
 }

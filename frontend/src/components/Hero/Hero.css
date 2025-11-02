@@ -21,9 +21,8 @@
   margin: 7vh 0;
 }
 
-section h2 {
+section h3 {
   margin: 2vh 0;
-  color: #68cf6c;
 }
 
 .motionC {
@@ -35,7 +34,7 @@ section h2 {
     margin: 1vh 0;
   }
 
-  section h2 {
+  section h3 {
     margin: 1vh 0;
   }
 

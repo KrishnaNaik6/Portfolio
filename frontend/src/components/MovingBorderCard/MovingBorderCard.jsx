@@ -70,6 +70,4 @@ const MovingBorderCard = ({
     );
 };
 
-
-
 export default MovingBorderCard;

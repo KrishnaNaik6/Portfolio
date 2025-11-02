@@ -5,7 +5,7 @@ const Experience = ({ expData }) => {
     return (
         <>
             {expData.map((data, i) => (
-                <div key={i} className="p-4 border rounded-lg shadow-md bg-white mb-4">
+                <div key={i} className="expData p-4 border rounded-lg shadow-md bg-white mb-4">
                     {console.log("experience data", data)}
                     <h2 className="text-xl font-semibold Cname">
                         <a

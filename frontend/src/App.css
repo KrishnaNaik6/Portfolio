@@ -40,6 +40,12 @@ body {
     height: auto;
 }
 
+.hide {
+  opacity: 0;        /* Makes it invisible */
+  transition: opacity 0.5s ease; /* Optional: smooth fade effect */
+}
+
+
 .hero {
     width: 100%;
     height: auto;
@@ -63,3 +69,29 @@ body {
         width: 92%;
     }
 }
+
+/* App.css */
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+  padding: 2rem;
+  color: white;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 3rem;
+  font-size: 2.5rem;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+

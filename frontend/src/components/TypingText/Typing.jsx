@@ -1,39 +1,32 @@
 import React, { useEffect, useState } from "react";
 
-const TypingText = ({ children, speed = 50, Oncomplete }) => {
+const TypingText = ({ children, speed = 50, onComplete }) => {
     const [displayedText, setDisplayedText] = useState("");
-    const [complete, setComplete] = useState(false)
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [complete, setComplete] = useState(false);
 
     useEffect(() => {
+        const text = children.toString();
+        
+        if (currentIndex < text.length) {
+            const timeoutId = setTimeout(() => {
+                setDisplayedText(prev => prev + text[currentIndex]);
+                setCurrentIndex(prev => prev + 1);
+            }, speed);
 
-        const text = children.toString(); // convert children into string
-        let currentIndex = 0;
-        setDisplayedText(text[currentIndex])
-
-        const intervalId = setInterval(() => {
-            setDisplayedText((prev) => prev + text[currentIndex]);
-            currentIndex++;
-
-            if (currentIndex === text.length - 1) {
-                clearInterval(intervalId);
-                setComplete(true)
-                Oncomplete()
-            }
-        }, speed);
-
-        return () => clearInterval(intervalId); // Cleanup
-    }, [children, speed]);
+            return () => clearTimeout(timeoutId);
+        } else if (!complete) {
+            setComplete(true);
+            if (onComplete) onComplete();
+        }
+    }, [currentIndex, children, speed, complete, onComplete]);
 
     return (
         <>
             {displayedText}
-            {
-                complete ? '' : <span className="blinking-cursor">|</span>
-            }
+            {!complete && <span className="blinking-cursor">|</span>}
         </>
     );
-
-    //   return <span>{displayedText}</span>;
 };
 
 export default TypingText;

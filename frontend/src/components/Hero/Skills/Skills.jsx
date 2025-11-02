@@ -6,7 +6,7 @@ const Skills = ({ skillData }) => {
         <div className="skills">
             {/* Technical Skills */}
             <div className="technical">
-                <h3 className="heading">Technical Skills</h3>
+                <h2 className="heading">Technical Skills</h2>
                 <div className="tskills">
                     {Object.entries(skillData.Technical).map(([category, items], i) => (
                         <div key={i} className="easeElem">
@@ -26,7 +26,7 @@ const Skills = ({ skillData }) => {
 
             {/* Soft Skills */}
             <div className="soft">
-                <h3 className="heading">Soft Skills</h3>
+                <h2 className="heading">Soft Skills</h2>
                 <ul className="Scard easeElem">
                     {skillData["Soft Skills"].map((softSkill, i) => (
                         <li key={i}>{softSkill}</li>

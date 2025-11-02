@@ -1,0 +1,52 @@
+.projects {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    margin: 1vh 1vw;
+    padding: 1em;
+    border: 1px solid rgba(228, 157, 204, 0.2);
+    border-radius: 1em;
+    width: 21vw;
+    height: auto;
+    min-height: 33vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: 5px 4px 10px 2px #52c41a85
+
+}
+
+.card button {
+    margin: 0.5em 0;
+    padding: 3px;
+    background-color: rgb(207, 232, 232);
+}
+
+.card .collabed {
+    border-bottom: 1px solid rgba(76, 234, 94, 0.4);
+}
+
+.card p {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.card h2 {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    color: rgb(66, 200, 227);
+}
+
+@media (max-width: 768px) {
+
+    .card {
+        width: 40vw;
+    }
+}

@@ -1,8 +1,0 @@
-.cards {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-content: center;
-    justify-content: space-between;
-    width: 36vw;
-}

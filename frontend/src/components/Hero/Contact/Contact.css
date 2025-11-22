@@ -20,6 +20,10 @@
 
 .contacts {
   color: white;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+
 }
 
 .contact {

@@ -17,7 +17,7 @@
     align-items: center;
     flex-direction: column;
     justify-content: flex-start;
-    box-shadow: 5px 4px 10px 2px #52c41a85
+    box-shadow: 3px 6px 10px 1px #51506b85;
 
 }
 
@@ -49,4 +49,10 @@
     .card {
         width: 40vw;
     }
+}
+
+.description {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
 }

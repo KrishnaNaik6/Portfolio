@@ -19,6 +19,9 @@
 
 .hero section {
   margin: 7vh 0;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
 }
 
 section h2 {

@@ -2,6 +2,7 @@ import './Projects.css'
 import { useEffect, useState } from 'react'
 import { Octokit } from "@octokit/core";
 import Animated from '../AnimatedBlock/Animated';
+import Etext from '../../ExpandableText/EText';
 
 const octokit = new Octokit({
     auth: import.meta.env.VITE_GITHUB_TOKEN,
@@ -91,8 +92,9 @@ const Projects = () => {
                 repos.map((card, i) => (
                     <Animated key={i} width='auto'>
                         <div className='card easeElem'>
-                            <h2 style={{textAlign:'justify', borderBottom:'1px solid rgba(228, 157, 204, 0.2)'}}>{card.name}</h2>
-                            <p>{card.description}</p>
+                            <h2 style={{ textAlign: 'justify', borderBottom: '1px solid rgba(228, 157, 204, 0.2)' }}>{card.name}</h2>
+                            {/* <p>{card.description}</p> */}
+                            <Etext text={card.description} className='description' />
                             <p className="collabed">{card.collabed ? 'Collaborated Project' : 'Solo Project'}</p>
                             {card.link.live ? (
                                 card.link.live.length !== 0 ?

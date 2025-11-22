@@ -11,6 +11,7 @@
   margin: 1rem auto;
   box-sizing: border-box;
   transition: transform 0.3s ease;
+  align-self: center;
 }
 
 .moving-border-card:hover {

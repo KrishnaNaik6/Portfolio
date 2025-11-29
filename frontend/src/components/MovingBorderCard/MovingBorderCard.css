@@ -1,0 +1,203 @@
+/* MovingBorderCard.css */
+.moving-border-card {
+  position: relative;
+  background: var(--background-color, #1a1a1a);
+  border-radius: var(--border-radius, 16px);
+  padding: var(--card-padding, 2rem);
+  color: white;
+  max-width: var(--card-width, 400px);
+  width: 100%;
+  height: var(--card-height, auto);
+  margin: 1rem auto;
+  box-sizing: border-box;
+  transition: transform 0.3s ease;
+  align-self: center;
+}
+
+.moving-border-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+
+/* Gradient Border Animation */
+.moving-border-card.gradient::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--border-radius, 16px) + 2px);
+  padding: 2px;
+  background: linear-gradient(
+    45deg,
+    var(--gradient-colors, #ff6b6b, #ffa726, #4caf50, #42a5f5)
+  );
+  background-size: 400% 400%;
+  animation: moving-border var(--animation-speed, 3s) ease infinite;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 0;
+}
+
+/* Pulse Glow Border */
+.moving-border-card.pulse::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: calc(var(--border-radius, 16px) + 3px);
+  background: linear-gradient(
+    45deg,
+    var(--gradient-colors, #ff0080, #00ff88, #0080ff, #ff0080)
+  );
+  background-size: 400% 400%;
+  animation: pulse-glow var(--animation-speed, 4s) ease-in-out infinite;
+  z-index: -1;
+  filter: blur(10px);
+  opacity: 0.7;
+}
+
+/* Rotating Elements Border */
+.moving-border-card.rotating {
+  overflow: hidden;
+}
+
+.border-elements-container {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--border-radius, 16px);
+  overflow: hidden;
+  z-index: 0;
+}
+
+.border-element {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 2px solid;
+  border-radius: 50%;
+  animation: rotate var(--animation-speed, 4s) linear infinite;
+}
+
+.border-element:nth-child(1) {
+  top: -50px;
+  left: -50px;
+  border-color: var(--color-1, #ff6b6b);
+  animation-delay: 0s;
+}
+
+.border-element:nth-child(2) {
+  top: -50px;
+  right: -50px;
+  border-color: var(--color-2, #4ecdc4);
+  animation-delay: -1s;
+}
+
+.border-element:nth-child(3) {
+  bottom: -50px;
+  left: -50px;
+  border-color: var(--color-3, #45b7d1);
+  animation-delay: -2s;
+}
+
+.border-element:nth-child(4) {
+  bottom: -50px;
+  right: -50px;
+  border-color: var(--color-4, #96ceb4);
+  animation-delay: -3s;
+}
+
+/* Dots Border Animation */
+.moving-border-card.dots::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--border-radius, 16px) + 2px);
+  padding: 2px;
+  background: 
+    radial-gradient(circle at 20% 20%, var(--color-1, #ff6b6b) 2px, transparent 0),
+    radial-gradient(circle at 80% 20%, var(--color-2, #4ecdc4) 2px, transparent 0),
+    radial-gradient(circle at 20% 80%, var(--color-3, #45b7d1) 2px, transparent 0),
+    radial-gradient(circle at 80% 80%, var(--color-4, #96ceb4) 2px, transparent 0);
+  background-size: 200% 200%;
+  animation: moving-dots var(--animation-speed, 3s) linear infinite;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 0;
+}
+
+/* Animations */
+@keyframes moving-border {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 0.7;
+    filter: blur(10px);
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 1;
+    filter: blur(15px);
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes moving-dots {
+  0% {
+    background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%;
+  }
+  25% {
+    background-position: 100% 0%, 100% 100%, 0% 0%, 0% 100%;
+  }
+  50% {
+    background-position: 100% 100%, 0% 100%, 100% 0%, 0% 0%;
+  }
+  75% {
+    background-position: 0% 100%, 0% 0%, 100% 100%, 100% 0%;
+  }
+  100% {
+    background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .moving-border-card {
+    margin: 1rem;
+    max-width: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .moving-border-card {
+    background: var(--background-color, #0f0f0f);
+  }
+}

@@ -1,0 +1,125 @@
+.hero {
+  /* background-color: aqua; */
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: inherit;
+}
+
+.anim_sec {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: space-evenly;
+  justify-items: center;
+  /* padding: 0 2vh; */
+}
+
+.hero section {
+  margin: 7vh 0;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+section h2 {
+  margin: 2vh 0;
+  color: #68cf6c;
+}
+
+.motionC {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .hero section {
+    margin: 1vh 0;
+  }
+
+  section h2 {
+    margin: 1vh 0;
+  }
+
+}
+
+.wai {
+  /* border: 1px solid rgb(255, 255, 255); */
+  border-radius: 2rem;
+  padding: 1rem;
+  box-shadow: 1px 0px 17px 2px rgba(136, 239, 155, 0.3);
+}
+
+
+/*  ani,ated border */
+
+/* .animated-border {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.animated-border::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 0;
+  background: #4cafef; 
+  transition: width 0.5s ease-in-out;
+}
+
+.animated-border:hover::after {
+  width: 100%;
+} */
+
+
+.border-animate {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.border-animate::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  /* thickness */
+  width: 0;
+  /* starts hidden */
+  background: #c306b6;
+  /* border color */
+  transition: width 1s ease-in-out;
+  /* smooth animation */
+}
+
+.border-animate.show::after {
+  width: 100%;
+  /* animates left → right when .show is added */
+}
+
+.scroll {
+  display: flex;
+  position: fixed;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  bottom: 5em;
+}
+
+.easeElem {
+  transition: transform 0.9s ease;
+}
+
+.easeElem:hover {
+  transform: scale(1.1);
+}
+
+.hero {
+  border-bottom: 0.1px solid rgba(255, 255, 255, 0.2);
+}

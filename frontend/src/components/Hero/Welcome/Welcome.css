@@ -1,0 +1,7 @@
+.welcome {
+    background-color: inherit;
+    color: inherit;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 2%;
+}

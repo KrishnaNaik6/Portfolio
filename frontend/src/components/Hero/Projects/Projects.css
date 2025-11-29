@@ -6,8 +6,8 @@
 }
 
 .card {
-    margin: 1vh 1vw;
-    padding: 1em;
+    margin: 1vh 2.5vw;
+    padding: 2em;
     border: 1px solid rgba(228, 157, 204, 0.2);
     border-radius: 1em;
     width: 21vw;
@@ -24,7 +24,8 @@
 .card button {
     margin: 0.5em 0;
     padding: 3px;
-    background-color: rgb(207, 232, 232);
+    background-color: rgb(182, 222, 222);
+    border-radius: 2em;
 }
 
 .card .collabed {

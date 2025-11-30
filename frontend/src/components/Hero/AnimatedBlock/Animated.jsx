@@ -1,6 +1,4 @@
-// AnimatedBlock.jsx
 import { motion } from "framer-motion";
-import './Animated.css'
 
 const Animated = ({ children, height = 'auto', width = '100%' }) => {
     const variants = {
@@ -12,15 +10,15 @@ const Animated = ({ children, height = 'auto', width = '100%' }) => {
     return (
         <motion.div
             style={{ height: height, width: width }}
-            className="p-6 bg-white rounded-xl shadow-md"
+            className="bg-inherit rounded-xl"
             variants={variants}
             initial="hidden"
             whileInView="visible"
             exit="exit"
-            viewport={{ once: false, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
+            viewport={{ once: false, amount: 0.1 }}
+            transition={{ duration: 0.3 }}
         >
-            {children} {/* this allows ANY content inside */}
+            {children}
         </motion.div>
     );
 };

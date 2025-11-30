@@ -1,97 +1,240 @@
+/* ------------------------------------------------ */
+/* 6. TAILWIND & GLOBAL STYLES (Simulated v4 Imports) */
+/* ------------------------------------------------ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Sora:wght@100..800&display=swap');
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    /* font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; */
-    font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+@import "tailwindcss/preflight";
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "tailwindcss";
+
+
+/* --- COLOR PALETTES --- */
+/* Default: Dark Theme */
+:root {
+    --bg-main: #121217;
+    --text-primary: #E0E7FF;
+    --text-secondary: #9CA3AF;
+    --border-color: #374151;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    /* White/5 opacity for dark glass */
+
+    /* Accents (Electric Green, Bright Blue, Coral Orange) */
+    --neon-cyan: #00f5d4;
+    --neon-purple: #00b4d8;
+    --neon-pink: #ff9f1c;
+
+    /* Shadows for Glow Effects */
+    --shadow-cyan: 0 0 15px rgba(0, 245, 212, 0.4);
+    --shadow-purple: 0 0 15px rgba(0, 180, 216, 0.4);
+    --shadow-inner-light-dark: inset 1px 1px 2px rgba(255, 255, 255, 0.05);
+    --shadow-inner-dark-dark: inset -2px -2px 5px rgba(0, 0, 0, 0.5);
 }
 
-h1, h2, h3, h4, h5, h5 {
-    font-family: "Fantasy"
+/* Light Theme Overrides */
+[data-theme='light'] {
+    --bg-main: #FFFFFF;
+    --text-primary: #1F2937;
+    --text-secondary: #4B5563;
+    --border-color: #D1D5DB;
+    --card-bg: rgba(0, 0, 0, 0.05);
+    /* Black/5 opacity for light glass */
+
+    /* Accents remain bright for contrast */
+    --neon-cyan: #008080;
+    /* Darker teal for readability */
+    --neon-purple: #005A8D;
+    /* Darker blue */
+    --neon-pink: #D97706;
+    /* Darker orange */
+
+    /* Shadows become subtle box shadows */
+    --shadow-cyan: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-purple: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+    --shadow-inner-light-light: inset 1px 1px 2px rgba(255, 255, 255, 0.9);
+    --shadow-inner-dark-light: inset -2px -2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.active {
-    color: black;
-    background-color: white;
-}
+.shadow-inner-dark {
+    box-shadow: var(--shadow-inner-dark-dark);
 
-body::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari, Opera */
-}
-
-html,
-body {
-    width: 100%;
-    height: 100%;
-}
-
-.dark {
-    /* background-color: rgb(5, 34, 67); */
-    background-color: #0D1117;
-    /* rgb(36, 36, 36) */
-    color: white;
-}
-
-
-.main {
-    width: 100%;
-    height: auto;
-}
-
-.hide {
-  opacity: 0;        /* Makes it invisible */
-  transition: opacity 0.5s ease; /* Optional: smooth fade effect */
-}
-
-
-.hero {
-    width: 100%;
-    height: auto;
-}
-
-.cond_re {
-    display: flex;
-    height: auto;
-    width: 70%;
-    position: absolute;
-    top: 8%;
-    justify-self: center;
-    justify-content: center;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    margin-top: 2%;
-}
-
-@media (max-width: 768px) {
-    .cond_re {
-        width: 95%;
+    [data-theme='light'] & {
+        box-shadow: var(--shadow-inner-dark-light);
     }
 }
 
-/* App.css */
-.app {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
-  padding: 2rem;
-  color: white;
+/* Applies the lighter, small highlight (top left) */
+.shadow-inner-light {
+    box-shadow: var(--shadow-inner-light-dark);
+    position: absolute;
+    /* Used inside GlassCard/ProjectCard */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+
+    [data-theme='light'] & {
+        box-shadow: var(--shadow-inner-light-light);
+    }
 }
 
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+/* --- GENERAL STYLES --- */
+
+/* Utility Classes based on variables */
+.bg-bg-main {
+    background-color: var(--bg-main);
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 3rem;
-  font-size: 2.5rem;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.text-text-primary {
+    color: var(--text-primary);
 }
 
+.text-text-secondary {
+    color: var(--text-secondary);
+}
+
+.border-border-color {
+    border-color: var(--border-color);
+}
+
+.bg-card-bg {
+    background-color: var(--card-bg);
+}
+
+.text-neon-cyan {
+    color: var(--neon-cyan);
+}
+
+.text-neon-purple {
+    color: var(--neon-purple);
+}
+
+.text-neon-pink {
+    color: var(--neon-pink);
+}
+
+.shadow-neon-cyan {
+    box-shadow: var(--shadow-cyan);
+}
+
+.border-glass {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.font-sor {
+    font-family: 'Sora', sans-serif;
+}
+
+.font-inter {
+    font-family: 'Inter', sans-serif;
+}
+
+/* General body style */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+    transition: background-color 0.5s, color 0.5s;
+}
+
+/* Override Tailwind defaults for responsiveness/aesthetics */
+.bg-neon-purple\/20 {
+    background-color: rgba(var(--neon-purple-rgb), 0.2);
+}
+
+/* Custom Animations */
+@keyframes pulse-slow {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.1;
+    }
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 8s infinite ease-in-out;
+}
+
+@keyframes float-1 {
+
+    0%,
+    100% {
+        transform: translateY(0) translateX(0);
+    }
+
+    33% {
+        transform: translateY(-10px) translateX(5px);
+    }
+
+    66% {
+        transform: translateY(5px) translateX(-10px);
+    }
+}
+
+.animate-float-1 {
+    animation: float-1 15s infinite ease-in-out;
+}
+
+@keyframes float-2 {
+
+    0%,
+    100% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+    }
+
+    40% {
+        transform: translateY(-15px) translateX(10px) rotate(10deg);
+    }
+
+    75% {
+        transform: translateY(5px) translateX(-5px) rotate(-5deg);
+    }
+}
+
+.animate-float-2 {
+    animation: float-2 20s infinite ease-in-out;
+}
+
+@keyframes float-3 {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.animate-float-3 {
+    animation: float-3 18s infinite ease-in-out;
+}
+
+/* Custom Scrollbar Styling (Premium look) */
+::-webkit-scrollbar {
+    width: 8px;
+    background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--neon-purple);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-cyan);
+}
+
+/* Ensure Framer Motion tilt elements render correctly in 3D space */
+.perspective-1000 {
+    perspective: 1000px;
+}

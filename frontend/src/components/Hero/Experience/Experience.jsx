@@ -1,33 +1,35 @@
-import './Experience.css'
-import { SquareArrowOutUpRight } from 'lucide-react';
+// import './Experience.css'
+import { Briefcase } from 'lucide-react';
+
+import { motion } from 'framer-motion';
+import { staggerContainer, itemVariants } from '../../../data/Data';
+import GlassCard from '../../Cards/GlassCard';
 
 const Experience = ({ expData }) => {
     return (
-        <>
-            {expData.map((data, i) => (
-                <div key={i} className="expData p-4 border rounded-lg shadow-md bg-white mb-4">
-                    {console.log("experience data", data)}
-                    <h2 className="text-xl font-semibold Cname">
-                        <a
-                            href={data.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                        >
-                            {data.company} <SquareArrowOutUpRight />
-                        </a>
-                    </h2>
-                    <p className="text-gray-700">
-                        <strong>{data.role}</strong> | {data.tenure_period}
-                    </p>
-                    <ul className="list-disc list-inside mt-2 text-gray-600">
-                        {data.works.map((work, index) => (
-                            <li key={index}>{work}</li>
+
+        <motion.div variants={staggerContainer} className="grid grid-cols-1 gap-8 max-w-3xl mx-auto">
+            {expData.map((exp, i) => (
+                <GlassCard key={i} className="p-8">
+                    <Briefcase className="w-8 h-8 text-neon-cyan mb-4" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 className="text-2xl font-bold text-text-primary">{exp.role}</h3>
+                            <p className="text-xl text-neon-pink">{exp.company}</p>
+                        </div>
+                        <p className="text-sm font-mono text-text-secondary mt-1">{exp.tenure_period}</p>
+                    </div>
+                    <ul className="list-disc list-outside space-y-3 pl-5 text-text-primary">
+                        {exp.works.map((point, index) => (
+                            <motion.li key={index} variants={itemVariants} className="text-base leading-relaxed">
+                                {point}
+                            </motion.li>
                         ))}
                     </ul>
-                </div>
+                </GlassCard>
             ))}
-        </>
+        </motion.div>
+
     )
 }
 

@@ -1,8 +1,9 @@
-import './Projects.css'
 import { useEffect, useState } from 'react'
 import { Octokit } from "@octokit/core";
 import Animated from '../AnimatedBlock/Animated';
 import Etext from '../../ExpandableText/EText';
+import SectionWrapper from '../../SectionWrapper/SectionWrapper';
+import ProjectCard from '../../Cards/ProjectCards';
 
 const octokit = new Octokit({
     auth: import.meta.env.VITE_GITHUB_TOKEN,
@@ -89,22 +90,15 @@ const Projects = () => {
             {loading ? (
                 <p>Loading...</p>
             ) : (
-                repos.map((card, i) => (
-                    <Animated key={i} width='auto'>
-                        <div className='card easeElem'>
-                            <h2 style={{ textAlign: 'justify', borderBottom: '1px solid rgba(228, 157, 204, 0.2)' }}>{card.name}</h2>
-                            {/* <p>{card.description}</p> */}
-                            <Etext text={card.description} className='description' />
-                            <p className="collabed">{card.collabed ? 'Collaborated Project' : 'Solo Project'}</p>
-                            {card.link.live ? (
-                                card.link.live.length !== 0 ?
-                                    <button onClick={() => window.open(card.link.live)}>Live Website</button>
-                                    : <p className='collabed'>Not Hosted</p>
-                            ) : <p className='collabed'>Not Hosted</p>}
-                            <button onClick={() => window.open(card.link.git)}>GitHub link</button>
-                        </div>
-                    </Animated>
-                ))
+
+                <Animated width='auto'>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+                        {repos.map((project, i) => (
+                            <ProjectCard key={i} project={project} />
+                        ))}
+                    </div>
+                </Animated>
+
             )}
         </div>
     );

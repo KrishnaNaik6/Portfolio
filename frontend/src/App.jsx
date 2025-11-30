@@ -19,12 +19,10 @@ const App = () => {
 
 
   return (
-    <div className="main">
+    <div className="bg-bg-main min-h-screen transition-colors duration-500">
       <Header toParent={changeTheme} activeSection={activeSection} />
 
-      <div className='cond_re'>
-        <Hero onSectionChange={setActiveSection} />
-      </div>
+      <Hero onSectionChange={setActiveSection} />
       {/* <Footer /> */}
     </div>
   );

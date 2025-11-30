@@ -11,6 +11,7 @@ export default defineConfig({
     allowedHosts: [
       'hudz18lts.localto.net'  // 👈 add your Localtonet hostname here
     ]
-  }
+  },
+  
 })
 

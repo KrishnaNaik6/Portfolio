@@ -18,7 +18,7 @@ const Welcome = ({ show }) => {
     <div className="flex flex-col content-center items-center justify-center bg-transparent">
       <h1
         className="
-          text-4xl sm:text-9xl md:text-10xl font-bold 
+          text-4xl sm:text-4xl md:text-10xl font-bold 
           bg-linear-to-r from-[#ff7575] via-[#d5c2bd] to-[#6fe3e3]
           text-transparent bg-clip-text
           text-center select-none

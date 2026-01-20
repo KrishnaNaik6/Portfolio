@@ -90,7 +90,7 @@ const Contact = ({ contact }) => {
             </GlassCard>
 
             {/* Resume Link (Outside the card, matching the image structure) */}
-            <a href="https://www.canva.com/design/DAG-9FhacTc/bot5wZHKnqWnrhrXfUf3NA/view?utm_content=DAG-9FhacTc&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h4067746d74" target='_blank' className="mt-6 inline-block text-neon-cyan hover:text-neon-pink border-b border-dashed border-transparent hover:border-neon-cyan transition-colors duration-300">
+            <a href="/KrishnaNaik.pdf" target='_blank' className="mt-6 inline-block text-neon-cyan hover:text-neon-pink border-b border-dashed border-transparent hover:border-neon-cyan transition-colors duration-300">
                 <span class="relative z-10 flex items-center gap-3 bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(34,211,238,0.6)] transition-all group-hover:scale-105">
                     My Resume
 

@@ -126,6 +126,8 @@ const Hero = ({ completed }) => {
         const content = atob(response.data.content);
         const jsonData = JSON.parse(content);
 
+        console.log("got all data")
+
         setDetails(jsonData);
         setLoading(false);
       } catch (error) {

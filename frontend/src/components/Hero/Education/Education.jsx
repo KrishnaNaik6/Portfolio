@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
-import { Octokit } from "@octokit/core";
 // import './Education.css'
 
 import { motion } from 'framer-motion';
 import { GraduationCap } from 'lucide-react';
 import { staggerContainer } from "../../../data/Data";
 import GlassCard from "../../Cards/GlassCard";
-
-const octokit = new Octokit({
-    auth: import.meta.env.VITE_GITHUB_TOKEN
-});
 
 const Education = ({ eduData }) => {
     const [educationData, setEducationData] = useState([]);

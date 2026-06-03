@@ -3,7 +3,6 @@ import Welcome from "./Welcome/Welcome";
 import Animated from "./AnimatedBlock/Animated";
 import Projects from "./Projects/Projects";
 import Education from "./Education/Education";
-import { Octokit } from "@octokit/core";
 import Experience from "./Experience/Experience";
 import Skills from "./Skills/Skills";
 import Contact from "./Contact/Contact";
@@ -15,9 +14,7 @@ import SectionWrapper from "../SectionWrapper/SectionWrapper";
 import GlassCard from "../Cards/GlassCard";
 import GitHubStats from "./GitHubStats/GitHubStats";
 
-const octokit = new Octokit({
-  auth: import.meta.env.VITE_GITHUB_TOKEN
-});
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const Hero = ({ completed }) => {
   const [loading, setLoading] = useState(true);
@@ -112,34 +109,26 @@ const Hero = ({ completed }) => {
   ];
 
   useEffect(() => {
-    const fetchEducation = async () => {
+    const fetchDetails = async () => {
       try {
-        const response = await octokit.request(
-          "GET /repos/{owner}/{repo}/contents/{path}",
-          {
-            owner: "KrishnaNaik6",
-            repo: "Education",
-            path: "education.json",
-            headers: { "X-GitHub-Api-Version": "2022-11-28" }
-          }
-        );
-        const content = atob(response.data.content);
-        const jsonData = JSON.parse(content);
+        const response = await fetch(`${API_URL}/api/github/details`);
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        const jsonData = await response.json();
 
-        console.log("got all data")
+        console.log("got all data");
 
         setDetails(jsonData);
         setLoading(false);
       } catch (error) {
         setLoading(true);
-        console.error("Error fetching education:", error);
+        console.error("Error fetching details:", error);
       }
     };
 
     if (showContent) {
-      fetchEducation();
+      fetchDetails();
     }
-  }, [showContent]); // Removed 'loading' from dependencies
+  }, [showContent]);
 
   const blocks = loading ? block : [...block, ...cond_block];
 

@@ -55,20 +55,7 @@ ChartJS.register(
 import GlassCard from '../../Cards/GlassCard';
 import MetricRow from './MetricRow';
 
-// Register ChartJS components
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Filler,
-  RadialLinearScale
-);
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const GitHubStats = ({ initialUsername = 'KrishnaNaik6', className = "" }) => {
   const [username, setUsername] = useState(initialUsername);
@@ -132,49 +119,17 @@ const GitHubStats = ({ initialUsername = 'KrishnaNaik6', className = "" }) => {
   const fetchData = async (targetUser) => {
     setLoading(true);
     setError(null);
-    const headers = { "Accept": "application/vnd.github.v3+json" };
-    if (GITHUB_TOKEN) headers["Authorization"] = `token ${GITHUB_TOKEN}`;
 
     try {
-      let userData = null;
-      if (GITHUB_TOKEN) {
-        try {
-          const authUserRes = await fetch(`https://api.github.com/user`, { headers });
-          if (authUserRes.ok) {
-            const authData = await authUserRes.json();
-            if (authData.login.toLowerCase() === targetUser.trim().toLowerCase()) userData = authData;
-          }
-        } catch (e) { }
-      }
+      const res = await fetch(`${API_URL}/api/github/stats/${encodeURIComponent(targetUser.trim())}`);
+      if (res.status === 403) throw new Error('API Rate Limit Exceeded.');
+      if (res.status === 404) throw new Error('User node not found.');
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
-      if (!userData) {
-        const userRes = await fetch(`https://api.github.com/users/${targetUser.trim()}`, { headers });
-        if (userRes.status === 403) throw new Error('API Rate Limit Exceeded.');
-        if (!userRes.ok) throw new Error('User node not found.');
-        userData = await userRes.json();
-      }
-      setUser(userData);
-
-      const repoUrl = (GITHUB_TOKEN && userData.login.toLowerCase() === targetUser.trim().toLowerCase())
-        ? `https://api.github.com/user/repos?visibility=all&sort=updated&per_page=100`
-        : `https://api.github.com/users/${targetUser.trim()}/repos?sort=updated&per_page=100`;
-
-      const reposRes = await fetch(repoUrl, { headers });
-      const reposData = await reposRes.json();
-      setRepos(Array.isArray(reposData) ? reposData : []);
-
-      if (GITHUB_TOKEN) {
-        const query = `author:${targetUser.trim()}`;
-        const [commitRes, prRes, issueRes] = await Promise.all([
-          fetch(`https://api.github.com/search/commits?q=${query}`, { headers: { ...headers, Accept: 'application/vnd.github.cloak-preview' } }),
-          fetch(`https://api.github.com/search/issues?q=${query}+type:pr`, { headers }),
-          fetch(`https://api.github.com/search/issues?q=${query}+type:issue`, { headers })
-        ]);
-        const [commits, prs, issues] = await Promise.all([commitRes.json(), prRes.json(), issueRes.json()]);
-        setExtraStats({ commits: commits.total_count || 0, prs: prs.total_count || 0, issues: issues.total_count || 0 });
-      } else {
-        setExtraStats({ commits: 0, prs: 0, issues: 0 });
-      }
+      const data = await res.json();
+      setUser(data.user);
+      setRepos(Array.isArray(data.repos) ? data.repos : []);
+      setExtraStats(data.extraStats || { commits: 0, prs: 0, issues: 0 });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -367,7 +322,7 @@ const GitHubStats = ({ initialUsername = 'KrishnaNaik6', className = "" }) => {
               <div className="mt-40 border-t border-white/5 py-12 flex justify-between items-center text-[10px] font-mono text-slate-600 uppercase tracking-widest">
                 <div className="flex gap-8">
                   <span>Status: Synchronized</span>
-                  <span>Auth: {GITHUB_TOKEN ? 'Encrypted' : 'Anonymous'}</span>
+                  <span>Auth: Proxied</span>
                 </div>
               </div>
             </div>

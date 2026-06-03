@@ -55,7 +55,7 @@ ChartJS.register(
 import GlassCard from '../../Cards/GlassCard';
 import MetricRow from './MetricRow';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 const GitHubStats = ({ initialUsername = 'KrishnaNaik6', className = "" }) => {
   const [username, setUsername] = useState(initialUsername);

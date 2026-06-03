@@ -14,7 +14,7 @@ import SectionWrapper from "../SectionWrapper/SectionWrapper";
 import GlassCard from "../Cards/GlassCard";
 import GitHubStats from "./GitHubStats/GitHubStats";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 const Hero = ({ completed }) => {
   const [loading, setLoading] = useState(true);

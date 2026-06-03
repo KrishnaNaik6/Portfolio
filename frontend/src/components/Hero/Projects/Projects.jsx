@@ -3,7 +3,7 @@ import Animated from '../AnimatedBlock/Animated';
 import SectionWrapper from '../../SectionWrapper/SectionWrapper';
 import ProjectCard from '../../Cards/ProjectCards';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 const Projects = () => {
     const [loading, setLoading] = useState(true);

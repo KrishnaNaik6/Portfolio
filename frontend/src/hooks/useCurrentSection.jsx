@@ -14,7 +14,7 @@ const useCurrentSection = () => {
           }
         });
       },
-      { threshold: 0.6 } // 60% of section must be visible
+      { threshold: 0.4 } // 60% of section must be visible
     );
 
     sections.forEach((section) => observer.observe(section));

@@ -66,6 +66,8 @@ const ProjectCard = ({ project }) => {
       variants={itemVariants}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onTouchEnd={handleMouseLeave}
+      onTouchCancel={handleMouseLeave}
       // FIX 1 & 2: Use whileHover to elevate Z-index, ensuring it overlaps neighbors.
       whileHover={{ scale: 1.05, z: 100 }}
       // FIX 3: Apply the combined static and dynamic rotation via the style prop
@@ -74,8 +76,6 @@ const ProjectCard = ({ project }) => {
         rotateY: finalRotateY,
         scale: useTransform(sx, [0, 1], [1, 1.05]), // Scale change remains dynamic
         transformStyle: 'preserve-3d',
-        // Initialize the card's position (which also helps prevent initial flicker)
-        transform: `rotateX(${initialRotateX}deg) rotateY(${initialRotateY}deg) translateZ(0px)`,
       }}
       className="rounded-xl transition-shadow duration-500 will-change-transform perspective-1000 relative z-10"
       whileTap={{ scale: 0.98 }}

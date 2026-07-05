@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-const Animated = ({ children, height = 'auto', width = '100%' }) => {
+const Animated = ({ children, height = 'auto', width = '100%', once = true, amount = 'some' }) => {
     const variants = {
         hidden: { opacity: 0, y: 50, scale: 0.9 },
         visible: { opacity: 1, y: 0, scale: 1 },
@@ -15,7 +15,7 @@ const Animated = ({ children, height = 'auto', width = '100%' }) => {
             initial="hidden"
             whileInView="visible"
             exit="exit"
-            viewport={{ once: false, amount: 0.1 }}
+            viewport={{ once, amount }}
             transition={{ duration: 0.3 }}
         >
             {children}

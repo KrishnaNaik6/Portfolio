@@ -34,9 +34,11 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { GitHubUser, GitHubRepo, ExtraStats } from '@/lib/types';
+import { GitHubUser, GitHubRepo, ExtraStats, GitHubContributionsResponse } from '@/lib/types';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
+import GitHubContributionGraph from './GitHubContributionGraph';
+import TechnologicalDNA from './TechnologicalDNA';
 
 ChartJS.register(
   ArcElement,
@@ -59,7 +61,7 @@ interface MetricRowProps {
 }
 
 const MetricRow: React.FC<MetricRowProps> = ({ label, value, icon: Icon, colorClass }) => (
-  <div className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+  <div className="flex items-center justify-between py-2 border-b border-border-color last:border-0">
     <div className="flex items-center gap-3">
       <Icon className={`w-4 h-4 ${colorClass}`} />
       <span className="text-xs font-mono text-text-secondary uppercase tracking-wider">{label}</span>
@@ -82,8 +84,10 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
   const [user, setUser] = useState<GitHubUser | null>(null);
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
   const [extraStats, setExtraStats] = useState<ExtraStats>({ commits: 0, prs: 0, issues: 0 });
+  const [contributionsData, setContributionsData] = useState<GitHubContributionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const { resolvedTheme } = useTheme();
 
   // Typewriter logic for search placeholder
@@ -133,6 +137,7 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
       setUser(data.user);
       setRepos(Array.isArray(data.repos) ? data.repos : []);
       setExtraStats(data.extraStats || { commits: 0, prs: 0, issues: 0 });
+      setContributionsData(data.contributionsData || null);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch GitHub stats');
     } finally {
@@ -186,12 +191,12 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
     <SectionWrapper ref={sectionRef} id="git-stats" title="GitHub Intelligence" terminalCommand="show $gitStats">
       <div className="w-full flex flex-col gap-6 md:gap-8">
         {/* Top User Bar & Search */}
-        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-card-bg p-6 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-card-bg p-6 rounded-3xl border border-border-color shadow-2xl">
           <div className="flex items-center gap-4 md:gap-6">
             <div className="relative group shrink-0">
               <div className="absolute -inset-1 bg-gradient-to-r from-neon-indigo to-neon-cyan rounded-full blur opacity-40" />
               <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full bg-slate-900 p-1">
-                <div className="w-full h-full rounded-full overflow-hidden border border-white/10 flex items-center justify-center">
+                <div className="w-full h-full rounded-full overflow-hidden border border-border-color flex items-center justify-center">
                   {user?.avatar_url ? (
                     <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -248,6 +253,9 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
           </div>
         </div>
 
+        {/* GitHub Contributions Activity Heatmap Grid */}
+        <GitHubContributionGraph contributionsData={contributionsData} username={username} />
+
         {error ? (
           <GlassCard className="items-center py-16 text-center">
             <AlertCircle className="text-red-400 mb-3 mx-auto" size={36} />
@@ -271,9 +279,10 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+
             {/* Neural Metrics Summary */}
             <GlassCard className="md:col-span-5 md:row-span-2">
-              <div className="flex items-center gap-2 mb-6 pb-3 border-b border-white/5">
+              <div className="flex items-center gap-2 mb-6 pb-3 border-b border-border-color">
                 <Activity className="w-5 h-5 text-neon-indigo" />
                 <h4 className="text-base font-bold font-sora text-text-primary">Neural Metrics Summary</h4>
               </div>
@@ -287,7 +296,7 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
                 <MetricRow label="Total Forks" value={formatValue(stats.totalForks)} icon={GitFork} colorClass="text-indigo-400" />
               </div>
               {user?.bio && (
-                <div className="mt-6 pt-4 border-t border-white/5">
+                <div className="mt-6 pt-4 border-t border-border-color">
                   <p className="text-[10px] font-mono text-text-secondary uppercase tracking-widest mb-2">
                     Identity Broadcast
                   </p>
@@ -300,7 +309,7 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
 
             {/* Repository Influence Bar Chart */}
             <GlassCard className="md:col-span-7">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-border-color">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-neon-rose" />
                   <h4 className="text-base font-bold font-sora text-text-primary">Repository Influence</h4>
@@ -341,51 +350,8 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
               </div>
             </GlassCard>
 
-            {/* Technological DNA Radar Chart */}
-            <GlassCard className="md:col-span-7 lg:col-span-8">
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
-                <Layers className="w-5 h-5 text-neon-purple" />
-                <h4 className="text-base font-bold font-sora text-text-primary">Technological DNA</h4>
-              </div>
-              <div className="h-56 flex items-center justify-center">
-                {Object.keys(stats.languages).length > 0 ? (
-                  <Radar
-                    data={{
-                      labels: Object.keys(stats.languages).slice(0, 8),
-                      datasets: [
-                        {
-                          data: Object.values(stats.languages).slice(0, 8),
-                          backgroundColor: isDark ? 'rgba(139, 92, 246, 0.25)' : 'rgba(109, 40, 217, 0.2)',
-                          borderColor: isDark ? '#8B5CF6' : '#6D28D9',
-                          borderWidth: 2,
-                        },
-                      ],
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        r: {
-                          angleLines: { color: chartGridColor },
-                          grid: { color: chartGridColor },
-                          pointLabels: {
-                            color: chartLabelColor,
-                            font: { size: 10, family: 'monospace', weight: 'bold' },
-                          },
-                          ticks: { display: false },
-                        },
-                      },
-                      plugins: { legend: { display: false } },
-                    }}
-                  />
-                ) : (
-                  <div className="opacity-40 flex flex-col items-center">
-                    <Layers size={32} />
-                    <p className="text-xs font-mono mt-2">Null Signal</p>
-                  </div>
-                )}
-              </div>
-            </GlassCard>
+            {/* Technological DNA Animated Section */}
+            <TechnologicalDNA languages={stats.languages} className="md:col-span-7 lg:col-span-8" />
 
             {/* Location & Links */}
             <GlassCard className="md:col-span-5 lg:col-span-4 flex flex-col justify-between">
@@ -401,12 +367,12 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
                 </h4>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/5">
+              <div className="mt-6 pt-4 border-t border-border-color">
                 <a
                   href={user?.html_url || `https://github.com/${username}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 text-text-primary hover:text-neon-indigo border border-white/5 hover:border-neon-indigo/30 transition-all text-xs font-mono uppercase tracking-wider"
+                  className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 text-text-primary hover:text-neon-indigo border border-border-color hover:border-neon-indigo/30 transition-all text-xs font-mono uppercase tracking-wider"
                 >
                   <span>Profile Access</span>
                   <ExternalLink size={14} />

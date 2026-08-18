@@ -47,7 +47,7 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
       <section
         id={id.toLowerCase()}
         ref={ref}
-        className="py-12 md:py-20 relative z-10 scroll-mt-24"
+        className="py-14 md:py-24 relative z-10 scroll-mt-24"
       >
         <motion.div
           ref={localRef}
@@ -57,12 +57,12 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
           className="max-w-7xl mx-auto px-6 lg:px-8"
         >
           {/* Editorial Section Header */}
-          <div className="mb-10 group flex flex-col items-start gap-1">
+          <div className="mb-12 group flex flex-col items-start gap-1.5">
             <div className="flex items-center gap-3">
-              <span className="text-xs font-mono text-neon-indigo font-bold tracking-widest px-2.5 py-0.5 rounded bg-neon-indigo/15 border border-neon-indigo/30">
+              <span className="text-xs font-mono text-neon-indigo font-bold tracking-widest px-3 py-1 rounded-full bg-neon-indigo/10 border border-neon-indigo/30 shadow-sm">
                 {num} // SECTION
               </span>
-              <h2 className="text-xl md:text-3xl font-black font-sora tracking-tight text-text-primary uppercase">
+              <h2 className="text-2xl md:text-4xl font-black font-sora tracking-tight text-text-primary uppercase">
                 {title || id}
               </h2>
             </div>
@@ -71,7 +71,7 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
               <span>{'>'}</span>
               <span className="text-neon-rose">{terminalCommand}</span>
             </div>
-            <div className="w-full h-px bg-gradient-to-r from-neon-indigo/60 via-neon-cyan/40 to-transparent mt-3" />
+            <div className="w-full h-px bg-gradient-to-r from-neon-indigo/60 via-neon-cyan/40 to-transparent mt-4" />
           </div>
 
           {/* Section Content */}
@@ -91,3 +91,4 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
 SectionWrapper.displayName = 'SectionWrapper';
 
 export default SectionWrapper;
+

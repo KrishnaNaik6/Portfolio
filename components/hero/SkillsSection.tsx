@@ -6,6 +6,16 @@ import { Code, Zap, Monitor, Terminal, CheckCircle2, Cpu } from 'lucide-react';
 import { SkillData } from '@/lib/types';
 import SectionWrapper, { staggerContainer } from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
+import dynamic from 'next/dynamic';
+
+const Skills3DConstellation = dynamic(() => import('../3d/Skills3DConstellation'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[280px] sm:h-[340px] flex items-center justify-center">
+      <div className="w-10 h-10 border-2 border-neon-indigo/20 border-t-neon-indigo rounded-full animate-spin" />
+    </div>
+  ),
+});
 
 interface SkillsSectionProps {
   skillData?: SkillData;
@@ -32,14 +42,19 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skillData, sectionRef }) 
 
   return (
     <SectionWrapper ref={sectionRef} id="skills" title="Technical Constellation" terminalCommand="ls -l $skills">
+      {/* Interactive 3D Skill Constellation Canvas */}
+      <div className="w-full max-w-3xl mx-auto mb-6">
+        <Skills3DConstellation />
+      </div>
+
       {technicalCategories.length > 0 ? (
         <>
           <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {technicalCategories.map((category, index) => (
               <GlassCard key={index} className="flex flex-col justify-between shadow-2xl group hover:border-neon-indigo/40 transition-colors">
                 <div>
-                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
-                    <div className="p-3 rounded-2xl bg-slate-950/60 border border-white/10 shrink-0 group-hover:scale-110 transition-transform">
+                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border-color">
+                    <div className="p-3 rounded-2xl bg-slate-950/40 border border-border-color shrink-0 group-hover:scale-110 transition-transform">
                       {getCategoryIcon(category)}
                     </div>
                     <div>
@@ -74,7 +89,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skillData, sectionRef }) 
                   {softSkills.map((skill, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-950/60 border border-white/10 text-xs font-sora font-semibold text-text-primary hover:border-neon-rose/40 hover:text-neon-rose transition-all"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-950/40 border border-border-color text-xs font-sora font-semibold text-text-primary hover:border-neon-rose/40 hover:text-neon-rose transition-all"
                     >
                       <CheckCircle2 size={14} className="text-neon-rose" />
                       <span>{skill}</span>
@@ -95,3 +110,4 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skillData, sectionRef }) 
 };
 
 export default SkillsSection;
+

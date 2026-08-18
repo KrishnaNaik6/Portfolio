@@ -1,4 +1,16 @@
 {
+  "components\\hero\\ContactSection.tsx -> ../3d/Contact3DGlobe": {
+    "id": "components\\hero\\ContactSection.tsx -> ../3d/Contact3DGlobe",
+    "files": [
+      "static/chunks/_app-pages-browser_components_3d_Contact3DGlobe_tsx.js"
+    ]
+  },
+  "components\\hero\\SkillsSection.tsx -> ../3d/Skills3DConstellation": {
+    "id": "components\\hero\\SkillsSection.tsx -> ../3d/Skills3DConstellation",
+    "files": [
+      "static/chunks/_app-pages-browser_components_3d_Skills3DConstellation_tsx.js"
+    ]
+  },
   "components\\hero\\Welcome.tsx -> ./Hero3DCanvas": {
     "id": "components\\hero\\Welcome.tsx -> ./Hero3DCanvas",
     "files": [

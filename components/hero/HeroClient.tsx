@@ -12,6 +12,8 @@ import InterestSection from './InterestSection';
 import GitHubStatsSection from './GitHubStatsSection';
 import ContactSection from './ContactSection';
 import Footer from '../footer/Footer';
+import CustomCursor from '../ui/CustomCursor';
+import Background3DParticles from '../3d/Background3DParticles';
 import { CircleArrowDown, CircleArrowUp } from 'lucide-react';
 import { PortfolioDetails, ProjectItem } from '@/lib/types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -85,7 +87,6 @@ const HeroClient: React.FC<HeroClientProps> = ({ initialDetails, initialProjects
           setActiveSection(visible[0].target.id);
         }
 
-        // Check if footer or contact is in view for floating arrow
         const footerElem = document.getElementById('footer');
         if (footerElem) {
           const rect = footerElem.getBoundingClientRect();
@@ -110,10 +111,16 @@ const HeroClient: React.FC<HeroClientProps> = ({ initialDetails, initialProjects
   }, [showContent]);
 
   return (
-    <div className="bg-bg-main min-h-screen transition-colors duration-500 selection:bg-neon-cyan/20 selection:text-neon-cyan">
+    <div className="bg-bg-main min-h-screen transition-colors duration-500 selection:bg-neon-indigo/20 selection:text-neon-indigo relative overflow-hidden">
+      {/* 3D Global Particles Background Canvas */}
+      <Background3DParticles />
+
+      {/* Desktop Custom Cursor */}
+      <CustomCursor />
+
       <Header activeSection={activeSection} />
 
-      <main className="pt-24 pb-12">
+      <main className="pt-20 pb-12 relative z-10">
         <Welcome onComplete={() => setShowContent(true)} />
 
         <AnimatePresence>
@@ -138,17 +145,17 @@ const HeroClient: React.FC<HeroClientProps> = ({ initialDetails, initialProjects
         </AnimatePresence>
       </main>
 
-      {/* Floating Scroll Navigation Arrow */}
+      {/* Floating Scroll Navigation Arrow on Bottom-Right */}
       {showContent && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+        <div className="fixed bottom-6 right-6 z-40">
           <motion.a
             whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.9 }}
             href={atBottom ? '#about' : '#footer'}
             aria-label={atBottom ? 'Scroll to top' : 'Scroll to bottom'}
-            className="p-3 rounded-full bg-slate-900/60 backdrop-blur-lg border border-neon-cyan/30 shadow-xl text-neon-cyan block animate-bounce"
+            className="p-3 rounded-full bg-slate-900/80 backdrop-blur-lg border border-neon-indigo/30 shadow-2xl text-neon-indigo block animate-bounce"
           >
-            {atBottom ? <CircleArrowUp size={24} /> : <CircleArrowDown size={24} />}
+            {atBottom ? <CircleArrowUp size={20} /> : <CircleArrowDown size={20} />}
           </motion.a>
         </div>
       )}

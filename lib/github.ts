@@ -1,4 +1,4 @@
-import { PortfolioDetails, ProjectItem, GitHubStatsResponse } from './types';
+import { PortfolioDetails, ProjectItem, GitHubStatsResponse, GitHubContributionsResponse } from './types';
 
 const OWNER = 'KrishnaNaik6';
 
@@ -134,6 +134,23 @@ export async function fetchGitHubProjects(): Promise<ProjectItem[]> {
   }
 }
 
+export async function fetchGitHubUserContributions(username: string): Promise<GitHubContributionsResponse | null> {
+  try {
+    const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(username)}`, {
+      next: { revalidate: 1800 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      total: data.total || {},
+      contributions: Array.isArray(data.contributions) ? data.contributions : [],
+    };
+  } catch (err) {
+    console.error('[fetchGitHubUserContributions] Error:', err);
+    return null;
+  }
+}
+
 export async function fetchGitHubUserStats(username: string): Promise<GitHubStatsResponse> {
   const headers = getGitHubHeaders();
 
@@ -190,9 +207,13 @@ export async function fetchGitHubUserStats(username: string): Promise<GitHubStat
     // Search API optional fail
   }
 
+  const contributionsData = await fetchGitHubUserContributions(username).catch(() => null);
+
   return {
     user,
     repos: Array.isArray(repos) ? repos : [],
     extraStats: { commits, prs, issues },
+    contributionsData: contributionsData || undefined,
   };
 }
+

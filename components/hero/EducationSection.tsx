@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Award } from 'lucide-react';
 import { EducationItem } from '@/lib/types';
 import SectionWrapper, { staggerContainer } from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
@@ -24,7 +24,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({ eduData = [], secti
                   <div className="p-3.5 rounded-2xl bg-neon-rose/10 border border-neon-rose/30 text-neon-rose group-hover:scale-110 transition-transform">
                     <GraduationCap className="w-7 h-7" />
                   </div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full bg-slate-950/60 border border-white/10 text-text-secondary">
+                  <span className="text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full bg-slate-950/40 border border-border-color text-text-secondary">
                     EDU / 0{index + 1}
                   </span>
                 </div>
@@ -37,9 +37,12 @@ const EducationSection: React.FC<EducationSectionProps> = ({ eduData = [], secti
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-text-secondary">
-                <span className="text-neon-rose font-medium">{edu.status}</span>
-                {edu.year && <span>{edu.year}</span>}
+              <div className="pt-4 border-t border-border-color flex items-center justify-between text-xs font-mono text-text-secondary">
+                <div className="flex items-center gap-1.5 text-neon-rose font-semibold">
+                  <Award size={14} />
+                  <span>{edu.status}</span>
+                </div>
+                {edu.year && <span className="font-mono text-text-secondary">{edu.year}</span>}
               </div>
             </GlassCard>
           ))}
@@ -54,3 +57,4 @@ const EducationSection: React.FC<EducationSectionProps> = ({ eduData = [], secti
 };
 
 export default EducationSection;
+

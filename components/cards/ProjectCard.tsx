@@ -85,7 +85,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
       <div
         className={`
           relative p-7 md:p-9 rounded-3xl h-full flex flex-col justify-between
-          bg-card-bg backdrop-blur-xl border border-white/10
+          bg-card-bg backdrop-blur-xl border border-border-color
           shadow-2xl group overflow-hidden transition-all duration-300
           ${featured ? 'bg-gradient-to-br from-card-bg via-card-bg to-neon-indigo/15 border-neon-indigo/30' : ''}
         `}
@@ -114,7 +114,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
             </div>
 
             {project.collabed && (
-              <span className="text-[10px] uppercase font-mono tracking-widest px-3 py-1 rounded-full bg-neon-cyan/15 text-neon-cyan border border-neon-cyan/30 shrink-0">
+              <span className="text-[10px] uppercase font-mono tracking-widest px-3 py-1 rounded-full bg-neon-cyan/15 text-neon-cyan border border-neon-cyan/30 shrink-0 font-semibold">
                 Collaborative
               </span>
             )}
@@ -139,7 +139,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex flex-wrap items-center gap-3 pt-5 border-t border-white/5">
+        <div className="mt-8 flex flex-wrap items-center gap-3 pt-5 border-t border-border-color">
           {project.link.live ? (
             <a
               href={project.link.live}
@@ -151,7 +151,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
               <span>Live Application</span>
             </a>
           ) : (
-            <span className="text-xs font-sora font-medium px-4 py-2.5 rounded-full bg-slate-950/50 text-slate-500 border border-slate-800 cursor-not-allowed flex items-center gap-2">
+            <span className="text-xs font-sora font-medium px-4 py-2.5 rounded-full bg-slate-950/30 text-text-secondary border border-border-color cursor-not-allowed flex items-center gap-2">
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Code Only</span>
             </span>
@@ -173,3 +173,4 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
 };
 
 export default ProjectCard;
+

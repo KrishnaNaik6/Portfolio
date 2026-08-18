@@ -5,6 +5,11 @@ import { Phone, Instagram, Linkedin, Mail, Github, FileText, Sparkles } from 'lu
 import { ContactInfo } from '@/lib/types';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
+import dynamic from 'next/dynamic';
+
+const Contact3DGlobe = dynamic(() => import('../3d/Contact3DGlobe'), {
+  ssr: false,
+});
 
 interface ContactSectionProps {
   contact?: ContactInfo;
@@ -20,7 +25,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
 
   return (
     <SectionWrapper ref={sectionRef} id="contact" title="Get In Touch" terminalCommand="ssh reachout@krishna">
-      <div className="max-w-4xl mx-auto space-y-10">
+      <div className="max-w-4xl mx-auto space-y-10 relative">
         {/* Editorial Heading Banner */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-neon-indigo/15 border border-neon-indigo/30 text-neon-indigo text-xs font-mono uppercase tracking-widest">
@@ -37,18 +42,19 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
           </p>
         </div>
 
-        {/* Contact Glass Card */}
+        {/* Contact Glass Card with 3D Globe Background */}
         <GlassCard className="p-8 md:p-12 max-w-3xl mx-auto text-center relative overflow-hidden shadow-2xl border-neon-indigo/30">
-          <div className="absolute inset-0 rounded-3xl pointer-events-none transition-all duration-500 ring-1 ring-neon-indigo/40 shadow-[0_0_35px_var(--shadow-indigo)]" />
+          <Contact3DGlobe />
+          <div className="absolute inset-0 rounded-3xl pointer-events-none transition-all duration-500 ring-1 ring-neon-indigo/40 shadow-[0_0_35px_var(--shadow-indigo)] z-20" />
 
-          <p className="text-sm md:text-base text-text-secondary mb-10 leading-relaxed max-w-lg mx-auto">
+          <p className="text-sm md:text-base text-text-secondary mb-10 leading-relaxed max-w-lg mx-auto relative z-20">
             I'm always open to feedback, opportunities, and collaborations in tech, AI, and development. Feel free to drop a message!
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 text-left gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 text-left gap-8 relative z-20">
             {/* Column 1: Direct Communication */}
             <div className="space-y-4">
-              <h4 className="text-xs font-mono uppercase tracking-widest text-neon-indigo font-bold pb-2 border-b border-white/5">
+              <h4 className="text-xs font-mono uppercase tracking-widest text-neon-indigo font-bold pb-2 border-b border-border-color">
                 Reach Me Anytime
               </h4>
               <div className="space-y-3.5">
@@ -81,7 +87,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
 
             {/* Column 2: Social Links */}
             <div className="space-y-4">
-              <h4 className="text-xs font-mono uppercase tracking-widest text-neon-rose font-bold pb-2 border-b border-white/5">
+              <h4 className="text-xs font-mono uppercase tracking-widest text-neon-rose font-bold pb-2 border-b border-border-color">
                 Follow Me On
               </h4>
               <div className="space-y-3.5">
@@ -115,7 +121,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
                   rel="noopener noreferrer"
                   className="flex items-center group text-text-secondary hover:text-neon-indigo transition-colors"
                 >
-                  <div className="p-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-text-secondary group-hover:scale-110 transition-transform mr-3.5">
+                  <div className="p-2.5 rounded-xl bg-slate-950/40 border border-border-color text-text-secondary group-hover:scale-110 transition-transform mr-3.5">
                     <Github size={16} />
                   </div>
                   <span className="text-sm font-sora font-semibold">GitHub Profile</span>
@@ -124,7 +130,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
             </div>
           </div>
 
-          <p className="text-xs text-text-secondary mt-10 italic font-mono">
+          <p className="text-xs text-text-secondary mt-10 italic font-mono relative z-20">
             Replies expected within 24–48 hours
           </p>
         </GlassCard>
@@ -147,3 +153,4 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
 };
 
 export default ContactSection;
+

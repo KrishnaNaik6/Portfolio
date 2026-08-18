@@ -32,7 +32,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
   const badges = ['Full-Stack Dev', 'AI & ML Systems', 'React 19 / Next.js 15', 'TypeScript', 'Python'];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8 pb-16 px-4 max-w-7xl mx-auto relative z-10">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-8 pb-16 px-4 max-w-7xl mx-auto relative z-10">
       {/* Left Column: Asymmetric Editorial Typography & Hero Copy */}
       <div className="lg:col-span-7 flex flex-col text-left space-y-6">
         {/* Editorial Subtitle Pill */}
@@ -40,7 +40,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-950/40 dark:bg-slate-900/60 border border-neon-indigo/30 text-neon-indigo text-xs font-mono tracking-widest uppercase w-fit shadow-[0_0_20px_rgba(99,102,241,0.2)]"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-950/20 dark:bg-slate-900/60 border border-neon-indigo/30 text-neon-indigo text-xs font-mono tracking-widest uppercase w-fit shadow-[0_0_20px_rgba(99,102,241,0.2)]"
         >
           <span className="w-2 h-2 rounded-full bg-neon-indigo animate-ping" />
           <span>01 / CREATIVE DEVELOPER & AI ENGINEER</span>
@@ -80,7 +80,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
           {badges.map((badge, idx) => (
             <span
               key={idx}
-              className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-card-bg border border-white/10 text-text-secondary hover:text-neon-indigo hover:border-neon-indigo/40 transition-all cursor-default shadow-sm"
+              className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-card-bg border border-border-color text-text-secondary hover:text-neon-indigo hover:border-neon-indigo/40 transition-all cursor-default shadow-sm"
             >
               #{badge}
             </span>
@@ -102,7 +102,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
           </AnchorLink>
 
           <AnchorLink to="contact">
-            <div className="px-7 py-4 rounded-full bg-card-bg border border-white/15 text-text-primary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-cyan hover:text-neon-cyan transition-all hover:scale-105 cursor-pointer">
+            <div className="px-7 py-4 rounded-full bg-card-bg border border-border-color text-text-primary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-cyan hover:text-neon-cyan transition-all hover:scale-105 cursor-pointer">
               <Send size={16} />
               <span>CONNECT</span>
             </div>
@@ -112,7 +112,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
             href="/KrishnaNaik.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-7 py-4 rounded-full bg-card-bg border border-white/15 text-text-secondary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-rose hover:text-neon-rose transition-all hover:scale-105"
+            className="px-7 py-4 rounded-full bg-card-bg border border-border-color text-text-secondary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-rose hover:text-neon-rose transition-all hover:scale-105"
           >
             <FileText size={16} />
             <span>RESUME</span>
@@ -129,3 +129,4 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
 };
 
 export default Welcome;
+

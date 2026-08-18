@@ -3,7 +3,7 @@
 import React from 'react';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
-import { Cpu, Code2, Sparkles } from 'lucide-react';
+import { Cpu, Code2, Sparkles, Terminal, Rocket } from 'lucide-react';
 
 interface AboutSectionProps {
   sectionRef?: React.RefObject<HTMLElement | null>;
@@ -16,7 +16,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
         {/* Main Editorial Card */}
         <GlassCard className="lg:col-span-8 p-8 md:p-12 shadow-2xl flex flex-col justify-between border-neon-indigo/30">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-neon-indigo/15 border border-neon-indigo/30 text-neon-indigo text-xs font-mono">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neon-indigo/15 border border-neon-indigo/30 text-neon-indigo text-xs font-mono">
               <Sparkles size={14} />
               <span>BIO & PHILOSOPHY</span>
             </div>
@@ -33,28 +33,45 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
               My goal is to explore how AI can transform everyday life while sharpening my skills as a developer and researcher. Outside of coding, I love exploring emerging tech trends and challenging myself with projects that push the boundaries of what's possible.
             </p>
           </div>
+
+          <div className="pt-6 mt-6 border-t border-border-color flex flex-wrap items-center gap-4 text-xs font-mono text-text-secondary">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span>Based in Bengaluru, IN</span>
+            </div>
+            <span>•</span>
+            <div className="flex items-center gap-2">
+              <Terminal size={14} className="text-neon-cyan" />
+              <span>Full-Stack + AI/ML</span>
+            </div>
+            <span>•</span>
+            <div className="flex items-center gap-2">
+              <Rocket size={14} className="text-neon-rose" />
+              <span>Open Source Contributor</span>
+            </div>
+          </div>
         </GlassCard>
 
         {/* Side Highlight Pillars */}
         <div className="lg:col-span-4 flex flex-col gap-6">
-          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 to-transparent border-neon-indigo/25">
-            <div className="p-3 rounded-xl bg-neon-indigo/20 w-fit mb-4 text-neon-indigo">
+          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 via-card-bg to-transparent border-neon-indigo/25">
+            <div className="p-3.5 rounded-2xl bg-neon-indigo/20 w-fit mb-4 text-neon-indigo">
               <Cpu size={24} />
             </div>
             <div>
-              <h4 className="text-lg font-bold text-text-primary font-sora mb-1">AI & Machine Learning</h4>
+              <h4 className="text-lg font-bold text-text-primary font-sora mb-1.5">AI & Machine Learning</h4>
               <p className="text-xs text-text-secondary font-mono leading-relaxed">
                 Specialized in neural model exploration, intelligent algorithms, and smart automation.
               </p>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-cyan/10 to-transparent border-neon-cyan/25">
-            <div className="p-3 rounded-xl bg-neon-cyan/20 w-fit mb-4 text-neon-cyan">
+          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-cyan/10 via-card-bg to-transparent border-neon-cyan/25">
+            <div className="p-3.5 rounded-2xl bg-neon-cyan/20 w-fit mb-4 text-neon-cyan">
               <Code2 size={24} />
             </div>
             <div>
-              <h4 className="text-lg font-bold text-text-primary font-sora mb-1">Full-Stack Architecture</h4>
+              <h4 className="text-lg font-bold text-text-primary font-sora mb-1.5">Full-Stack Architecture</h4>
               <p className="text-xs text-text-secondary font-mono leading-relaxed">
                 Building scalable web apps, clean APIs, and interactive UI systems with modern tech.
               </p>
@@ -67,3 +84,4 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
 };
 
 export default AboutSection;
+

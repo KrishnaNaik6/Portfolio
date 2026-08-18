@@ -90,8 +90,21 @@ export interface ExtraStats {
   issues: number;
 }
 
+export interface ContributionDay {
+  date: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+}
+
+export interface GitHubContributionsResponse {
+  total: Record<string, number>;
+  contributions: ContributionDay[];
+}
+
 export interface GitHubStatsResponse {
   user: GitHubUser;
   repos: GitHubRepo[];
   extraStats: ExtraStats;
+  contributionsData?: GitHubContributionsResponse;
 }
+

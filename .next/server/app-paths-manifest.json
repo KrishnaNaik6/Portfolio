@@ -1,0 +1,5 @@
+{
+  "/api/github/details/route": "app/api/github/details/route.js",
+  "/api/github/stats/[username]/route": "app/api/github/stats/[username]/route.js",
+  "/page": "app/page.js"
+}

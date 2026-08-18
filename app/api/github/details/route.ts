@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { fetchGitHubDetails } from '@/lib/github';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const details = await fetchGitHubDetails();
@@ -16,3 +18,4 @@ export async function GET() {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
+

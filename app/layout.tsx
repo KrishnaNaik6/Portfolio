@@ -23,8 +23,8 @@ const firaCode = Fira_Code({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#121217' },
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0B0C10' },
+    { media: '(prefers-color-scheme: light)', color: '#F8FAFC' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -90,8 +90,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJSONLD) }}
         />
       </head>
-      <body className="bg-bg-main text-text-primary antialiased selection:bg-neon-cyan/20 selection:text-neon-cyan">
-        {children}
+      <body className="bg-bg-main text-text-primary antialiased selection:bg-neon-cyan/20 selection:text-neon-cyan relative min-h-screen">
+        {/* Ambient Glowing Mesh Background */}
+        <div className="bg-ambient-mesh" aria-hidden="true">
+          <div className="ambient-blob-1" />
+          <div className="ambient-blob-2" />
+          <div className="ambient-blob-3" />
+        </div>
+
+        {/* Content Body */}
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   );

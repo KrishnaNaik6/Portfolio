@@ -1,7 +1,18 @@
+# Dependencies
 node_modules/
-node_modules/*
 
+# Next.js build output
+.next/
+out/
+build/
+dist/
+
+# Local environment variables
 .env
-.vscode
+.env.local
+.env*.local
+
+# IDE & OS
 .vscode/
-.vscode/*
+.DS_Store
+*.pem

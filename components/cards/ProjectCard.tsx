@@ -2,18 +2,19 @@
 
 import React, { useRef, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Github, ExternalLink, Code2 } from 'lucide-react';
+import { Github, ExternalLink, Code2, Sparkles } from 'lucide-react';
 import { ProjectItem } from '@/lib/types';
 import { itemVariants } from './GlassCard';
 
 interface ProjectCardProps {
   project: ProjectItem;
+  featured?: boolean;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, featured = false }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const maxChars = 70;
+  const maxChars = featured ? 140 : 75;
 
   const safeDescription = project.description || 'No description provided.';
   const needsTruncation = safeDescription.length > maxChars;
@@ -66,75 +67,87 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       onMouseLeave={handleMouseLeave}
       onTouchEnd={handleMouseLeave}
       onTouchCancel={handleMouseLeave}
-      whileHover={{ scale: 1.03, z: 50 }}
+      whileHover={{ scale: 1.02, z: 50 }}
       whileTap={{ scale: 0.98 }}
       style={{
         rotateX: finalRotateX,
         rotateY: finalRotateY,
-        scale: useTransform(sx, [0, 1], [1, 1.03]),
+        scale: useTransform(sx, [0, 1], [1, 1.02]),
         transformStyle: 'preserve-3d',
       }}
-      className="rounded-2xl transition-shadow duration-300 will-change-transform perspective-1000 relative z-10 h-full flex flex-col"
+      className={`rounded-3xl transition-shadow duration-300 will-change-transform perspective-1000 relative z-10 h-full flex flex-col ${
+        featured ? 'md:col-span-2' : ''
+      }`}
     >
       <div
-        className="
-          relative p-6 md:p-8 rounded-2xl h-full flex flex-col justify-between
-          bg-card-bg backdrop-blur-md border border-glass
-          shadow-lg group overflow-hidden
-        "
+        className={`
+          relative p-7 md:p-9 rounded-3xl h-full flex flex-col justify-between
+          bg-card-bg backdrop-blur-xl border border-white/10
+          shadow-2xl group overflow-hidden transition-all duration-300
+          ${featured ? 'bg-gradient-to-br from-card-bg via-card-bg to-neon-purple/10 border-neon-purple/30' : ''}
+        `}
         style={{
           transform: 'translateZ(30px)',
         }}
       >
         {/* Neon Glow Hover Ring */}
-        <div className="absolute inset-0 rounded-2xl pointer-events-none transition-all duration-500 group-hover:ring-2 group-hover:ring-neon-purple/70 group-hover:shadow-[0_0_25px_var(--shadow-purple)]" />
+        <div className="absolute inset-0 rounded-3xl pointer-events-none transition-all duration-500 group-hover:ring-2 group-hover:ring-neon-purple/70 group-hover:shadow-[0_0_30px_var(--shadow-purple)]" />
 
-        <div className="flex flex-col gap-3">
-          <div className="flex justify-between items-start gap-3">
-            <h3 className="text-xl md:text-2xl font-bold text-neon-cyan group-hover:text-neon-pink transition-colors duration-300">
-              {project.name}
-            </h3>
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-start gap-4">
+            <div>
+              {featured && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-purple/20 border border-neon-purple/40 text-neon-purple text-[10px] font-mono uppercase tracking-widest mb-3">
+                  <Sparkles size={12} />
+                  <span>Featured Project</span>
+                </div>
+              )}
+              <h3 className="text-2xl md:text-3xl font-black font-sora text-neon-cyan group-hover:text-neon-pink transition-colors duration-300 tracking-tight">
+                {project.name}
+              </h3>
+            </div>
+
             {project.collabed && (
-              <span className="text-[10px] uppercase font-mono tracking-widest px-2.5 py-1 rounded-full bg-neon-purple/20 text-neon-purple border border-neon-purple/30 whitespace-nowrap">
-                Collab
+              <span className="text-[10px] uppercase font-mono tracking-widest px-3 py-1 rounded-full bg-neon-cyan/15 text-neon-cyan border border-neon-cyan/30 shrink-0">
+                Collaborative
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-2 text-xs font-mono uppercase text-text-secondary tracking-wider">
-            <Code2 className="w-3.5 h-3.5 text-neon-pink" />
-            <span>{project.type || 'Project'}</span>
+            <Code2 className="w-4 h-4 text-neon-pink shrink-0" />
+            <span>{project.type || 'Repository'}</span>
           </div>
 
-          <p className="text-text-primary text-sm leading-relaxed mt-2">
+          <p className="text-text-primary text-sm md:text-base leading-relaxed mt-1">
             {displayDescription}
             {needsTruncation && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-neon-cyan hover:text-neon-pink ml-1 text-xs font-semibold transition-colors duration-200 focus:outline-none"
+                className="text-neon-cyan hover:text-neon-pink ml-1.5 text-xs font-semibold transition-colors duration-200 focus:outline-none"
               >
-                {isExpanded ? ' (Read Less)' : '...'}
+                {isExpanded ? '(Read Less)' : '...'}
               </button>
             )}
           </p>
         </div>
 
-        {/* Links Footer */}
-        <div className="mt-8 flex flex-wrap gap-3 pt-4 border-t border-white/5">
+        {/* Action Buttons */}
+        <div className="mt-8 flex flex-wrap items-center gap-3 pt-5 border-t border-white/5">
           {project.link.live ? (
             <a
               href={project.link.live}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-semibold px-4 py-2 rounded-full bg-neon-purple/20 text-neon-purple hover:bg-neon-purple hover:text-bg-main transition-all duration-300 flex items-center gap-2 shadow-sm"
+              className="text-xs font-sora font-bold px-4 py-2.5 rounded-full bg-neon-purple/20 text-neon-purple hover:bg-neon-purple hover:text-bg-main transition-all duration-300 flex items-center gap-2 shadow-sm"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Live Website</span>
+              <span>Live Application</span>
             </a>
           ) : (
-            <span className="text-xs font-semibold px-4 py-2 rounded-full bg-slate-800/40 text-slate-500 border border-slate-700/50 cursor-not-allowed flex items-center gap-2">
+            <span className="text-xs font-sora font-medium px-4 py-2.5 rounded-full bg-slate-900/50 text-slate-500 border border-slate-800 cursor-not-allowed flex items-center gap-2">
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Not Hosted</span>
+              <span>Code Only</span>
             </span>
           )}
 
@@ -142,10 +155,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
             href={project.link.git}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-semibold px-4 py-2 rounded-full border border-border-color text-text-secondary hover:border-neon-cyan hover:text-neon-cyan transition-all duration-300 flex items-center gap-2"
+            className="text-xs font-sora font-semibold px-4 py-2.5 rounded-full border border-border-color text-text-secondary hover:border-neon-cyan hover:text-neon-cyan transition-all duration-300 flex items-center gap-2"
           >
             <Github className="w-3.5 h-3.5" />
-            <span>GitHub</span>
+            <span>Repository</span>
           </a>
         </div>
       </div>

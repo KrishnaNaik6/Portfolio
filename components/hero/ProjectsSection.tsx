@@ -38,16 +38,20 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
   return (
     <SectionWrapper ref={sectionRef} id="projects" title="Projects" terminalCommand="echo $projects">
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-4">
-          <div className="w-10 h-10 border-2 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="w-12 h-12 border-2 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
           <span className="text-xs font-mono text-text-secondary uppercase tracking-widest">
-            Fetching Repositories...
+            Loading Repositories...
           </span>
         </div>
       ) : projects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
-            <ProjectCard key={project.name || index} project={project} />
+            <ProjectCard
+              key={project.name || index}
+              project={project}
+              featured={index === 0}
+            />
           ))}
         </div>
       ) : (

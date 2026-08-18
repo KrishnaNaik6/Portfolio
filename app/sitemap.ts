@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://krishanaik.dev';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://krishna-naik.vercel.app';
 
   return [
     {
@@ -12,3 +12,4 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 }
+

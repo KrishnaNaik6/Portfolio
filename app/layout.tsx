@@ -32,46 +32,66 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Krishna Naik | Full-Stack & AI/ML Developer Portfolio',
+  metadataBase: new URL('https://krishna-naik.vercel.app'),
+  title: {
+    default: 'Krishna Naik | Krishna Umesh Naik - Creative Developer & AI Engineer',
+    template: '%s | Krishna Naik (Krishna Umesh Naik)',
+  },
   description:
-    'Computer Science student specializing in AI & ML at Ramaiah Institute of Technology. Building full-stack web applications, intelligent systems, and interactive tools.',
+    'Official portfolio of Krishna Naik (Krishna Umesh Naik), Full-Stack Developer & AI/ML Engineer based in Bengaluru, India. Computer Science student specializing in AI systems, React, Next.js, and Python.',
   keywords: [
     'Krishna Naik',
-    'Portfolio',
+    'Krishna Umesh Naik',
+    'Krishna Naik Portfolio',
+    'Krishna Umesh Naik Portfolio',
+    'Krishna Naik Developer',
+    'Krishna Naik Bengaluru',
+    'Krishna Naik AI Engineer',
+    'Krishna Naik Vercel',
     'Full Stack Developer',
     'AI Engineer',
-    'Machine Learning',
     'Ramaiah Institute of Technology',
-    'React',
-    'Next.js',
-    'TypeScript',
-    'Python',
-    'Bengaluru Developer',
+    'KrishnaNaik6',
   ],
-  authors: [{ name: 'Krishna Naik', url: 'https://github.com/KrishnaNaik6' }],
+  authors: [
+    { name: 'Krishna Naik', url: 'https://krishna-naik.vercel.app' },
+    { name: 'Krishna Umesh Naik' },
+  ],
   creator: 'Krishna Naik',
+  publisher: 'Krishna Naik',
   icons: {
     icon: '/k.svg',
     shortcut: '/k.svg',
   },
+  alternates: {
+    canonical: 'https://krishna-naik.vercel.app',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    title: 'Krishna Naik | Full-Stack & AI/ML Developer Portfolio',
+    url: 'https://krishna-naik.vercel.app',
+    title: 'Krishna Naik (Krishna Umesh Naik) | Portfolio',
     description:
-      'Computer Science student specializing in AI & ML. Interactive portfolio showcasing projects, GitHub stats, experience, and skills.',
+      'Official portfolio of Krishna Naik (Krishna Umesh Naik). Creative Full-Stack Developer & AI/ML Engineer.',
     siteName: 'Krishna Naik Portfolio',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Krishna Naik | Full-Stack & AI/ML Developer Portfolio',
+    title: 'Krishna Naik (Krishna Umesh Naik) | Portfolio',
     description:
-      'Computer Science student specializing in AI & ML. Interactive portfolio showcasing projects, GitHub stats, experience, and skills.',
+      'Official portfolio of Krishna Naik (Krishna Umesh Naik). Creative Full-Stack Developer & AI/ML Engineer.',
     creator: '@KrishnaNaik',
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 

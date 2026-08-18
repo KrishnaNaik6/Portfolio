@@ -67,7 +67,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="text-text-secondary text-base md:text-lg max-w-2xl leading-relaxed font-normal"
         >
-          Computer Science student specializing in AI & ML at Ramaiah Institute of Technology. Crafting intelligent systems, full-stack web applications, and immersive digital experiences.
+          I am <strong className="text-text-primary font-semibold">Krishna Naik</strong> (<strong className="text-text-primary font-semibold">Krishna Umesh Naik</strong>), a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology. Crafting intelligent systems, full-stack web applications, and immersive digital experiences.
         </motion.p>
 
         {/* Interactive Tech Badge Pills */}

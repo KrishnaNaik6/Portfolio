@@ -6,10 +6,11 @@ import GlassCard from '../cards/GlassCard';
 import { Cpu, Code2, Sparkles, Terminal, Rocket } from 'lucide-react';
 
 interface AboutSectionProps {
+  achievements?: string[];
   sectionRef?: React.RefObject<HTMLElement | null>;
 }
 
-const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
+const AboutSection: React.FC<AboutSectionProps> = ({ achievements = [], sectionRef }) => {
   return (
     <SectionWrapper ref={sectionRef} id="about" title="About Me" terminalCommand="whoami">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
@@ -29,9 +30,18 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
               I enjoy building full-stack applications and experimenting with intelligent systems that bridge the gap between technology and real-world impact. With hands-on experience in web development, backend systems, and AI-driven projects, I'm passionate about solving problems through innovation and creativity.
             </p>
 
-            <p className="text-text-secondary leading-relaxed text-base md:text-lg">
-              My goal is to explore how AI can transform everyday life while sharpening my skills as a developer and researcher. Outside of coding, I love exploring emerging tech trends and challenging myself with projects that push the boundaries of what's possible.
-            </p>
+            {achievements && achievements.length > 0 && (
+              <div className="p-4 rounded-2xl bg-neon-indigo/10 border border-neon-indigo/30 space-y-2">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-neon-indigo font-bold block">
+                  KEY_ACHIEVEMENT //
+                </span>
+                {achievements.map((item, idx) => (
+                  <p key={idx} className="text-sm font-sora text-text-primary font-medium">
+                    ✦ {item}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="pt-6 mt-6 border-t border-border-color flex flex-wrap items-center gap-4 text-xs font-mono text-text-secondary">

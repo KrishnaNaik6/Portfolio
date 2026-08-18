@@ -42,6 +42,8 @@ export interface PortfolioDetails {
   skills: SkillData;
   interest: string[];
   contact: ContactInfo;
+  achievements?: string[];
+  about?: string;
 }
 
 export interface ProjectLink {

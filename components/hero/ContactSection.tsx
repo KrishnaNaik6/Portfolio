@@ -17,11 +17,11 @@ interface ContactSectionProps {
 }
 
 const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) => {
-  const mail = contact?.msg?.Mail || 'krishnanaik7483@gmail.com';
-  const phone = contact?.msg?.Phone || '+917483861214';
-  const linkedin = contact?.follow?.Linkedin || 'https://www.linkedin.com/in/krishna-naik-b94723277';
-  const instagram = contact?.follow?.Instagram || 'https://www.instagram.com/krishna_naik_6/';
-  const github = contact?.follow?.Github || 'https://github.com/KrishnaNaik6';
+  const mail = contact?.msg?.Mail;
+  const phone = contact?.msg?.Phone;
+  const linkedin = contact?.follow?.Linkedin;
+  const instagram = contact?.follow?.Instagram;
+  const github = contact?.follow?.Github;
 
   return (
     <SectionWrapper ref={sectionRef} id="contact" title="Get In Touch" terminalCommand="ssh reachout@krishna">
@@ -58,30 +58,36 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
                 Reach Me Anytime
               </h4>
               <div className="space-y-3.5">
-                <a
-                  href={`mailto:${mail}`}
-                  className="flex items-center group text-text-primary hover:text-neon-indigo transition-colors"
-                >
-                  <div className="p-2.5 rounded-xl bg-neon-indigo/10 border border-neon-indigo/30 text-neon-indigo group-hover:scale-110 transition-transform mr-3.5">
-                    <Mail size={16} />
-                  </div>
-                  <span className="text-sm font-sora font-semibold">Say Hello</span>
-                </a>
+                {mail && (
+                  <a
+                    href={`mailto:${mail}`}
+                    className="flex items-center group text-text-primary hover:text-neon-indigo transition-colors"
+                  >
+                    <div className="p-2.5 rounded-xl bg-neon-indigo/10 border border-neon-indigo/30 text-neon-indigo group-hover:scale-110 transition-transform mr-3.5">
+                      <Mail size={16} />
+                    </div>
+                    <span className="text-sm font-sora font-semibold">Say Hello</span>
+                  </a>
+                )}
 
-                <a
-                  href={`tel:${phone}`}
-                  className="flex items-center group text-text-primary hover:text-neon-indigo transition-colors"
-                >
-                  <div className="p-2.5 rounded-xl bg-neon-indigo/10 border border-neon-indigo/30 text-neon-indigo group-hover:scale-110 transition-transform mr-3.5">
-                    <Phone size={16} />
-                  </div>
-                  <span className="text-sm font-sora font-semibold">Let's Talk</span>
-                </a>
+                {phone && (
+                  <a
+                    href={`tel:${phone}`}
+                    className="flex items-center group text-text-primary hover:text-neon-indigo transition-colors"
+                  >
+                    <div className="p-2.5 rounded-xl bg-neon-indigo/10 border border-neon-indigo/30 text-neon-indigo group-hover:scale-110 transition-transform mr-3.5">
+                      <Phone size={16} />
+                    </div>
+                    <span className="text-sm font-sora font-semibold">Let's Talk</span>
+                  </a>
+                )}
 
-                <div className="flex items-center text-text-secondary pt-2">
-                  <Mail size={16} className="text-neon-rose mr-3.5 shrink-0" />
-                  <span className="text-xs font-mono break-all">{mail}</span>
-                </div>
+                {mail && (
+                  <div className="flex items-center text-text-secondary pt-2">
+                    <Mail size={16} className="text-neon-rose mr-3.5 shrink-0" />
+                    <span className="text-xs font-mono break-all">{mail}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -91,41 +97,47 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
                 Follow Me On
               </h4>
               <div className="space-y-3.5">
-                <a
-                  href={instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center group text-text-primary hover:text-neon-rose transition-colors"
-                >
-                  <div className="p-2.5 rounded-xl bg-neon-rose/10 border border-neon-rose/30 text-neon-rose group-hover:scale-110 transition-transform mr-3.5">
-                    <Instagram size={16} />
-                  </div>
-                  <span className="text-sm font-sora font-semibold">Instagram</span>
-                </a>
+                {instagram && (
+                  <a
+                    href={instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center group text-text-primary hover:text-neon-rose transition-colors"
+                  >
+                    <div className="p-2.5 rounded-xl bg-neon-rose/10 border border-neon-rose/30 text-neon-rose group-hover:scale-110 transition-transform mr-3.5">
+                      <Instagram size={16} />
+                    </div>
+                    <span className="text-sm font-sora font-semibold">Instagram</span>
+                  </a>
+                )}
 
-                <a
-                  href={linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center group text-text-primary hover:text-neon-cyan transition-colors"
-                >
-                  <div className="p-2.5 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan group-hover:scale-110 transition-transform mr-3.5">
-                    <Linkedin size={16} />
-                  </div>
-                  <span className="text-sm font-sora font-semibold">LinkedIn</span>
-                </a>
+                {linkedin && (
+                  <a
+                    href={linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center group text-text-primary hover:text-neon-cyan transition-colors"
+                  >
+                    <div className="p-2.5 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan group-hover:scale-110 transition-transform mr-3.5">
+                      <Linkedin size={16} />
+                    </div>
+                    <span className="text-sm font-sora font-semibold">LinkedIn</span>
+                  </a>
+                )}
 
-                <a
-                  href={github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center group text-text-secondary hover:text-neon-indigo transition-colors"
-                >
-                  <div className="p-2.5 rounded-xl bg-slate-950/40 border border-border-color text-text-secondary group-hover:scale-110 transition-transform mr-3.5">
-                    <Github size={16} />
-                  </div>
-                  <span className="text-sm font-sora font-semibold">GitHub Profile</span>
-                </a>
+                {github && (
+                  <a
+                    href={github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center group text-text-secondary hover:text-neon-indigo transition-colors"
+                  >
+                    <div className="p-2.5 rounded-xl bg-slate-950/40 border border-border-color text-text-secondary group-hover:scale-110 transition-transform mr-3.5">
+                      <Github size={16} />
+                    </div>
+                    <span className="text-sm font-sora font-semibold">GitHub Profile</span>
+                  </a>
+                )}
               </div>
             </div>
           </div>

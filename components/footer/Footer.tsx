@@ -5,7 +5,13 @@ import { motion } from 'framer-motion';
 import { Sparkles, Github, Linkedin, Instagram, Mail, ArrowUpRight } from 'lucide-react';
 import AnchorLink from '../ui/AnchorLink';
 
-const Footer: React.FC = () => {
+import { ContactInfo } from '@/lib/types';
+
+interface FooterProps {
+  contact?: ContactInfo;
+}
+
+const Footer: React.FC<FooterProps> = ({ contact }) => {
   const [mounted, setMounted] = useState(false);
   const [currentDate, setCurrentDate] = useState<string>('');
   const [year, setYear] = useState<number>(2026);
@@ -33,11 +39,16 @@ const Footer: React.FC = () => {
     { name: 'Contact', id: 'contact' },
   ];
 
+  const githubUrl = contact?.follow?.Github || 'https://github.com/KrishnaNaik6';
+  const linkedinUrl = contact?.follow?.Linkedin;
+  const instagramUrl = contact?.follow?.Instagram;
+  const email = contact?.msg?.Mail;
+
   const socialLinks = [
-    { name: 'GitHub', href: 'https://github.com/KrishnaNaik6', icon: Github },
-    { name: 'LinkedIn', href: 'https://www.linkedin.com/in/krishna-naik-b94723277', icon: Linkedin },
-    { name: 'Instagram', href: 'https://www.instagram.com/krishna_naik_6/', icon: Instagram },
-    { name: 'Email', href: 'mailto:krishanaik1110@gmail.com', icon: Mail },
+    ...(githubUrl ? [{ name: 'GitHub', href: githubUrl, icon: Github }] : []),
+    ...(linkedinUrl ? [{ name: 'LinkedIn', href: linkedinUrl, icon: Linkedin }] : []),
+    ...(instagramUrl ? [{ name: 'Instagram', href: instagramUrl, icon: Instagram }] : []),
+    ...(email ? [{ name: 'Email', href: `mailto:${email}`, icon: Mail }] : []),
   ];
 
   return (

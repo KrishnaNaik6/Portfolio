@@ -131,7 +131,7 @@ const HeroClient: React.FC<HeroClientProps> = ({ initialDetails, initialProjects
               transition={{ duration: 0.6 }}
               className="space-y-6"
             >
-              <AboutSection sectionRef={aboutRef} />
+              <AboutSection sectionRef={aboutRef} achievements={details?.achievements} />
               <EducationSection sectionRef={eduRef} eduData={details?.education || []} />
               <ExperienceSection sectionRef={expRef} expData={details?.experience || []} />
               <ProjectsSection sectionRef={projRef} initialProjects={projects} />
@@ -139,7 +139,7 @@ const HeroClient: React.FC<HeroClientProps> = ({ initialDetails, initialProjects
               <InterestSection sectionRef={interestRef} interest={details?.interest || []} />
               <GitHubStatsSection sectionRef={gitRef} initialUsername="KrishnaNaik6" />
               <ContactSection sectionRef={contactRef} contact={details?.contact} />
-              <Footer />
+              <Footer contact={details?.contact} />
             </motion.div>
           )}
         </AnimatePresence>

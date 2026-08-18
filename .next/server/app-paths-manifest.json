@@ -1,11 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/github/details/route": "app/api/github/details/route.js",
-  "/robots.txt/route": "app/robots.txt/route.js",
-  "/api/github/repos/route": "app/api/github/repos/route.js",
-  "/api/github/profile/route": "app/api/github/profile/route.js",
-  "/api/github/projects/route": "app/api/github/projects/route.js",
-  "/sitemap.xml/route": "app/sitemap.xml/route.js",
   "/api/github/stats/[username]/route": "app/api/github/stats/[username]/route.js",
   "/page": "app/page.js"
 }

@@ -30,6 +30,19 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
     const localRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(localRef, { once: true, amount: 0.1 });
 
+    const sectionNumbers: Record<string, string> = {
+      about: '02',
+      education: '03',
+      experience: '04',
+      projects: '05',
+      skills: '06',
+      interest: '07',
+      'git-stats': '08',
+      contact: '09',
+    };
+
+    const num = sectionNumbers[id.toLowerCase()] || '00';
+
     return (
       <section
         id={id.toLowerCase()}
@@ -43,18 +56,22 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
           variants={fadeIn}
           className="max-w-7xl mx-auto px-6 lg:px-8"
         >
-          {/* Terminal Header */}
-          <div className="mb-10 group">
-            <h2 className="text-lg md:text-2xl font-mono tracking-tight flex items-center gap-2 flex-wrap">
-              <span className="text-neon-cyan font-semibold">~KrishnaNaik6</span>
-              <span className="text-gray-400 group-hover:text-neon-pink transition-colors duration-300">
-                {' > '}
+          {/* Editorial Section Header */}
+          <div className="mb-10 group flex flex-col items-start gap-1">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-mono text-neon-indigo font-bold tracking-widest px-2.5 py-0.5 rounded bg-neon-indigo/15 border border-neon-indigo/30">
+                {num} // SECTION
               </span>
-              <span className="text-neon-pink group-hover:text-neon-cyan transition-colors duration-300 font-medium">
-                {terminalCommand}
-              </span>
-            </h2>
-            <div className="w-full h-px bg-gradient-to-r from-neon-cyan/60 via-neon-purple/40 to-transparent mt-2" />
+              <h2 className="text-xl md:text-3xl font-black font-sora tracking-tight text-text-primary uppercase">
+                {title || id}
+              </h2>
+            </div>
+            <div className="flex items-center gap-2 text-xs font-mono text-text-secondary mt-1">
+              <span className="text-neon-cyan">~KrishnaNaik6</span>
+              <span>{'>'}</span>
+              <span className="text-neon-rose">{terminalCommand}</span>
+            </div>
+            <div className="w-full h-px bg-gradient-to-r from-neon-indigo/60 via-neon-cyan/40 to-transparent mt-3" />
           </div>
 
           {/* Section Content */}

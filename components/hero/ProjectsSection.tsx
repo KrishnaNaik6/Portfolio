@@ -36,10 +36,10 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
   }, [initialProjects]);
 
   return (
-    <SectionWrapper ref={sectionRef} id="projects" title="Projects" terminalCommand="echo $projects">
+    <SectionWrapper ref={sectionRef} id="projects" title="Featured Projects" terminalCommand="echo $projects">
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-12 h-12 border-2 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin" />
+          <div className="w-12 h-12 border-2 border-neon-indigo/20 border-t-neon-indigo rounded-full animate-spin" />
           <span className="text-xs font-mono text-text-secondary uppercase tracking-widest">
             Loading Repositories...
           </span>
@@ -50,6 +50,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
             <ProjectCard
               key={project.name || index}
               project={project}
+              index={index}
               featured={index === 0}
             />
           ))}

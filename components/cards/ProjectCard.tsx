@@ -8,10 +8,11 @@ import { itemVariants } from './GlassCard';
 
 interface ProjectCardProps {
   project: ProjectItem;
+  index: number;
   featured?: boolean;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project, featured = false }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = false }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const maxChars = featured ? 140 : 75;
@@ -59,6 +60,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, featured = false }) 
     y.set(0.5);
   };
 
+  const projectNum = String(index + 1).padStart(2, '0');
+
   return (
     <motion.div
       ref={ref}
@@ -84,25 +87,28 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, featured = false }) 
           relative p-7 md:p-9 rounded-3xl h-full flex flex-col justify-between
           bg-card-bg backdrop-blur-xl border border-white/10
           shadow-2xl group overflow-hidden transition-all duration-300
-          ${featured ? 'bg-gradient-to-br from-card-bg via-card-bg to-neon-purple/10 border-neon-purple/30' : ''}
+          ${featured ? 'bg-gradient-to-br from-card-bg via-card-bg to-neon-indigo/15 border-neon-indigo/30' : ''}
         `}
         style={{
           transform: 'translateZ(30px)',
         }}
       >
         {/* Neon Glow Hover Ring */}
-        <div className="absolute inset-0 rounded-3xl pointer-events-none transition-all duration-500 group-hover:ring-2 group-hover:ring-neon-purple/70 group-hover:shadow-[0_0_30px_var(--shadow-purple)]" />
+        <div className="absolute inset-0 rounded-3xl pointer-events-none transition-all duration-500 group-hover:ring-2 group-hover:ring-neon-indigo/70 group-hover:shadow-[0_0_30px_var(--shadow-indigo)]" />
 
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-start gap-4">
             <div>
+              <span className="text-xs font-mono text-neon-indigo font-bold block mb-1">
+                {projectNum} / PROJECT
+              </span>
               {featured && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-purple/20 border border-neon-purple/40 text-neon-purple text-[10px] font-mono uppercase tracking-widest mb-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-indigo/20 border border-neon-indigo/40 text-neon-indigo text-[10px] font-mono uppercase tracking-widest mb-3">
                   <Sparkles size={12} />
                   <span>Featured Project</span>
                 </div>
               )}
-              <h3 className="text-2xl md:text-3xl font-black font-sora text-neon-cyan group-hover:text-neon-pink transition-colors duration-300 tracking-tight">
+              <h3 className="text-2xl md:text-3xl font-black font-sora text-text-primary group-hover:text-neon-indigo transition-colors duration-300 tracking-tight">
                 {project.name}
               </h3>
             </div>
@@ -115,7 +121,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, featured = false }) 
           </div>
 
           <div className="flex items-center gap-2 text-xs font-mono uppercase text-text-secondary tracking-wider">
-            <Code2 className="w-4 h-4 text-neon-pink shrink-0" />
+            <Code2 className="w-4 h-4 text-neon-rose shrink-0" />
             <span>{project.type || 'Repository'}</span>
           </div>
 
@@ -124,7 +130,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, featured = false }) 
             {needsTruncation && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-neon-cyan hover:text-neon-pink ml-1.5 text-xs font-semibold transition-colors duration-200 focus:outline-none"
+                className="text-neon-indigo hover:text-neon-cyan ml-1.5 text-xs font-semibold transition-colors duration-200 focus:outline-none"
               >
                 {isExpanded ? '(Read Less)' : '...'}
               </button>
@@ -139,13 +145,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, featured = false }) 
               href={project.link.live}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-sora font-bold px-4 py-2.5 rounded-full bg-neon-purple/20 text-neon-purple hover:bg-neon-purple hover:text-bg-main transition-all duration-300 flex items-center gap-2 shadow-sm"
+              className="text-xs font-sora font-bold px-4 py-2.5 rounded-full bg-neon-indigo text-white hover:bg-neon-indigo/90 transition-all duration-300 flex items-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Live Application</span>
             </a>
           ) : (
-            <span className="text-xs font-sora font-medium px-4 py-2.5 rounded-full bg-slate-900/50 text-slate-500 border border-slate-800 cursor-not-allowed flex items-center gap-2">
+            <span className="text-xs font-sora font-medium px-4 py-2.5 rounded-full bg-slate-950/50 text-slate-500 border border-slate-800 cursor-not-allowed flex items-center gap-2">
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Code Only</span>
             </span>
@@ -155,7 +161,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, featured = false }) 
             href={project.link.git}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-sora font-semibold px-4 py-2.5 rounded-full border border-border-color text-text-secondary hover:border-neon-cyan hover:text-neon-cyan transition-all duration-300 flex items-center gap-2"
+            className="text-xs font-sora font-semibold px-4 py-2.5 rounded-full border border-border-color text-text-secondary hover:border-neon-indigo hover:text-neon-indigo transition-all duration-300 flex items-center gap-2"
           >
             <Github className="w-3.5 h-3.5" />
             <span>Repository</span>

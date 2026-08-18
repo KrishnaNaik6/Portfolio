@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Sora, Fira_Code } from 'next/font/google';
 import './globals.css';
 import { generatePersonJSONLD, generateWebSiteJSONLD } from '@/lib/seo';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -79,7 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const websiteJSONLD = generateWebSiteJSONLD();
 
   return (
-    <html lang="en" data-theme="dark" className={`${inter.variable} ${sora.variable} ${firaCode.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${sora.variable} ${firaCode.variable}`}>
       <head>
         <script
           type="application/ld+json"
@@ -91,15 +92,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-bg-main text-text-primary antialiased selection:bg-neon-cyan/20 selection:text-neon-cyan relative min-h-screen">
-        {/* Ambient Glowing Mesh Background */}
-        <div className="bg-ambient-mesh" aria-hidden="true">
-          <div className="ambient-blob-1" />
-          <div className="ambient-blob-2" />
-          <div className="ambient-blob-3" />
-        </div>
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+          {/* Ambient Glowing Mesh Background */}
+          <div className="bg-ambient-mesh" aria-hidden="true">
+            <div className="ambient-blob-1" />
+            <div className="ambient-blob-2" />
+            <div className="ambient-blob-3" />
+          </div>
 
-        {/* Content Body */}
-        <div className="relative z-10">{children}</div>
+          {/* Content Body */}
+          <div className="relative z-10">{children}</div>
+        </ThemeProvider>
       </body>
     </html>
   );

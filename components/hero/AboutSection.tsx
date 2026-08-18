@@ -11,18 +11,18 @@ interface AboutSectionProps {
 
 const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
   return (
-    <SectionWrapper ref={sectionRef} id="about" title="About" terminalCommand="whoami">
+    <SectionWrapper ref={sectionRef} id="about" title="About Me" terminalCommand="whoami">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
         {/* Main Editorial Card */}
-        <GlassCard className="lg:col-span-8 p-8 md:p-12 shadow-2xl flex flex-col justify-between">
+        <GlassCard className="lg:col-span-8 p-8 md:p-12 shadow-2xl flex flex-col justify-between border-neon-indigo/30">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan text-xs font-mono">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-neon-indigo/15 border border-neon-indigo/30 text-neon-indigo text-xs font-mono">
               <Sparkles size={14} />
-              <span>Bio & Philosophy</span>
+              <span>BIO & PHILOSOPHY</span>
             </div>
 
             <p className="text-xl md:text-2xl text-text-primary leading-relaxed font-sora font-semibold tracking-tight">
-              I'm <strong className="text-neon-cyan font-bold text-glow-cyan">Krishna Naik</strong>, a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology.
+              I'm <strong className="text-neon-indigo font-bold text-glow-indigo">Krishna Naik</strong>, a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology.
             </p>
 
             <p className="text-text-secondary leading-relaxed text-base md:text-lg">
@@ -37,8 +37,8 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
 
         {/* Side Highlight Pillars */}
         <div className="lg:col-span-4 flex flex-col gap-6">
-          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-cyan/10 to-transparent border-neon-cyan/20">
-            <div className="p-3 rounded-xl bg-neon-cyan/20 w-fit mb-4 text-neon-cyan">
+          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 to-transparent border-neon-indigo/25">
+            <div className="p-3 rounded-xl bg-neon-indigo/20 w-fit mb-4 text-neon-indigo">
               <Cpu size={24} />
             </div>
             <div>
@@ -49,8 +49,8 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
             </div>
           </GlassCard>
 
-          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-purple/10 to-transparent border-neon-purple/20">
-            <div className="p-3 rounded-xl bg-neon-purple/20 w-fit mb-4 text-neon-purple">
+          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-cyan/10 to-transparent border-neon-cyan/25">
+            <div className="p-3 rounded-xl bg-neon-cyan/20 w-fit mb-4 text-neon-cyan">
               <Code2 size={24} />
             </div>
             <div>

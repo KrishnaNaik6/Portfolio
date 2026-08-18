@@ -3,8 +3,18 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import TypingText from '../ui/TypingText';
-import { ArrowDownRight, Sparkles, FileText, Send } from 'lucide-react';
+import { ArrowDownRight, FileText, Send, Sparkles } from 'lucide-react';
 import AnchorLink from '../ui/AnchorLink';
+import dynamic from 'next/dynamic';
+
+const Hero3DCanvas = dynamic(() => import('./Hero3DCanvas'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[320px] sm:h-[380px] md:h-[450px] flex items-center justify-center">
+      <div className="w-12 h-12 border-2 border-neon-indigo/20 border-t-neon-indigo rounded-full animate-spin" />
+    </div>
+  ),
+});
 
 interface WelcomeProps {
   onComplete: () => void;
@@ -19,84 +29,101 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
     }
   }, [complete, onComplete]);
 
-  const badges = ['Full-Stack Dev', 'AI & ML Engineer', 'React 19 / Next.js', 'TypeScript', 'Python'];
+  const badges = ['Full-Stack Dev', 'AI & ML Systems', 'React 19 / Next.js 15', 'TypeScript', 'Python'];
 
   return (
-    <div className="flex flex-col items-center justify-center bg-transparent pt-12 pb-16 px-4 text-center relative z-10 max-w-6xl mx-auto">
-      {/* Status Badge Pill */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/60 border border-neon-cyan/30 text-neon-cyan text-xs font-mono tracking-widest uppercase mb-8 shadow-[0_0_20px_rgba(0,245,212,0.15)]"
-      >
-        <span className="w-2 h-2 rounded-full bg-neon-cyan animate-ping" />
-        <span>SYSTEM ONLINE // BENGALURU, IN</span>
-      </motion.div>
-
-      {/* Main Title Banner with Typing Effect */}
-      <h1
-        className="
-          text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black font-sora
-          bg-gradient-to-r from-neon-cyan via-text-primary to-neon-purple
-          text-transparent bg-clip-text
-          tracking-tight select-none leading-[1.1] max-w-5xl mx-auto mb-8
-          drop-shadow-sm
-        "
-      >
-        <TypingText speed={40} onComplete={() => setComplete(true)}>
-          Hey there!! Welcome to my Portfolio
-        </TypingText>
-      </h1>
-
-      {/* Interactive Tech Badge Pills */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-        className="flex flex-wrap items-center justify-center gap-2.5 max-w-3xl mx-auto mb-10"
-      >
-        {badges.map((badge, idx) => (
-          <span
-            key={idx}
-            className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-card-bg border border-white/10 text-text-secondary hover:text-neon-cyan hover:border-neon-cyan/40 transition-all cursor-default shadow-sm"
-          >
-            #{badge}
-          </span>
-        ))}
-      </motion.div>
-
-      {/* CTA Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.6 }}
-        className="flex flex-wrap items-center justify-center gap-4"
-      >
-        <AnchorLink to="projects">
-          <div className="px-6 py-3.5 rounded-full bg-neon-cyan text-bg-main font-bold text-sm font-sora flex items-center gap-2 hover:bg-neon-cyan/90 transition-all shadow-[0_0_20px_rgba(0,245,212,0.4)] hover:scale-105 cursor-pointer">
-            <span>Explore Projects</span>
-            <ArrowDownRight size={18} />
-          </div>
-        </AnchorLink>
-
-        <AnchorLink to="contact">
-          <div className="px-6 py-3.5 rounded-full bg-card-bg border border-white/15 text-text-primary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-purple hover:text-neon-purple transition-all hover:scale-105 cursor-pointer">
-            <Send size={16} />
-            <span>Get in Touch</span>
-          </div>
-        </AnchorLink>
-
-        <a
-          href="/KrishnaNaik.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-6 py-3.5 rounded-full bg-card-bg border border-white/15 text-text-secondary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-pink hover:text-neon-pink transition-all hover:scale-105"
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8 pb-16 px-4 max-w-7xl mx-auto relative z-10">
+      {/* Left Column: Asymmetric Editorial Typography & Hero Copy */}
+      <div className="lg:col-span-7 flex flex-col text-left space-y-6">
+        {/* Editorial Subtitle Pill */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-950/40 dark:bg-slate-900/60 border border-neon-indigo/30 text-neon-indigo text-xs font-mono tracking-widest uppercase w-fit shadow-[0_0_20px_rgba(99,102,241,0.2)]"
         >
-          <FileText size={16} />
-          <span>Resume</span>
-        </a>
-      </motion.div>
+          <span className="w-2 h-2 rounded-full bg-neon-indigo animate-ping" />
+          <span>01 / CREATIVE DEVELOPER & AI ENGINEER</span>
+        </motion.div>
+
+        {/* Display Title with Typing Effect */}
+        <h1
+          className="
+            text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-sora
+            bg-gradient-to-r from-neon-indigo via-text-primary to-neon-cyan
+            text-transparent bg-clip-text
+            tracking-tight select-none leading-[1.1]
+          "
+        >
+          <TypingText speed={40} onComplete={() => setComplete(true)}>
+            Hey there!! Welcome to my Portfolio
+          </TypingText>
+        </h1>
+
+        {/* Short Editorial Intro Paragraph */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="text-text-secondary text-base md:text-lg max-w-2xl leading-relaxed font-normal"
+        >
+          Computer Science student specializing in AI & ML at Ramaiah Institute of Technology. Crafting intelligent systems, full-stack web applications, and immersive digital experiences.
+        </motion.p>
+
+        {/* Interactive Tech Badge Pills */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="flex flex-wrap gap-2.5 pt-2"
+        >
+          {badges.map((badge, idx) => (
+            <span
+              key={idx}
+              className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-card-bg border border-white/10 text-text-secondary hover:text-neon-indigo hover:border-neon-indigo/40 transition-all cursor-default shadow-sm"
+            >
+              #{badge}
+            </span>
+          ))}
+        </motion.div>
+
+        {/* Action CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.6 }}
+          className="flex flex-wrap items-center gap-4 pt-4"
+        >
+          <AnchorLink to="projects">
+            <div className="px-7 py-4 rounded-full bg-neon-indigo text-white font-bold text-sm font-sora flex items-center gap-2.5 hover:bg-neon-indigo/90 transition-all shadow-[0_0_25px_rgba(99,102,241,0.4)] hover:scale-105 cursor-pointer">
+              <span>EXPLORE WORK</span>
+              <ArrowDownRight size={18} />
+            </div>
+          </AnchorLink>
+
+          <AnchorLink to="contact">
+            <div className="px-7 py-4 rounded-full bg-card-bg border border-white/15 text-text-primary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-cyan hover:text-neon-cyan transition-all hover:scale-105 cursor-pointer">
+              <Send size={16} />
+              <span>CONNECT</span>
+            </div>
+          </AnchorLink>
+
+          <a
+            href="/KrishnaNaik.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-7 py-4 rounded-full bg-card-bg border border-white/15 text-text-secondary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-rose hover:text-neon-rose transition-all hover:scale-105"
+          >
+            <FileText size={16} />
+            <span>RESUME</span>
+          </a>
+        </motion.div>
+      </div>
+
+      {/* Right Column: Interactive 3D Cosmic Core Visual */}
+      <div className="lg:col-span-5 w-full">
+        <Hero3DCanvas />
+      </div>
     </div>
   );
 };

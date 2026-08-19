@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { ProjectItem } from '@/lib/types';
-import SectionWrapper from '../ui/SectionWrapper';
+import SectionWrapper, { staggerContainer } from '../ui/SectionWrapper';
 import ProjectCard from '../cards/ProjectCard';
+import { motion } from 'framer-motion';
 
 interface ProjectsSectionProps {
   initialProjects?: ProjectItem[];
@@ -45,7 +46,13 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
           </span>
         </div>
       ) : projects.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-20px' }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           {projects.map((project, index) => (
             <ProjectCard
               key={project.name || index}
@@ -54,7 +61,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
               featured={index === 0}
             />
           ))}
-        </div>
+        </motion.div>
       ) : (
         <div className="text-center text-text-secondary font-mono py-8">
           No projects available at the moment.

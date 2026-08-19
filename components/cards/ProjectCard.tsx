@@ -29,21 +29,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
   const x = useMotionValue(0.5);
   const y = useMotionValue(0.5);
 
-  const initialRotateX = -2;
-  const initialRotateY = 2;
-
   const springConfig = { damping: 20, stiffness: 150, mass: 1 };
   const sx = useSpring(x, springConfig);
   const sy = useSpring(y, springConfig);
 
-  const rotateX = useTransform(sy, [0, 1], [8, -8]);
-  const rotateY = useTransform(sx, [0, 1], [-12, 12]);
-
-  const finalRotateX = useTransform(rotateX, (rx) => `calc(${rx}deg + ${initialRotateX}deg)`);
-  const finalRotateY = useTransform(rotateY, (ry) => `calc(${ry}deg + ${initialRotateY}deg)`);
+  const rotateX = useTransform(sy, [0, 1], [6, -6]);
+  const rotateY = useTransform(sx, [0, 1], [-8, 8]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
+    if (!ref.current || window.innerWidth < 768) return;
     const rect = ref.current.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -68,17 +62,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
       variants={itemVariants}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onTouchEnd={handleMouseLeave}
-      onTouchCancel={handleMouseLeave}
-      whileHover={{ scale: 1.02, z: 50 }}
+      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       style={{
-        rotateX: finalRotateX,
-        rotateY: finalRotateY,
-        scale: useTransform(sx, [0, 1], [1, 1.02]),
-        transformStyle: 'preserve-3d',
+        rotateX,
+        rotateY,
       }}
-      className={`rounded-3xl transition-shadow duration-300 will-change-transform perspective-1000 relative z-10 h-full flex flex-col ${
+      className={`rounded-3xl transition-shadow duration-300 relative z-10 h-full flex flex-col ${
         featured ? 'md:col-span-2' : ''
       }`}
     >
@@ -89,14 +79,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
           shadow-2xl group overflow-hidden transition-all duration-300
           ${featured ? 'bg-gradient-to-br from-card-bg via-card-bg to-neon-indigo/15 border-neon-indigo/30' : ''}
         `}
-        style={{
-          transform: 'translateZ(30px)',
-        }}
       >
         {/* Neon Glow Hover Ring */}
         <div className="absolute inset-0 rounded-3xl pointer-events-none transition-all duration-500 group-hover:ring-2 group-hover:ring-neon-indigo/70 group-hover:shadow-[0_0_30px_var(--shadow-indigo)]" />
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 relative z-10">
           <div className="flex justify-between items-start gap-4">
             <div>
               <span className="text-xs font-mono text-neon-indigo font-bold block mb-1">
@@ -139,7 +126,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex flex-wrap items-center gap-3 pt-5 border-t border-border-color">
+        <div className="mt-8 flex flex-wrap items-center gap-3 pt-5 border-t border-border-color relative z-10">
           {project.link.live ? (
             <a
               href={project.link.live}

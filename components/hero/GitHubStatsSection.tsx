@@ -34,7 +34,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { GitHubUser, GitHubRepo, ExtraStats, GitHubContributionsResponse } from '@/lib/types';
+import { GitHubUser, GitHubRepo, ExtraStats, GitHubContributionsResponse, GitHubStatsResponse } from '@/lib/types';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
 import GitHubContributionGraph from './GitHubContributionGraph';
@@ -72,20 +72,22 @@ const MetricRow: React.FC<MetricRowProps> = ({ label, value, icon: Icon, colorCl
 
 interface GitHubStatsSectionProps {
   initialUsername?: string;
+  initialStats?: GitHubStatsResponse | null;
   sectionRef?: React.RefObject<HTMLElement | null>;
 }
 
 const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
   initialUsername = 'KrishnaNaik6',
+  initialStats = null,
   sectionRef,
 }) => {
   const [username, setUsername] = useState(initialUsername);
   const [searchInput, setSearchInput] = useState('');
-  const [user, setUser] = useState<GitHubUser | null>(null);
-  const [repos, setRepos] = useState<GitHubRepo[]>([]);
-  const [extraStats, setExtraStats] = useState<ExtraStats>({ commits: 0, prs: 0, issues: 0 });
-  const [contributionsData, setContributionsData] = useState<GitHubContributionsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<GitHubUser | null>(initialStats?.user || null);
+  const [repos, setRepos] = useState<GitHubRepo[]>(initialStats?.repos || []);
+  const [extraStats, setExtraStats] = useState<ExtraStats>(initialStats?.extraStats || { commits: 0, prs: 0, issues: 0 });
+  const [contributionsData, setContributionsData] = useState<GitHubContributionsResponse | null>(initialStats?.contributionsData || null);
+  const [loading, setLoading] = useState(!initialStats);
   const [error, setError] = useState<string | null>(null);
 
   const { resolvedTheme } = useTheme();
@@ -146,8 +148,16 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
   };
 
   useEffect(() => {
+    if (initialStats && username === initialUsername) {
+      setUser(initialStats.user);
+      setRepos(initialStats.repos || []);
+      setExtraStats(initialStats.extraStats || { commits: 0, prs: 0, issues: 0 });
+      setContributionsData(initialStats.contributionsData || null);
+      setLoading(false);
+      return;
+    }
     fetchData(username);
-  }, [username]);
+  }, [username, initialStats, initialUsername]);
 
   const stats = useMemo(() => {
     if (!repos.length) return { languages: {}, topRepos: [], totalStars: 0, totalForks: 0 };

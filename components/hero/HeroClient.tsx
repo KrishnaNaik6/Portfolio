@@ -15,19 +15,25 @@ import Footer from '../footer/Footer';
 import CustomCursor from '../ui/CustomCursor';
 import Background3DParticles from '../3d/Background3DParticles';
 import { CircleArrowDown, CircleArrowUp } from 'lucide-react';
-import { PortfolioDetails, ProjectItem } from '@/lib/types';
+import { PortfolioDetails, ProjectItem, GitHubStatsResponse } from '@/lib/types';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface HeroClientProps {
   initialDetails: PortfolioDetails | null;
   initialProjects: ProjectItem[];
+  initialStats?: GitHubStatsResponse | null;
 }
 
-const HeroClient: React.FC<HeroClientProps> = ({ initialDetails, initialProjects }) => {
+const HeroClient: React.FC<HeroClientProps> = ({
+  initialDetails,
+  initialProjects,
+  initialStats = null,
+}) => {
   const [activeSection, setActiveSection] = useState<string>('about');
   const [showContent, setShowContent] = useState<boolean>(false);
   const [details, setDetails] = useState<PortfolioDetails | null>(initialDetails);
   const [projects, setProjects] = useState<ProjectItem[]>(initialProjects);
+  const [stats, setStats] = useState<GitHubStatsResponse | null>(initialStats);
   const [atBottom, setAtBottom] = useState<boolean>(false);
 
   const aboutRef = useRef<HTMLElement>(null);
@@ -60,7 +66,16 @@ const HeroClient: React.FC<HeroClientProps> = ({ initialDetails, initialProjects
         })
         .catch((err) => console.error('Error fetching projects fallback:', err));
     }
-  }, [showContent, details, projects.length]);
+
+    if (!stats) {
+      fetch('/api/github/stats/KrishnaNaik6')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data) setStats(data);
+        })
+        .catch((err) => console.error('Error fetching stats fallback:', err));
+    }
+  }, [showContent, details, projects.length, stats]);
 
   // Section Observer for active header highlight
   useEffect(() => {
@@ -137,7 +152,7 @@ const HeroClient: React.FC<HeroClientProps> = ({ initialDetails, initialProjects
               <ProjectsSection sectionRef={projRef} initialProjects={projects} />
               <SkillsSection sectionRef={skillRef} skillData={details?.skills} />
               <InterestSection sectionRef={interestRef} interest={details?.interest || []} />
-              <GitHubStatsSection sectionRef={gitRef} initialUsername="KrishnaNaik6" />
+              <GitHubStatsSection sectionRef={gitRef} initialUsername="KrishnaNaik6" initialStats={stats} />
               <ContactSection sectionRef={contactRef} contact={details?.contact} />
               <Footer contact={details?.contact} />
             </motion.div>

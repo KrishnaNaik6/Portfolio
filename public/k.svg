@@ -1,6 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="150" height="150">
-  <rect width="100" height="100" rx="15" fill="#0f172a"/>
-  <text x="50%" y="50%" fill="#a78bfa" font-size="60" font-family="Poppins, sans-serif" font-weight="700" text-anchor="middle" dominant-baseline="middle">
-    K
-  </text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0C10"/>
+      <stop offset="50%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </linearGradient>
+
+    <!-- Border Glow Gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+
+    <!-- Letter Gradient -->
+    <linearGradient id="letterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#E0E7FF"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+
+    <!-- Accent Gradient -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#6366F1" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect x="16" y="16" width="480" height="480" rx="110" fill="url(#bgGrad)"/>
+  
+  <!-- Glowing Border -->
+  <rect x="16" y="16" width="480" height="480" rx="110" fill="none" stroke="url(#borderGrad)" stroke-width="12" filter="url(#glow)"/>
+
+  <!-- Inner Subtle Grid Lines -->
+  <path d="M 120 16 L 120 496 M 392 16 L 392 496 M 16 120 L 496 120 M 16 392 L 496 392" stroke="#6366F1" stroke-opacity="0.08" stroke-width="2"/>
+
+  <!-- Modern Geometric 'K' -->
+  <g transform="translate(4, 0)">
+    <!-- Vertical Pillar -->
+    <path d="M 148 132 L 204 132 L 204 380 L 148 380 Z" fill="url(#letterGrad)" rx="8"/>
+
+    <!-- Upper Diagonal Arm -->
+    <path d="M 194 268 L 316 136 C 322 130 334 132 346 132 L 372 132 C 382 132 386 142 378 150 L 254 284 Z" fill="url(#letterGrad)"/>
+
+    <!-- Lower Diagonal Leg with Cyan Gradient -->
+    <path d="M 238 262 L 368 368 C 376 374 372 380 360 380 L 308 380 C 298 380 288 376 282 370 L 186 286 Z" fill="url(#accentGrad)"/>
+  </g>
+
+  <!-- Glowing Terminal Accent Dot -->
+  <circle cx="376" cy="144" r="16" fill="#06B6D4" filter="url(#glow)"/>
+  <circle cx="376" cy="144" r="8" fill="#FFFFFF"/>
 </svg>

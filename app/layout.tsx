@@ -74,9 +74,17 @@ export const metadata: Metadata = {
   creator: 'Krishna Naik',
   publisher: 'Krishna Naik',
   icons: {
-    icon: '/k.svg',
+    icon: [
+      { url: '/k.svg', type: 'image/svg+xml' },
+      { url: '/k.svg', sizes: '32x32', type: 'image/svg+xml' },
+      { url: '/k.svg', sizes: '16x16', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/k.svg', sizes: '180x180', type: 'image/svg+xml' },
+    ],
     shortcut: '/k.svg',
   },
+  manifest: '/manifest.webmanifest',
   alternates: {
     canonical: 'https://krishna-naik.vercel.app',
   },

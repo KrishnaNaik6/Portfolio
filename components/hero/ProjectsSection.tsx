@@ -46,13 +46,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
           </span>
         </div>
       ) : projects.length > 0 ? (
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-20px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {projects.map((project, index) => (
             <ProjectCard
               key={project.name || index}
@@ -61,7 +55,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
               featured={index === 0}
             />
           ))}
-        </motion.div>
+        </div>
       ) : (
         <div className="text-center text-text-secondary font-mono py-8">
           No projects available at the moment.

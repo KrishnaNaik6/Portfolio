@@ -11,25 +11,22 @@ interface SectionWrapperProps {
 }
 
 export const fadeIn: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
 };
 
 export const staggerContainer: Variants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
+      staggerChildren: 0.08,
+      delayChildren: 0.05,
     },
   },
 };
 
 const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
   ({ id, title, terminalCommand, children }, ref) => {
-    const localRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(localRef, { once: true, amount: 0.1 });
-
     const sectionNumbers: Record<string, string> = {
       about: '02',
       education: '03',
@@ -47,37 +44,38 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
       <section
         id={id.toLowerCase()}
         ref={ref}
-        className="py-14 md:py-24 relative z-10 scroll-mt-24"
+        className="py-10 md:py-24 relative z-10 scroll-mt-20"
       >
         <motion.div
-          ref={localRef}
           initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
+          whileInView="visible"
+          viewport={{ once: true, margin: '150px 0px -50px 0px', amount: 'some' }}
           variants={fadeIn}
-          className="max-w-7xl mx-auto px-6 lg:px-8"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         >
           {/* Editorial Section Header */}
-          <div className="mb-12 group flex flex-col items-start gap-1.5">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-mono text-neon-indigo font-bold tracking-widest px-3 py-1 rounded-full bg-neon-indigo/10 border border-neon-indigo/30 shadow-sm">
+          <div className="mb-8 md:mb-12 group flex flex-col items-start gap-1.5">
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+              <span className="text-[11px] sm:text-xs font-mono text-neon-indigo font-bold tracking-widest px-2.5 py-1 rounded-full bg-neon-indigo/10 border border-neon-indigo/30 shadow-sm">
                 {num} // SECTION
               </span>
-              <h2 className="text-2xl md:text-4xl font-black font-sora tracking-tight text-text-primary uppercase">
+              <h2 className="text-xl sm:text-2xl md:text-4xl font-black font-sora tracking-tight text-text-primary uppercase">
                 {title || id}
               </h2>
             </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-text-secondary mt-1">
+            <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-text-secondary mt-1">
               <span className="text-neon-cyan">~KrishnaNaik6</span>
               <span>{'>'}</span>
               <span className="text-neon-rose">{terminalCommand}</span>
             </div>
-            <div className="w-full h-px bg-gradient-to-r from-neon-indigo/60 via-neon-cyan/40 to-transparent mt-4" />
+            <div className="w-full h-px bg-gradient-to-r from-neon-indigo/60 via-neon-cyan/40 to-transparent mt-3 sm:mt-4" />
           </div>
 
           {/* Section Content */}
           <motion.div
             initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
+            whileInView="visible"
+            viewport={{ once: true, margin: '150px 0px -50px 0px', amount: 'some' }}
             variants={staggerContainer}
           >
             {children}

@@ -4,9 +4,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
-import { useTheme } from 'next-themes';
 
-const CyberGlobeScene: React.FC<{ isDark: boolean; isMobile: boolean }> = ({ isDark, isMobile }) => {
+const CyberGlobeScene: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const globeRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
 
@@ -70,7 +69,6 @@ const CyberGlobeScene: React.FC<{ isDark: boolean; isMobile: boolean }> = ({ isD
 };
 
 const Contact3DGlobe: React.FC = () => {
-  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -84,17 +82,13 @@ const Contact3DGlobe: React.FC = () => {
 
   if (!mounted) return null;
 
-  const isDark = resolvedTheme === 'dark';
-
   return (
     <div className="w-full h-[240px] sm:h-[300px] absolute inset-0 pointer-events-none opacity-40">
       <Canvas camera={{ position: [0, 0, 4.5], fov: 50 }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
-        <CyberGlobeScene isDark={isDark} isMobile={isMobile} />
+        <CyberGlobeScene isMobile={isMobile} />
       </Canvas>
     </div>
   );
 };
 
 export default Contact3DGlobe;
-
-

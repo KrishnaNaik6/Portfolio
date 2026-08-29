@@ -1,17 +1,33 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Sparkles, Github, Linkedin, Instagram, Mail, ArrowUpRight } from 'lucide-react';
 import AnchorLink from '../ui/AnchorLink';
-
-import { ContactInfo } from '@/lib/types';
+import { ContactInfo, SectionConfig } from '@/lib/types';
 
 interface FooterProps {
   contact?: ContactInfo;
+  sections?: SectionConfig[];
+  fullName?: string;
+  bio?: string;
 }
 
-const Footer: React.FC<FooterProps> = ({ contact }) => {
+const defaultNavLinks = [
+  { name: 'About', id: 'about' },
+  { name: 'Education', id: 'education' },
+  { name: 'Experience', id: 'experience' },
+  { name: 'Projects', id: 'projects' },
+  { name: 'Skills', id: 'skills' },
+  { name: 'Git Stats', id: 'git-stats' },
+  { name: 'Contact', id: 'contact' },
+];
+
+const Footer: React.FC<FooterProps> = ({
+  contact,
+  sections,
+  fullName = 'KRISHNA NAIK',
+  bio,
+}) => {
   const [mounted, setMounted] = useState(false);
   const [currentDate, setCurrentDate] = useState<string>('');
   const [year, setYear] = useState<number>(2026);
@@ -29,15 +45,21 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
     );
   }, []);
 
-  const navLinks = [
-    { name: 'About', id: 'about' },
-    { name: 'Education', id: 'education' },
-    { name: 'Experience', id: 'experience' },
-    { name: 'Projects', id: 'projects' },
-    { name: 'Skills', id: 'skills' },
-    { name: 'Git Stats', id: 'git-stats' },
-    { name: 'Contact', id: 'contact' },
-  ];
+  const navLinks = useMemo(() => {
+    if (!sections || sections.length === 0) return defaultNavLinks;
+
+    return sections
+      .filter((s) => s.enabled !== false && s.id !== 'hero' && s.id !== 'footer')
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((s) => {
+        const normalizedId = s.id === 'interests' ? 'interest' : s.id === 'github' ? 'git-stats' : s.id;
+        const defaultMatch = defaultNavLinks.find((d) => d.id === normalizedId);
+        return {
+          name: s.label || defaultMatch?.name || s.id,
+          id: normalizedId,
+        };
+      });
+  }, [sections]);
 
   const githubUrl = contact?.follow?.Github || 'https://github.com/KrishnaNaik6';
   const linkedinUrl = contact?.follow?.Linkedin;
@@ -69,18 +91,19 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
                 <Sparkles size={14} />
               </div>
               <span className="group-hover:text-neon-indigo transition-colors font-sora">
-                KRISHNA NAIK
+                {fullName.toUpperCase()}
               </span>
             </AnchorLink>
             <p className="text-xs sm:text-sm text-text-secondary max-w-md leading-relaxed">
-              Krishna Umesh Naik — Creative Full-Stack Developer & AI/ML Engineer based in Bengaluru, India. Building intelligent web systems, interactive 3D graphics, and high-performance applications.
+              {bio ||
+                'Krishna Umesh Naik — Creative Full-Stack Developer & AI/ML Engineer based in Bengaluru, India. Building intelligent web systems, interactive 3D graphics, and high-performance applications.'}
             </p>
           </div>
 
           {/* Quick Navigation Links */}
           <div className="lg:col-span-3 flex flex-col space-y-3">
             <h4 className="text-[11px] sm:text-xs font-mono font-bold text-neon-indigo uppercase tracking-widest">
-              // Navigation
+              {'// Navigation'}
             </h4>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:flex sm:flex-col sm:space-y-1.5">
               {navLinks.map((link) => (
@@ -99,7 +122,7 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
           {/* Social Links */}
           <div className="lg:col-span-3 flex flex-col space-y-3">
             <h4 className="text-[11px] sm:text-xs font-mono font-bold text-neon-indigo uppercase tracking-widest">
-              // Connect
+              {'// Connect'}
             </h4>
             <div className="flex flex-wrap gap-2">
               {socialLinks.map((s) => {
@@ -147,7 +170,7 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
             <div className="inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-mono text-text-secondary px-2.5 py-1 rounded-lg sm:rounded-xl bg-slate-950/40 border border-border-color">
               <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>SYSTEM_ONLINE</span>
-              <span className="text-slate-600">//</span>
+              <span className="text-slate-600">{'//'}</span>
               <span className="text-neon-indigo font-bold">{currentDate}</span>
             </div>
           )}
@@ -156,7 +179,7 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
         {/* Copyright Bar */}
         <div className="pt-2 text-center">
           <p className="text-[11px] sm:text-xs font-mono text-text-secondary tracking-wider">
-            © {year} <span className="text-text-primary font-semibold font-sora">Krishna Naik</span> (Krishna Umesh Naik). All Rights Reserved.
+            © {year} <span className="text-text-primary font-semibold font-sora">{fullName}</span>. All Rights Reserved.
           </p>
         </div>
       </div>

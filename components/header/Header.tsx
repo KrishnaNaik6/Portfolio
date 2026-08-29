@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu,
@@ -20,12 +20,39 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import AnchorLink from '../ui/AnchorLink';
+import { SectionConfig } from '@/lib/types';
 
 interface HeaderProps {
   activeSection: string;
+  sections?: SectionConfig[];
+  fullName?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeSection }) => {
+const defaultNavItems = [
+  { name: 'About', id: 'about', icon: User },
+  { name: 'Education', id: 'education', icon: GraduationCap },
+  { name: 'Experience', id: 'experience', icon: Briefcase },
+  { name: 'Projects', id: 'projects', icon: FolderGit2 },
+  { name: 'Skills', id: 'skills', icon: Code2 },
+  { name: 'Interest', id: 'interest', icon: Compass },
+  { name: 'Git Stats', id: 'git-stats', icon: Activity },
+  { name: 'Contact', id: 'contact', icon: Mail },
+];
+
+const iconMap: Record<string, any> = {
+  about: User,
+  education: GraduationCap,
+  experience: Briefcase,
+  projects: FolderGit2,
+  skills: Code2,
+  interest: Compass,
+  interests: Compass,
+  'git-stats': Activity,
+  github: Activity,
+  contact: Mail,
+};
+
+const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KRISHNA' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -39,16 +66,22 @@ const Header: React.FC<HeaderProps> = ({ activeSection }) => {
     return () => clearInterval(timer);
   }, []);
 
-  const navItems = [
-    { name: 'About', id: 'about', icon: User },
-    { name: 'Education', id: 'education', icon: GraduationCap },
-    { name: 'Experience', id: 'experience', icon: Briefcase },
-    { name: 'Projects', id: 'projects', icon: FolderGit2 },
-    { name: 'Skills', id: 'skills', icon: Code2 },
-    { name: 'Interest', id: 'interest', icon: Compass },
-    { name: 'Git Stats', id: 'git-stats', icon: Activity },
-    { name: 'Contact', id: 'contact', icon: Mail },
-  ];
+  const navItems = useMemo(() => {
+    if (!sections || sections.length === 0) return defaultNavItems;
+
+    return sections
+      .filter((s) => s.enabled !== false && s.id !== 'hero' && s.id !== 'footer')
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((s) => {
+        const normalizedId = s.id === 'interests' ? 'interest' : s.id === 'github' ? 'git-stats' : s.id;
+        const defaultMatch = defaultNavItems.find((d) => d.id === normalizedId);
+        return {
+          name: s.label || defaultMatch?.name || s.id,
+          id: normalizedId,
+          icon: iconMap[s.id] || iconMap[normalizedId] || Sparkles,
+        };
+      });
+  }, [sections]);
 
   const cycleTheme = () => {
     if (theme === 'dark') setTheme('light');
@@ -61,6 +94,8 @@ const Header: React.FC<HeaderProps> = ({ activeSection }) => {
     if (resolvedTheme === 'dark') return <Moon size={14} className="text-neon-indigo" />;
     return <Sun size={14} className="text-neon-rose" />;
   };
+
+  const displayName = fullName ? fullName.split(' ')[0].toUpperCase() : 'KRISHNA';
 
   return (
     <>
@@ -81,7 +116,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection }) => {
               <Sparkles size={15} />
             </div>
             <span className="text-text-primary group-hover:text-neon-indigo transition-colors font-sora">
-              <span className="text-xs font-mono text-neon-indigo mr-1.5 font-normal">01 /</span>KRISHNA
+              <span className="text-xs font-mono text-neon-indigo mr-1.5 font-normal">01 /</span>{displayName}
             </span>
           </AnchorLink>
 
@@ -203,7 +238,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection }) => {
             className="fixed top-20 left-4 right-4 z-40 lg:hidden p-6 backdrop-blur-2xl bg-card-bg border border-border-color rounded-3xl shadow-2xl max-w-md mx-auto"
           >
             <div className="flex flex-col space-y-2">
-              {navItems.map((item) => {
+              {navItems.map((item, idx) => {
                 const IconComponent = item.icon;
                 return (
                   <AnchorLink
@@ -220,7 +255,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection }) => {
                       <IconComponent size={18} />
                       <span>{item.name}</span>
                     </div>
-                    <span className="text-xs text-text-secondary font-mono">/0{navItems.indexOf(item) + 1}</span>
+                    <span className="text-xs text-text-secondary font-mono">/0{idx + 1}</span>
                   </AnchorLink>
                 );
               })}
@@ -233,5 +268,3 @@ const Header: React.FC<HeaderProps> = ({ activeSection }) => {
 };
 
 export default Header;
-
-

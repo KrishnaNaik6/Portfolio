@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { motion, useInView, Variants } from 'framer-motion';
+import React from 'react';
+import { motion, Variants } from 'framer-motion';
 
 interface SectionWrapperProps {
   id: string;
@@ -57,7 +57,7 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
           <div className="mb-8 md:mb-12 group flex flex-col items-start gap-1.5">
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
               <span className="text-[11px] sm:text-xs font-mono text-neon-indigo font-bold tracking-widest px-2.5 py-1 rounded-full bg-neon-indigo/10 border border-neon-indigo/30 shadow-sm">
-                {num} // SECTION
+                {`${num} // SECTION`}
               </span>
               <h2 className="text-xl sm:text-2xl md:text-4xl font-black font-sora tracking-tight text-text-primary uppercase">
                 {title || id}
@@ -89,4 +89,3 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
 SectionWrapper.displayName = 'SectionWrapper';
 
 export default SectionWrapper;
-

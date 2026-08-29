@@ -4,7 +4,6 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Sparkles, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { useTheme } from 'next-themes';
 
 const createCodeFaceTexture = (symbol: string, codeSnippet: string, mainColor: string) => {
   if (typeof window === 'undefined') return null;
@@ -173,7 +172,6 @@ const Transparent3DCodeCube: React.FC<{ isMobile: boolean }> = ({ isMobile }) =>
 };
 
 const Skills3DConstellation: React.FC = () => {
-  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 

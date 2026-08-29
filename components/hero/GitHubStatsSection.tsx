@@ -14,14 +14,13 @@ import {
   Filler,
   RadialLinearScale,
 } from 'chart.js';
-import { Bar, Radar } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import {
   Github,
   Star,
   GitFork,
   TrendingUp,
   Activity,
-  Layers,
   Globe,
   Search,
   ExternalLink,
@@ -195,7 +194,6 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
 
   const isDark = resolvedTheme === 'dark';
   const chartLabelColor = isDark ? '#94a3b8' : '#475569';
-  const chartGridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
 
   return (
     <SectionWrapper ref={sectionRef} id="git-stats" title="GitHub Intelligence" terminalCommand="show $gitStats">
@@ -311,7 +309,7 @@ const GitHubStatsSection: React.FC<GitHubStatsSectionProps> = ({
                     Identity Broadcast
                   </p>
                   <p className="text-xs text-text-primary leading-relaxed font-medium italic">
-                    "{user.bio}"
+                    &ldquo;{user.bio}&rdquo;
                   </p>
                 </div>
               )}

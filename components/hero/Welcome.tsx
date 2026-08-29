@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import TypingText from '../ui/TypingText';
-import { ArrowDownRight, FileText, Send, Sparkles } from 'lucide-react';
+import { ArrowDownRight, FileText, Send } from 'lucide-react';
 import AnchorLink from '../ui/AnchorLink';
 import dynamic from 'next/dynamic';
+import { ProfileData } from '@/lib/types';
 
 const Hero3DCanvas = dynamic(() => import('./Hero3DCanvas'), {
   ssr: false,
@@ -18,9 +19,10 @@ const Hero3DCanvas = dynamic(() => import('./Hero3DCanvas'), {
 
 interface WelcomeProps {
   onComplete: () => void;
+  profile?: ProfileData;
 }
 
-const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
+const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile }) => {
   const [complete, setComplete] = useState(false);
 
   useEffect(() => {
@@ -30,6 +32,12 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
   }, [complete, onComplete]);
 
   const badges = ['Full-Stack Dev', 'AI & ML Systems', 'React 19 / Next.js 15', 'TypeScript', 'Python'];
+
+  const headline = profile?.headline
+    ? `01 / ${profile.headline.toUpperCase()}`
+    : '01 / CREATIVE DEVELOPER & AI ENGINEER';
+
+  const resumeHref = profile?.resumeUrl || '/KrishnaNaik.pdf';
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-8 pb-16 px-4 max-w-7xl mx-auto relative z-10">
@@ -43,7 +51,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-950/20 dark:bg-slate-900/60 border border-neon-indigo/30 text-neon-indigo text-xs font-mono tracking-widest uppercase w-fit shadow-[0_0_20px_rgba(99,102,241,0.2)]"
         >
           <span className="w-2 h-2 rounded-full bg-neon-indigo animate-ping" />
-          <span>01 / CREATIVE DEVELOPER & AI ENGINEER</span>
+          <span>{headline}</span>
         </motion.div>
 
         {/* Display Title with Typing Effect */}
@@ -67,7 +75,13 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="text-text-secondary text-base md:text-lg max-w-2xl leading-relaxed font-normal"
         >
-          I am <strong className="text-text-primary font-semibold">Krishna Naik</strong> (<strong className="text-text-primary font-semibold">Krishna Umesh Naik</strong>), a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology. Crafting intelligent systems, full-stack web applications, and immersive digital experiences.
+          {profile?.bio ? (
+            profile.bio
+          ) : (
+            <>
+              I am <strong className="text-text-primary font-semibold">Krishna Naik</strong> (<strong className="text-text-primary font-semibold">Krishna Umesh Naik</strong>), a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology. Crafting intelligent systems, full-stack web applications, and immersive digital experiences.
+            </>
+          )}
         </motion.p>
 
         {/* Interactive Tech Badge Pills */}
@@ -109,7 +123,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
           </AnchorLink>
 
           <a
-            href="/KrishnaNaik.pdf"
+            href={resumeHref}
             target="_blank"
             rel="noopener noreferrer"
             className="px-7 py-4 rounded-full bg-card-bg border border-border-color text-text-secondary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-rose hover:text-neon-rose transition-all hover:scale-105"
@@ -129,4 +143,3 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete }) => {
 };
 
 export default Welcome;
-

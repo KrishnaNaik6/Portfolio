@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchGitHubUserStats } from '@/lib/github';
+import { fetchNexisGitHubIntelligence } from '@/lib/nexis';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,21 @@ export async function GET(
     const { username } = await params;
     if (!username) {
       return NextResponse.json({ error: 'Username is required' }, { status: 400 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const year = searchParams.get('year') || undefined;
+
+    // For default portfolio user, attempt to fetch from NEXIS GitHub Intelligence endpoint first
+    if (username.toLowerCase() === 'krishnanaik6') {
+      const nexisIntel = await fetchNexisGitHubIntelligence(year);
+      if (nexisIntel && nexisIntel.user) {
+        return NextResponse.json(nexisIntel, {
+          headers: {
+            'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600',
+          },
+        });
+      }
     }
 
     const data = await fetchGitHubUserStats(username);
@@ -29,4 +45,3 @@ export async function GET(
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
-

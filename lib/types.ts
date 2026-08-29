@@ -1,16 +1,36 @@
+export interface SectionConfig {
+  id: string;
+  label?: string;
+  enabled: boolean;
+  order: number;
+}
+
+export interface ProfileData {
+  fullName?: string;
+  headline?: string;
+  bio?: string;
+  location?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  resumeUrl?: string | null;
+}
+
 export interface EducationItem {
   id?: string;
   edu: string;
   college: string;
   status: string;
   year?: string;
+  grade?: string | null;
 }
 
 export interface ExperienceItem {
+  id?: string;
   role: string;
   company: string;
   tenure_period: string;
   works: string[];
+  companyUrl?: string | null;
 }
 
 export interface TechnicalSkills {
@@ -36,7 +56,14 @@ export interface ContactInfo {
   };
 }
 
+export interface AchievementItem {
+  id?: string;
+  title: string;
+  description?: string | null;
+}
+
 export interface PortfolioDetails {
+  profile?: ProfileData;
   education: EducationItem[];
   experience: ExperienceItem[];
   skills: SkillData;
@@ -44,6 +71,8 @@ export interface PortfolioDetails {
   contact: ContactInfo;
   achievements?: string[];
   about?: string;
+  sections?: SectionConfig[];
+  publishedAt?: string;
 }
 
 export interface ProjectLink {
@@ -52,11 +81,14 @@ export interface ProjectLink {
 }
 
 export interface ProjectItem {
+  id?: string;
   name: string;
   description: string | null;
   link: ProjectLink;
   collabed?: boolean;
   type?: string;
+  featured?: boolean;
+  displayOrder?: number;
 }
 
 export interface GitHubUser {
@@ -109,4 +141,3 @@ export interface GitHubStatsResponse {
   extraStats: ExtraStats;
   contributionsData?: GitHubContributionsResponse;
 }
-

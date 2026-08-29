@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { ProjectItem } from '@/lib/types';
-import SectionWrapper, { staggerContainer } from '../ui/SectionWrapper';
+import SectionWrapper from '../ui/SectionWrapper';
 import ProjectCard from '../cards/ProjectCard';
-import { motion } from 'framer-motion';
 
 interface ProjectsSectionProps {
   initialProjects?: ProjectItem[];
@@ -16,15 +15,29 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
   const [loading, setLoading] = useState<boolean>(initialProjects.length === 0);
 
   useEffect(() => {
-    if (initialProjects.length > 0) return;
+    if (initialProjects.length > 0) {
+      setProjects(initialProjects);
+      setLoading(false);
+      return;
+    }
 
     const fetchProjects = async () => {
       try {
-        const res = await fetch('/api/github/projects');
-        if (!res.ok) throw new Error(`Server error: ${res.status}`);
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setProjects(data);
+        const res = await fetch('/api/portfolio');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.projects && Array.isArray(data.projects)) {
+            setProjects(data.projects);
+            return;
+          }
+        }
+        // Fallback to github route
+        const ghRes = await fetch('/api/github/projects');
+        if (ghRes.ok) {
+          const ghData = await ghRes.json();
+          if (Array.isArray(ghData)) {
+            setProjects(ghData);
+          }
         }
       } catch (err) {
         console.error('Error fetching projects:', err);
@@ -35,6 +48,8 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
 
     fetchProjects();
   }, [initialProjects]);
+
+  const hasExplicitFeatured = projects.some((p) => p.featured);
 
   return (
     <SectionWrapper ref={sectionRef} id="projects" title="Featured Projects" terminalCommand="echo $projects">
@@ -47,14 +62,17 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
         </div>
       ) : projects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={project.name || index}
-              project={project}
-              index={index}
-              featured={index === 0}
-            />
-          ))}
+          {projects.map((project, index) => {
+            const isFeatured = hasExplicitFeatured ? !!project.featured : index === 0;
+            return (
+              <ProjectCard
+                key={project.id || project.name || index}
+                project={project}
+                index={index}
+                featured={isFeatured}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="text-center text-text-secondary font-mono py-8">

@@ -13,15 +13,18 @@ const Contact3DGlobe = dynamic(() => import('../3d/Contact3DGlobe'), {
 
 interface ContactSectionProps {
   contact?: ContactInfo;
+  resumeUrl?: string | null;
   sectionRef?: React.RefObject<HTMLElement | null>;
 }
 
-const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) => {
+const ContactSection: React.FC<ContactSectionProps> = ({ contact, resumeUrl, sectionRef }) => {
   const mail = contact?.msg?.Mail;
   const phone = contact?.msg?.Phone;
   const linkedin = contact?.follow?.Linkedin;
   const instagram = contact?.follow?.Instagram;
   const github = contact?.follow?.Github;
+
+  const resumeHref = resumeUrl || '/KrishnaNaik.pdf';
 
   return (
     <SectionWrapper ref={sectionRef} id="contact" title="Get In Touch" terminalCommand="ssh reachout@krishna">
@@ -34,11 +37,11 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
           </div>
 
           <h3 className="text-3xl md:text-5xl lg:text-6xl font-black font-sora tracking-tight text-text-primary">
-            LET'S CREATE SOMETHING <span className="text-neon-indigo text-glow-indigo">EXTRAORDINARY.</span>
+            LET&apos;S CREATE SOMETHING <span className="text-neon-indigo text-glow-indigo">EXTRAORDINARY.</span>
           </h3>
 
           <p className="text-text-secondary text-base md:text-lg max-w-xl mx-auto font-medium">
-            "Don't hesitate to say hello 👋. I enjoy networking and learning from people across the world."
+            &ldquo;Don&apos;t hesitate to say hello 👋. I enjoy networking and learning from people across the world.&rdquo;
           </p>
         </div>
 
@@ -48,7 +51,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
           <div className="absolute inset-0 rounded-3xl pointer-events-none transition-all duration-500 ring-1 ring-neon-indigo/40 shadow-[0_0_35px_var(--shadow-indigo)] z-20" />
 
           <p className="text-sm md:text-base text-text-secondary mb-10 leading-relaxed max-w-lg mx-auto relative z-20">
-            I'm always open to feedback, opportunities, and collaborations in tech, AI, and development. Feel free to drop a message!
+            I&apos;m always open to feedback, opportunities, and collaborations in tech, AI, and development. Feel free to drop a message!
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 text-left gap-8 relative z-20">
@@ -78,7 +81,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
                     <div className="p-2.5 rounded-xl bg-neon-indigo/10 border border-neon-indigo/30 text-neon-indigo group-hover:scale-110 transition-transform mr-3.5">
                       <Phone size={16} />
                     </div>
-                    <span className="text-sm font-sora font-semibold">Let's Talk</span>
+                    <span className="text-sm font-sora font-semibold">Let&apos;s Talk</span>
                   </a>
                 )}
 
@@ -150,7 +153,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
         {/* Floating Resume Button */}
         <div className="text-center pt-2">
           <a
-            href="/KrishnaNaik.pdf"
+            href={resumeHref}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-neon-indigo via-neon-purple to-neon-indigo bg-[length:200%_auto] text-white font-bold text-sm font-sora hover:scale-105 transition-all shadow-[0_0_25px_rgba(99,102,241,0.4)] group"
@@ -165,4 +168,3 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) 
 };
 
 export default ContactSection;
-

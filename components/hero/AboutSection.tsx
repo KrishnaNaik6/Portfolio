@@ -6,11 +6,20 @@ import GlassCard from '../cards/GlassCard';
 import { Cpu, Code2, Sparkles, Terminal, Rocket } from 'lucide-react';
 
 interface AboutSectionProps {
+  bio?: string;
+  fullName?: string;
+  location?: string | null;
   achievements?: string[];
   sectionRef?: React.RefObject<HTMLElement | null>;
 }
 
-const AboutSection: React.FC<AboutSectionProps> = ({ achievements = [], sectionRef }) => {
+const AboutSection: React.FC<AboutSectionProps> = ({
+  bio,
+  fullName = 'Krishna Naik',
+  location = 'Bengaluru, IN',
+  achievements = [],
+  sectionRef,
+}) => {
   return (
     <SectionWrapper ref={sectionRef} id="about" title="About Me" terminalCommand="whoami">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
@@ -23,11 +32,12 @@ const AboutSection: React.FC<AboutSectionProps> = ({ achievements = [], sectionR
             </div>
 
             <p className="text-xl md:text-2xl text-text-primary leading-relaxed font-sora font-semibold tracking-tight">
-              I'm <strong className="text-neon-indigo font-bold text-glow-indigo">Krishna Naik</strong>, a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology.
+              I&apos;m <strong className="text-neon-indigo font-bold text-glow-indigo">{fullName}</strong>, a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology.
             </p>
 
             <p className="text-text-secondary leading-relaxed text-base md:text-lg">
-              I enjoy building full-stack applications and experimenting with intelligent systems that bridge the gap between technology and real-world impact. With hands-on experience in web development, backend systems, and AI-driven projects, I'm passionate about solving problems through innovation and creativity.
+              {bio ||
+                "I enjoy building full-stack applications and experimenting with intelligent systems that bridge the gap between technology and real-world impact. With hands-on experience in web development, backend systems, and AI-driven projects, I'm passionate about solving problems through innovation and creativity."}
             </p>
 
             {achievements && achievements.length > 0 && (
@@ -47,7 +57,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ achievements = [], sectionR
           <div className="pt-6 mt-6 border-t border-border-color flex flex-wrap items-center gap-4 text-xs font-mono text-text-secondary">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span>Based in Bengaluru, IN</span>
+              <span>Based in {location || 'Bengaluru, IN'}</span>
             </div>
             <span>•</span>
             <div className="flex items-center gap-2">
@@ -94,4 +104,3 @@ const AboutSection: React.FC<AboutSectionProps> = ({ achievements = [], sectionR
 };
 
 export default AboutSection;
-

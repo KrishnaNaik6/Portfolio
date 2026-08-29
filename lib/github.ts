@@ -2,18 +2,25 @@ import { PortfolioDetails, ProjectItem, GitHubStatsResponse, GitHubContributions
 
 const OWNER = 'KrishnaNaik6';
 
-export const getGitHubHeaders = () => {
+export const getGitHubHeaders = (includeAuth: boolean = true) => {
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
     'User-Agent': 'Krishna-Naik-Portfolio',
   };
 
-  const token = process.env.GITHUB_TOKEN;
-  if (token && token.trim()) {
-    headers.Authorization = token.startsWith('Bearer ') || token.startsWith('token ')
-      ? token.trim()
-      : `token ${token.trim()}`;
+  const token = process.env.GITHUB_TOKEN?.trim();
+  const isPlaceholder =
+    !token ||
+    token === 'your_github_token_here' ||
+    token.includes('your_') ||
+    token.startsWith('ghp_your');
+
+  if (includeAuth && !isPlaceholder && token) {
+    headers.Authorization =
+      token.startsWith('Bearer ') || token.startsWith('token ')
+        ? token
+        : `token ${token}`;
   }
 
   return headers;
@@ -22,7 +29,7 @@ export const getGitHubHeaders = () => {
 // Fetches education.json from the KrishnaNaik6/Education repo
 export async function fetchGitHubDetails(): Promise<PortfolioDetails | null> {
   try {
-    const res = await fetch(
+    let res = await fetch(
       `https://api.github.com/repos/${OWNER}/Education/contents/education.json`,
       {
         headers: getGitHubHeaders(),
@@ -30,8 +37,18 @@ export async function fetchGitHubDetails(): Promise<PortfolioDetails | null> {
       }
     );
 
+    // If 401 Unauthorized (bad token), retry without token
+    if (res.status === 401) {
+      res = await fetch(
+        `https://api.github.com/repos/${OWNER}/Education/contents/education.json`,
+        {
+          headers: getGitHubHeaders(false),
+          next: { revalidate: 3600 },
+        }
+      );
+    }
+
     if (!res.ok) {
-      console.error('[/api/github/details] GitHub API response:', res.status, res.statusText);
       return null;
     }
 
@@ -55,7 +72,7 @@ export async function fetchGitHubProjects(): Promise<ProjectItem[]> {
 
     // 1. Fetch repos the authenticated user can see (falls back to public repos if token lacks user scope)
     let allRepos: any[] = [];
-    const reposRes = await fetch(
+    let reposRes = await fetch(
       `https://api.github.com/user/repos?affiliation=owner,collaborator&visibility=public&per_page=100`,
       {
         headers,
@@ -63,13 +80,23 @@ export async function fetchGitHubProjects(): Promise<ProjectItem[]> {
       }
     );
 
+    if (reposRes.status === 401) {
+      reposRes = await fetch(
+        `https://api.github.com/users/${OWNER}/repos?per_page=100`,
+        {
+          headers: getGitHubHeaders(false),
+          next: { revalidate: 3600 },
+        }
+      );
+    }
+
     if (reposRes.ok) {
       allRepos = await reposRes.json();
     } else {
       const fallbackRes = await fetch(
         `https://api.github.com/users/${OWNER}/repos?per_page=100`,
         {
-          headers,
+          headers: getGitHubHeaders(false),
           next: { revalidate: 3600 },
         }
       );
@@ -119,7 +146,7 @@ export async function fetchGitHubProjects(): Promise<ProjectItem[]> {
       const orgRepoRes = await fetch(
         `https://api.github.com/repos/Canara-Tech-Labs/sprentzo-webapp`,
         {
-          headers,
+          headers: getGitHubHeaders(false),
           next: { revalidate: 3600 },
         }
       );
@@ -167,13 +194,22 @@ export async function fetchGitHubUserContributions(username: string): Promise<Gi
 
 // Powers GitHub Intelligence / Stats section: returns user, repos, commits, PRs, issues
 export async function fetchGitHubUserStats(username: string): Promise<GitHubStatsResponse> {
-  const headers = getGitHubHeaders();
+  let headers = getGitHubHeaders();
 
   // 1. User profile
-  const userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
+  let userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
     headers,
     next: { revalidate: 1800 },
   });
+
+  // If 401 Unauthorized (invalid token in env), fallback immediately to unauthenticated public request
+  if (userRes.status === 401) {
+    headers = getGitHubHeaders(false);
+    userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
+      headers,
+      next: { revalidate: 1800 },
+    });
+  }
 
   if (userRes.status === 403) throw new Error('API Rate Limit Exceeded.');
   if (!userRes.ok) throw new Error('User node not found.');
@@ -181,23 +217,13 @@ export async function fetchGitHubUserStats(username: string): Promise<GitHubStat
   const user = await userRes.json();
 
   // 2. Repositories
-  const repoUrl =
-    username.toLowerCase() === OWNER.toLowerCase()
-      ? `https://api.github.com/user/repos?visibility=all&sort=updated&per_page=100`
-      : `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=100`;
+  const repoUrl = `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=100`;
 
   let repos = [];
   try {
     const reposRes = await fetch(repoUrl, { headers, next: { revalidate: 1800 } });
     if (reposRes.ok) {
       repos = await reposRes.json();
-    } else if (username.toLowerCase() === OWNER.toLowerCase()) {
-      // Fallback to public repos if token has scope restriction
-      const publicReposRes = await fetch(
-        `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=100`,
-        { headers, next: { revalidate: 1800 } }
-      );
-      if (publicReposRes.ok) repos = await publicReposRes.json();
     }
   } catch {
     repos = [];

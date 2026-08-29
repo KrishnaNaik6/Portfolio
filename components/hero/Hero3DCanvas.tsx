@@ -4,14 +4,12 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Sparkles, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { useTheme } from 'next-themes';
 
 interface SceneProps {
-  isDark: boolean;
   isMobile: boolean;
 }
 
-const Laptop3DWorkstation: React.FC<SceneProps> = ({ isDark, isMobile }) => {
+const Laptop3DWorkstation: React.FC<SceneProps> = ({ isMobile }) => {
   const groupRef = useRef<THREE.Group>(null);
   const torusRef = useRef<THREE.Mesh>(null);
   const dodecaRef = useRef<THREE.Mesh>(null);
@@ -201,7 +199,6 @@ const Laptop3DWorkstation: React.FC<SceneProps> = ({ isDark, isMobile }) => {
 };
 
 export const Hero3DCanvas: React.FC = () => {
-  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -225,8 +222,6 @@ export const Hero3DCanvas: React.FC = () => {
 
   if (!mounted) return null;
 
-  const isDark = resolvedTheme === 'dark';
-
   if (!webglSupported) {
     return (
       <div className="w-full h-[320px] md:h-[420px] flex items-center justify-center relative">
@@ -242,7 +237,7 @@ export const Hero3DCanvas: React.FC = () => {
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
       >
-        <Laptop3DWorkstation isDark={isDark} isMobile={isMobile} />
+        <Laptop3DWorkstation isMobile={isMobile} />
         <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 1.8} minPolarAngle={Math.PI / 2.5} />
       </Canvas>
     </div>

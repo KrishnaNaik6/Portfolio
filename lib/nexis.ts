@@ -8,6 +8,7 @@ import {
  * Server-Side NEXIS API Client
  *
  * Fetches published portfolio data from the NEXIS API.
+ * Uses cache: 'no-store' so newly enabled/disabled sections are reflected immediately after publication.
  * The API key is strictly accessed via server-side process.env and never exposed to the client.
  */
 export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null> {
@@ -38,17 +39,11 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
       : `Bearer ${cleanKey}`;
   }
 
-  // Use no-store in development so changes published in NEXIS are visible immediately upon refresh
-  const fetchOptions =
-    process.env.NODE_ENV === 'development'
-      ? { cache: 'no-store' as const }
-      : { next: { revalidate: 30 } };
-
   for (const endpoint of candidateEndpoints) {
     try {
       const res = await fetch(endpoint, {
         headers,
-        ...fetchOptions,
+        cache: 'no-store',
       });
 
       if (!res.ok) {
@@ -106,16 +101,11 @@ export async function fetchNexisGitHubIntelligence(year?: number | string): Prom
       : `Bearer ${cleanKey}`;
   }
 
-  const fetchOptions =
-    process.env.NODE_ENV === 'development'
-      ? { cache: 'no-store' as const }
-      : { next: { revalidate: 30 } };
-
   for (const endpoint of candidateEndpoints) {
     try {
       const res = await fetch(endpoint, {
         headers,
-        ...fetchOptions,
+        cache: 'no-store',
       });
       if (res.ok) {
         return await res.json();

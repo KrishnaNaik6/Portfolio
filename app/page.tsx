@@ -4,6 +4,7 @@ import HeroClient from '@/components/hero/HeroClient';
 import { isSectionIdEnabled } from '@/lib/nexisSchema';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function HomePage() {
   const nexisData = await fetchNexisPortfolio().catch((err) => {

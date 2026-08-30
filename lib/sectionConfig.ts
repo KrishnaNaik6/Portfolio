@@ -138,3 +138,28 @@ export function getOrderedBodySections(
     })
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
+
+/**
+ * Development-only debug logger showing:
+ * API section ID -> enabled in NEXIS -> rendered
+ */
+export function debugSectionSync(sections: SectionConfig[] | undefined | null): void {
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    const summary = VALID_CANONICAL_SECTION_IDS.map((id) => {
+      const isEnabled = isSectionEnabled(sections, id);
+      const found = sections?.find((s) => normalizeSectionId(s.id) === id);
+      return {
+        'Section ID': id,
+        'Enabled in NEXIS': isEnabled,
+        'Order': found?.order ?? '-',
+        'Render Status': isEnabled
+          ? `✅ Rendered (${id})`
+          : '🚫 [NOT RENDERED]',
+      };
+    });
+
+    console.groupCollapsed('[NEXIS Section Synchronization Status]');
+    console.table(summary);
+    console.groupEnd();
+  }
+}

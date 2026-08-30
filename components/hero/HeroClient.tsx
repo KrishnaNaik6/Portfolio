@@ -20,6 +20,7 @@ import {
   normalizeSectionId,
   isSectionEnabled,
   getOrderedBodySections,
+  debugSectionSync,
 } from '@/lib/sectionConfig';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -39,12 +40,41 @@ const HeroClient: React.FC<HeroClientProps> = ({
   const [details, setDetails] = useState<PortfolioDetails | null>(initialDetails);
   const [projects, setProjects] = useState<ProjectItem[]>(initialProjects);
   const [stats, setStats] = useState<GitHubStatsResponse | null>(initialStats);
-
-  // Authoritative sections state: use initialSections if provided (including empty array []),
-  // otherwise initialDetails.sections, otherwise null. NEVER default to all enabled!
   const [sections, setSections] = useState<SectionConfig[] | null>(
     initialSections ?? initialDetails?.sections ?? null
   );
+
+  // Synchronize state when server-provided props change (e.g. navigation, reload)
+  useEffect(() => {
+    if (initialSections !== undefined) {
+      setSections(initialSections);
+    } else if (initialDetails?.sections) {
+      setSections(initialDetails.sections);
+    }
+  }, [initialSections, initialDetails?.sections]);
+
+  useEffect(() => {
+    if (initialDetails !== undefined) {
+      setDetails(initialDetails);
+    }
+  }, [initialDetails]);
+
+  useEffect(() => {
+    if (initialProjects !== undefined) {
+      setProjects(initialProjects);
+    }
+  }, [initialProjects]);
+
+  useEffect(() => {
+    if (initialStats !== undefined) {
+      setStats(initialStats);
+    }
+  }, [initialStats]);
+
+  // Development-only console debug table
+  useEffect(() => {
+    debugSectionSync(sections);
+  }, [sections]);
 
   const isHeroEnabled = useMemo(() => isSectionEnabled(sections, 'hero'), [sections]);
   const isFooterEnabled = useMemo(() => isSectionEnabled(sections, 'footer'), [sections]);
@@ -65,7 +95,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
   // Client-side fallback fetch ONLY if neither details nor initialSections were provided from server
   useEffect(() => {
     if (!details && initialSections === undefined) {
-      fetch('/api/portfolio')
+      fetch('/api/portfolio', { cache: 'no-store' })
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data?.details) {
@@ -89,7 +119,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
     if (isGitHubEnabled && !stats) {
       const targetUser =
         details?.contact?.follow?.Github?.split('/').filter(Boolean).pop() || 'KrishnaNaik6';
-      fetch(`/api/github/stats/${targetUser}`)
+      fetch(`/api/github/stats/${targetUser}`, { cache: 'no-store' })
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data) setStats(data);
@@ -157,7 +187,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
   const renderSection = (sec: SectionConfig) => {
     const canonical = normalizeSectionId(sec.id);
 
-    // Development assertion: prevent rendering any section that is not enabled
+    // Strict runtime assertion: never render any section if isSectionEnabled is false
     if (!isSectionEnabled(sections, canonical)) {
       if (process.env.NODE_ENV === 'development') {
         console.warn(`[HeroClient Warning] Prevented rendering disabled section: ${canonical}`);

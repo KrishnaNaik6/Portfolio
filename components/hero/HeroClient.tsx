@@ -16,16 +16,21 @@ import CustomCursor from '../ui/CustomCursor';
 import Background3DParticles from '../3d/Background3DParticles';
 import { CircleArrowDown, CircleArrowUp } from 'lucide-react';
 import { PortfolioDetails, ProjectItem, GitHubStatsResponse, SectionConfig } from '@/lib/types';
+import {
+  normalizeSectionId,
+  isSectionIdEnabled,
+  getOrderedInnerSections,
+} from '@/lib/nexisSchema';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface HeroClientProps {
   initialDetails: PortfolioDetails | null;
   initialProjects: ProjectItem[];
   initialStats?: GitHubStatsResponse | null;
-  initialSections?: SectionConfig[];
+  initialSections?: SectionConfig[] | null;
 }
 
-const defaultSections: SectionConfig[] = [
+const defaultFallbackSections: SectionConfig[] = [
   { id: 'hero', label: 'Hero', enabled: true, order: 1 },
   { id: 'about', label: 'About Me', enabled: true, order: 2 },
   { id: 'education', label: 'Academic Background', enabled: true, order: 3 },
@@ -47,14 +52,16 @@ const HeroClient: React.FC<HeroClientProps> = ({
   const [details, setDetails] = useState<PortfolioDetails | null>(initialDetails);
   const [projects, setProjects] = useState<ProjectItem[]>(initialProjects);
   const [stats, setStats] = useState<GitHubStatsResponse | null>(initialStats);
+
+  // If initialSections or initialDetails is provided from server, use it directly without fallback
   const [sections, setSections] = useState<SectionConfig[]>(
-    initialSections || initialDetails?.sections || defaultSections
+    initialSections ?? initialDetails?.sections ?? defaultFallbackSections
   );
 
-  const heroSectionConfig = sections.find((s) => s.id === 'hero');
-  const isHeroEnabled = heroSectionConfig ? heroSectionConfig.enabled !== false : true;
+  const isHeroEnabled = useMemo(() => isSectionIdEnabled(sections, 'hero'), [sections]);
+  const isFooterEnabled = useMemo(() => isSectionIdEnabled(sections, 'footer'), [sections]);
 
-  const [showContent, setShowContent] = useState<boolean>(!isHeroEnabled);
+  const [showContent, setShowContent] = useState<boolean>(true);
   const [activeSection, setActiveSection] = useState<string>('about');
   const [atBottom, setAtBottom] = useState<boolean>(false);
 
@@ -67,50 +74,31 @@ const HeroClient: React.FC<HeroClientProps> = ({
   const gitRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
-  // Client-side fallback fetch if server prefetch was unavailable
+  // Client-side fallback fetch ONLY if neither details nor initialSections were provided from server
   useEffect(() => {
-    if (!details) {
+    if (!details && initialSections === undefined) {
       fetch('/api/portfolio')
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data?.details) {
             setDetails(data.details);
-            if (data.projects && Array.isArray(data.projects) && projects.length === 0) {
+            if (data.projects && Array.isArray(data.projects)) {
               setProjects(data.projects);
             }
             if (data.sections && Array.isArray(data.sections)) {
               setSections(data.sections);
             }
-          } else {
-            // Legacy GitHub API fallback
-            fetch('/api/github/details')
-              .then((res) => (res.ok ? res.json() : null))
-              .then((ghData) => {
-                if (ghData) setDetails(ghData);
-              })
-              .catch((err) => console.error('Error fetching details fallback:', err));
           }
         })
-        .catch(() => {
-          fetch('/api/github/details')
-            .then((res) => (res.ok ? res.json() : null))
-            .then((ghData) => {
-              if (ghData) setDetails(ghData);
-            })
-            .catch((err) => console.error('Error fetching details fallback:', err));
-        });
+        .catch((err) => console.warn('[HeroClient] Client portfolio fetch failed:', err));
     }
+  }, [details, initialSections]);
 
-    if (projects.length === 0) {
-      fetch('/api/github/projects')
-        .then((res) => (res.ok ? res.json() : []))
-        .then((data) => {
-          if (Array.isArray(data) && data.length > 0) setProjects(data);
-        })
-        .catch((err) => console.error('Error fetching projects fallback:', err));
-    }
+  // Fetch GitHub stats ONLY if GitHub section is enabled and stats are not already loaded
+  const isGitHubEnabled = useMemo(() => isSectionIdEnabled(sections, 'github'), [sections]);
 
-    if (!stats) {
+  useEffect(() => {
+    if (isGitHubEnabled && !stats) {
       const targetUser =
         details?.contact?.follow?.Github?.split('/').filter(Boolean).pop() || 'KrishnaNaik6';
       fetch(`/api/github/stats/${targetUser}`)
@@ -118,70 +106,69 @@ const HeroClient: React.FC<HeroClientProps> = ({
         .then((data) => {
           if (data) setStats(data);
         })
-        .catch((err) => console.error('Error fetching stats fallback:', err));
+        .catch((err) => console.warn('[HeroClient] GitHub stats fetch error:', err));
     }
-  }, [details, projects.length, stats]);
+  }, [isGitHubEnabled, stats, details]);
 
-  // Determine enabled and ordered sections (excluding hero and footer from inner list)
+  // Determine enabled and ordered inner sections (strictly excluding hero and footer)
   const orderedSections = useMemo(() => {
-    return sections
-      .filter((s) => s.enabled !== false && s.id !== 'hero' && s.id !== 'footer')
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  }, [sections]);
-
-  const isFooterEnabled = useMemo(() => {
-    const footerConfig = sections.find((s) => s.id === 'footer');
-    return footerConfig ? footerConfig.enabled !== false : true;
+    return getOrderedInnerSections(sections);
   }, [sections]);
 
   // Section Observer for active header highlight
   useEffect(() => {
-    if (!showContent) return;
+    if (!showContent || typeof window === 'undefined') return;
 
     const sectionIds = orderedSections.map((s) => {
-      if (s.id === 'interests') return 'interest';
-      if (s.id === 'github') return 'git-stats';
-      return s.id;
+      const canonical = normalizeSectionId(s.id);
+      if (canonical === 'interests') return 'interest';
+      if (canonical === 'github') return 'git-stats';
+      return canonical;
     });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+    try {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
 
-        if (visible.length > 0) {
-          setActiveSection(visible[0].target.id);
+          if (visible.length > 0) {
+            setActiveSection(visible[0].target.id);
+          }
+
+          const footerElem = document.getElementById('footer');
+          if (footerElem) {
+            const rect = footerElem.getBoundingClientRect();
+            setAtBottom(rect.top <= window.innerHeight + 100);
+          }
+        },
+        {
+          threshold: [0.15, 0.4, 0.7],
+          rootMargin: '-10% 0px -30% 0px',
         }
+      );
 
-        const footerElem = document.getElementById('footer');
-        if (footerElem) {
-          const rect = footerElem.getBoundingClientRect();
-          setAtBottom(rect.top <= window.innerHeight + 100);
-        }
-      },
-      {
-        threshold: [0.15, 0.4, 0.7],
-        rootMargin: '-10% 0px -30% 0px',
-      }
-    );
+      sectionIds.forEach((id) => {
+        const elem = document.getElementById(id);
+        if (elem) observer.observe(elem);
+      });
 
-    sectionIds.forEach((id) => {
-      const elem = document.getElementById(id);
-      if (elem) observer.observe(elem);
-    });
+      const footerElem = document.getElementById('footer');
+      if (footerElem) observer.observe(footerElem);
 
-    const footerElem = document.getElementById('footer');
-    if (footerElem) observer.observe(footerElem);
-
-    return () => observer.disconnect();
+      return () => observer.disconnect();
+    } catch {
+      // IntersectionObserver fallback
+    }
   }, [showContent, orderedSections]);
 
   const githubUsername =
     details?.contact?.follow?.Github?.split('/').filter(Boolean).pop() || 'KrishnaNaik6';
 
-  const renderSection = (sectionId: string) => {
-    switch (sectionId) {
+  const renderSection = (sec: SectionConfig) => {
+    const canonical = normalizeSectionId(sec.id);
+    switch (canonical) {
       case 'about':
         return (
           <AboutSection
@@ -190,7 +177,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
             bio={details?.profile?.bio}
             fullName={details?.profile?.fullName}
             location={details?.profile?.location}
-            achievements={details?.achievements}
+            achievements={details?.achievements || []}
           />
         );
       case 'education':
@@ -214,7 +201,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
           <ProjectsSection
             key="projects"
             sectionRef={projRef}
-            initialProjects={projects}
+            initialProjects={projects || []}
           />
         );
       case 'skills':
@@ -225,20 +212,18 @@ const HeroClient: React.FC<HeroClientProps> = ({
             skillData={details?.skills}
           />
         );
-      case 'interest':
       case 'interests':
         return (
           <InterestSection
-            key="interest"
+            key="interests"
             sectionRef={interestRef}
             interest={details?.interest || []}
           />
         );
       case 'github':
-      case 'git-stats':
         return (
           <GitHubStatsSection
-            key="git-stats"
+            key="github"
             sectionRef={gitRef}
             initialUsername={githubUsername}
             initialStats={stats}
@@ -272,7 +257,10 @@ const HeroClient: React.FC<HeroClientProps> = ({
 
       <main className="pt-20 pb-12 relative z-10">
         {isHeroEnabled && (
-          <Welcome profile={details?.profile} onComplete={() => setShowContent(true)} />
+          <Welcome
+            profile={details?.profile}
+            onComplete={() => setShowContent(true)}
+          />
         )}
 
         <AnimatePresence>
@@ -283,7 +271,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
               transition={{ duration: 0.6 }}
               className="space-y-6"
             >
-              {orderedSections.map((sec) => renderSection(sec.id))}
+              {orderedSections.map((sec) => renderSection(sec))}
               {isFooterEnabled && (
                 <Footer
                   contact={details?.contact}

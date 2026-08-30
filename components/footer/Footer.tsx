@@ -4,10 +4,11 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Sparkles, Github, Linkedin, Instagram, Mail, ArrowUpRight } from 'lucide-react';
 import AnchorLink from '../ui/AnchorLink';
 import { ContactInfo, SectionConfig } from '@/lib/types';
+import { normalizeSectionId, getOrderedInnerSections } from '@/lib/nexisSchema';
 
 interface FooterProps {
   contact?: ContactInfo;
-  sections?: SectionConfig[];
+  sections?: SectionConfig[] | null;
   fullName?: string;
   bio?: string;
 }
@@ -46,19 +47,29 @@ const Footer: React.FC<FooterProps> = ({
   }, []);
 
   const navLinks = useMemo(() => {
-    if (!sections || sections.length === 0) return defaultNavLinks;
+    // If sections array is provided (even if filtered to 1 item), use only those enabled sections
+    if (sections !== undefined && sections !== null) {
+      const innerSections = getOrderedInnerSections(sections);
+      return innerSections.map((s) => {
+        const canonical = normalizeSectionId(s.id);
+        const defaultMatch = defaultNavLinks.find(
+          (d) => normalizeSectionId(d.id) === canonical
+        );
+        const domId =
+          canonical === 'interests'
+            ? 'interest'
+            : canonical === 'github'
+            ? 'git-stats'
+            : canonical;
 
-    return sections
-      .filter((s) => s.enabled !== false && s.id !== 'hero' && s.id !== 'footer')
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      .map((s) => {
-        const normalizedId = s.id === 'interests' ? 'interest' : s.id === 'github' ? 'git-stats' : s.id;
-        const defaultMatch = defaultNavLinks.find((d) => d.id === normalizedId);
         return {
           name: s.label || defaultMatch?.name || s.id,
-          id: normalizedId,
+          id: domId,
         };
       });
+    }
+
+    return defaultNavLinks;
   }, [sections]);
 
   const githubUrl = contact?.follow?.Github || 'https://github.com/KrishnaNaik6';
@@ -82,7 +93,7 @@ const Footer: React.FC<FooterProps> = ({
         {/* Top Footer Section: Brand Info + Quick Links + Connect */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 items-start justify-between">
           {/* Brand Info */}
-          <div className="sm:col-span-2 lg:col-span-6 flex flex-col space-y-3">
+          <div className={`${navLinks.length > 0 ? 'sm:col-span-2 lg:col-span-6' : 'sm:col-span-2 lg:col-span-8'} flex flex-col space-y-3`}>
             <AnchorLink
               to="about"
               className="text-xl sm:text-2xl font-black font-sora text-text-primary tracking-tight flex items-center gap-2.5 w-fit group"
@@ -100,27 +111,29 @@ const Footer: React.FC<FooterProps> = ({
             </p>
           </div>
 
-          {/* Quick Navigation Links */}
-          <div className="lg:col-span-3 flex flex-col space-y-3">
-            <h4 className="text-[11px] sm:text-xs font-mono font-bold text-neon-indigo uppercase tracking-widest">
-              {'// Navigation'}
-            </h4>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:flex sm:flex-col sm:space-y-1.5">
-              {navLinks.map((link) => (
-                <AnchorLink
-                  key={link.id}
-                  to={link.id}
-                  className="text-xs font-mono text-text-secondary hover:text-neon-cyan transition-colors w-fit flex items-center gap-1 group py-0.5"
-                >
-                  <span className="text-neon-indigo/60 group-hover:text-neon-cyan">/</span>
-                  <span>{link.name}</span>
-                </AnchorLink>
-              ))}
+          {/* Quick Navigation Links (Only shown when there are inner sections) */}
+          {navLinks.length > 0 && (
+            <div className="lg:col-span-3 flex flex-col space-y-3">
+              <h4 className="text-[11px] sm:text-xs font-mono font-bold text-neon-indigo uppercase tracking-widest">
+                {'// Navigation'}
+              </h4>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:flex sm:flex-col sm:space-y-1.5">
+                {navLinks.map((link) => (
+                  <AnchorLink
+                    key={link.id}
+                    to={link.id}
+                    className="text-xs font-mono text-text-secondary hover:text-neon-cyan transition-colors w-fit flex items-center gap-1 group py-0.5"
+                  >
+                    <span className="text-neon-indigo/60 group-hover:text-neon-cyan">/</span>
+                    <span>{link.name}</span>
+                  </AnchorLink>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Social Links */}
-          <div className="lg:col-span-3 flex flex-col space-y-3">
+          <div className={`${navLinks.length > 0 ? 'lg:col-span-3' : 'lg:col-span-4'} flex flex-col space-y-3`}>
             <h4 className="text-[11px] sm:text-xs font-mono font-bold text-neon-indigo uppercase tracking-widest">
               {'// Connect'}
             </h4>

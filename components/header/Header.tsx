@@ -21,10 +21,11 @@ import {
 import { useTheme } from 'next-themes';
 import AnchorLink from '../ui/AnchorLink';
 import { SectionConfig } from '@/lib/types';
+import { normalizeSectionId, getOrderedInnerSections } from '@/lib/nexisSchema';
 
 interface HeaderProps {
   activeSection: string;
-  sections?: SectionConfig[];
+  sections?: SectionConfig[] | null;
   fullName?: string;
 }
 
@@ -67,20 +68,30 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
   }, []);
 
   const navItems = useMemo(() => {
-    if (!sections || sections.length === 0) return defaultNavItems;
+    // If sections array is provided (even if filtered to 1 item), use only those enabled sections
+    if (sections !== undefined && sections !== null) {
+      const innerSections = getOrderedInnerSections(sections);
+      return innerSections.map((s) => {
+        const canonical = normalizeSectionId(s.id);
+        const defaultMatch = defaultNavItems.find(
+          (d) => normalizeSectionId(d.id) === canonical
+        );
+        const domId =
+          canonical === 'interests'
+            ? 'interest'
+            : canonical === 'github'
+            ? 'git-stats'
+            : canonical;
 
-    return sections
-      .filter((s) => s.enabled !== false && s.id !== 'hero' && s.id !== 'footer')
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      .map((s) => {
-        const normalizedId = s.id === 'interests' ? 'interest' : s.id === 'github' ? 'git-stats' : s.id;
-        const defaultMatch = defaultNavItems.find((d) => d.id === normalizedId);
         return {
           name: s.label || defaultMatch?.name || s.id,
-          id: normalizedId,
-          icon: iconMap[s.id] || iconMap[normalizedId] || Sparkles,
+          id: domId,
+          icon: iconMap[canonical] || iconMap[s.id] || Sparkles,
         };
       });
+    }
+
+    return defaultNavItems;
   }, [sections]);
 
   const cycleTheme = () => {
@@ -153,83 +164,87 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
               </button>
             )}
 
-            <button
-              className="lg:hidden p-2.5 rounded-full text-text-primary hover:text-neon-indigo bg-slate-950/20 dark:bg-slate-950/40 border border-border-color focus:outline-none"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle navigation menu"
-            >
-              {isOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
+            {navItems.length > 0 && (
+              <button
+                className="lg:hidden p-2.5 rounded-full text-text-primary hover:text-neon-indigo bg-slate-950/20 dark:bg-slate-950/40 border border-border-color focus:outline-none"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle navigation menu"
+              >
+                {isOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            )}
           </div>
         </div>
       </motion.header>
 
       {/* Bottom Floating Navigation Dock (Centered Icons Only + Hover Tooltip) */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 pointer-events-none hidden lg:flex justify-center items-center">
-        <motion.nav
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-          className="pointer-events-auto flex items-center gap-1.5 p-2 rounded-full backdrop-blur-2xl bg-card-bg/90 border border-border-color shadow-[0_10px_35px_rgba(0,0,0,0.5)]"
-        >
-          {navItems.map((item) => {
-            const isActive = activeSection === item.id;
-            const IconComponent = item.icon;
-            const isHovered = hoveredId === item.id;
+      {navItems.length > 0 && (
+        <div className="fixed bottom-6 left-0 right-0 z-50 pointer-events-none hidden lg:flex justify-center items-center">
+          <motion.nav
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+            className="pointer-events-auto flex items-center gap-1.5 p-2 rounded-full backdrop-blur-2xl bg-card-bg/90 border border-border-color shadow-[0_10px_35px_rgba(0,0,0,0.5)]"
+          >
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
+              const IconComponent = item.icon;
+              const isHovered = hoveredId === item.id;
 
-            return (
-              <AnchorLink key={item.id} to={item.id}>
-                <div
-                  onMouseEnter={() => setHoveredId(item.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  className="relative flex items-center justify-center"
-                >
-                  {/* Floating Hover Tooltip showing Nav Item Name */}
-                  <AnimatePresence>
-                    {isHovered && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.85 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.85 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute -top-11 left-1/2 -translate-x-1/2 px-3 py-1 rounded-xl bg-slate-900 text-white text-[11px] font-mono font-bold shadow-2xl border border-white/20 whitespace-nowrap pointer-events-none z-50 flex items-center gap-1"
-                      >
-                        <span className="text-neon-cyan">/</span>
-                        <span>{item.name}</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Icon Button */}
-                  <button
-                    aria-label={item.name}
-                    className={`relative p-3 rounded-full transition-all duration-300 flex items-center justify-center ${
-                      isActive
-                        ? 'bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/40 scale-110 shadow-[0_0_20px_rgba(47,129,247,0.4)]'
-                        : 'text-text-secondary hover:text-text-primary hover:bg-slate-800/40 hover:scale-105 border border-transparent'
-                    }`}
+              return (
+                <AnchorLink key={item.id} to={item.id}>
+                  <div
+                    onMouseEnter={() => setHoveredId(item.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                    className="relative flex items-center justify-center"
                   >
-                    <IconComponent size={19} />
+                    {/* Floating Hover Tooltip showing Nav Item Name */}
+                    <AnimatePresence>
+                      {isHovered && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.85 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.85 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute -top-11 left-1/2 -translate-x-1/2 px-3 py-1 rounded-xl bg-slate-900 text-white text-[11px] font-mono font-bold shadow-2xl border border-white/20 whitespace-nowrap pointer-events-none z-50 flex items-center gap-1"
+                        >
+                          <span className="text-neon-cyan">/</span>
+                          <span>{item.name}</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                    {/* Active Indicator Dot */}
-                    {isActive && (
-                      <motion.span
-                        layoutId="activeDockDot"
-                        className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-neon-indigo shadow-[0_0_8px_#388bfd]"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      />
-                    )}
-                  </button>
-                </div>
-              </AnchorLink>
-            );
-          })}
-        </motion.nav>
-      </div>
+                    {/* Icon Button */}
+                    <button
+                      aria-label={item.name}
+                      className={`relative p-3 rounded-full transition-all duration-300 flex items-center justify-center ${
+                        isActive
+                          ? 'bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/40 scale-110 shadow-[0_0_20px_rgba(47,129,247,0.4)]'
+                          : 'text-text-secondary hover:text-text-primary hover:bg-slate-800/40 hover:scale-105 border border-transparent'
+                      }`}
+                    >
+                      <IconComponent size={19} />
+
+                      {/* Active Indicator Dot */}
+                      {isActive && (
+                        <motion.span
+                          layoutId="activeDockDot"
+                          className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-neon-indigo shadow-[0_0_8px_#388bfd]"
+                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                    </button>
+                  </div>
+                </AnchorLink>
+              );
+            })}
+          </motion.nav>
+        </div>
+      )}
 
       {/* Mobile Cybernetic Dropdown Menu */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && navItems.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

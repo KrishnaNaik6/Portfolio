@@ -24,7 +24,7 @@ vi.mock('../components/ui/CustomCursor', () => ({
   default: () => <div data-testid="custom-cursor" />,
 }));
 
-// Mock react-chartjs-2 to prevent jsdom canvas crashes during dynamic re-renders
+// Mock react-chartjs-2
 vi.mock('react-chartjs-2', () => ({
   Bar: () => <div data-testid="chart-bar" />,
   Line: () => <div data-testid="chart-line" />,
@@ -40,49 +40,39 @@ vi.mock('next-themes', () => ({
   }),
 }));
 
-// Mock framer-motion
+// Mock framer-motion with Proxy
 vi.mock('framer-motion', async () => {
   const actual = await vi.importActual('framer-motion');
   return {
     ...actual,
     AnimatePresence: ({ children }: any) => <>{children}</>,
-    motion: {
-      div: ({ children, className, style, layoutId, whileInView, viewport, ...props }: any) => (
-        <div className={className} style={style} {...props}>
-          {children}
-        </div>
-      ),
-      header: ({ children, className, ...props }: any) => (
-        <header className={className} {...props}>
-          {children}
-        </header>
-      ),
-      nav: ({ children, className, ...props }: any) => (
-        <nav className={className} {...props}>
-          {children}
-        </nav>
-      ),
-      p: ({ children, className, ...props }: any) => (
-        <p className={className} {...props}>
-          {children}
-        </p>
-      ),
-      a: ({ children, className, whileHover, whileTap, ...props }: any) => (
-        <a className={className} {...props}>
-          {children}
-        </a>
-      ),
-      li: ({ children, className, ...props }: any) => (
-        <li className={className} {...props}>
-          {children}
-        </li>
-      ),
-      span: ({ children, className, layoutId, ...props }: any) => (
-        <span className={className} {...props}>
-          {children}
-        </span>
-      ),
-    },
+    motion: new Proxy(
+      {},
+      {
+        get: (_, prop: string) => {
+          const Tag = prop as any;
+          return ({ children, className, style, ...props }: any) => {
+            const {
+              layoutId,
+              whileHover,
+              whileTap,
+              whileInView,
+              viewport,
+              animate,
+              initial,
+              transition,
+              exit,
+              ...rest
+            } = props;
+            return (
+              <Tag className={className} style={style} {...rest}>
+                {children}
+              </Tag>
+            );
+          };
+        },
+      }
+    ),
   };
 });
 

@@ -133,7 +133,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
     return getOrderedBodySections(sections);
   }, [sections]);
 
-  // Section Observer for active header highlight
+  // High-performance scroll spy with requestAnimationFrame for smooth in-view active navbar highlight
   useEffect(() => {
     if (!showContent || typeof window === 'undefined') return;
 
@@ -144,8 +144,62 @@ const HeroClient: React.FC<HeroClientProps> = ({
       return canonical;
     });
 
+    if (sectionIds.length === 0) return;
+
+    let ticking = false;
+
+    const updateActiveSection = () => {
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const windowHeight = window.innerHeight || 800;
+      const documentHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
+
+      // Bottom of page detection
+      if (documentHeight > 0 && scrollY + windowHeight >= documentHeight - 100) {
+        setAtBottom(true);
+        if (sectionIds.length > 0) {
+          setActiveSection(sectionIds[sectionIds.length - 1]);
+        }
+        return;
+      }
+
+      setAtBottom(false);
+
+      // Trigger line at 30% from the top of the viewport
+      const triggerLine = scrollY + windowHeight * 0.35;
+      let currentSection = sectionIds[0] || 'about';
+
+      for (let i = 0; i < sectionIds.length; i++) {
+        const id = sectionIds[i];
+        const elem = document.getElementById(id);
+        if (elem) {
+          const rect = elem.getBoundingClientRect();
+          const elemTop = rect.top + scrollY;
+          if (triggerLine >= elemTop - 50) {
+            currentSection = id;
+          }
+        }
+      }
+
+      setActiveSection(currentSection);
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateActiveSection();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // Initial check
+    updateActiveSection();
+
+    // IntersectionObserver as secondary listener for instant section entries
+    let observer: IntersectionObserver | null = null;
     try {
-      const observer = new IntersectionObserver(
+      observer = new IntersectionObserver(
         (entries) => {
           const visible = entries
             .filter((e) => e.isIntersecting)
@@ -154,31 +208,29 @@ const HeroClient: React.FC<HeroClientProps> = ({
           if (visible.length > 0) {
             setActiveSection(visible[0].target.id);
           }
-
-          const footerElem = document.getElementById('footer');
-          if (footerElem) {
-            const rect = footerElem.getBoundingClientRect();
-            setAtBottom(rect.top <= window.innerHeight + 100);
-          }
         },
         {
-          threshold: [0.15, 0.4, 0.7],
-          rootMargin: '-10% 0px -30% 0px',
+          threshold: [0.2, 0.5, 0.8],
+          rootMargin: '-15% 0px -40% 0px',
         }
       );
 
       sectionIds.forEach((id) => {
         const elem = document.getElementById(id);
-        if (elem) observer.observe(elem);
+        if (elem) observer?.observe(elem);
       });
-
-      const footerElem = document.getElementById('footer');
-      if (footerElem) observer.observe(footerElem);
-
-      return () => observer.disconnect();
     } catch {
-      // IntersectionObserver fallback
+      // Fallback to scroll listener
     }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, [showContent, orderedSections]);
 
   const githubUsername =

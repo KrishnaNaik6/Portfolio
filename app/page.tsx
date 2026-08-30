@@ -1,27 +1,33 @@
 import { fetchNexisPortfolio } from '@/lib/nexis';
 import { fetchGitHubDetails, fetchGitHubProjects, fetchGitHubUserStats } from '@/lib/github';
 import HeroClient from '@/components/hero/HeroClient';
+import { isSectionIdEnabled } from '@/lib/nexisSchema';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function HomePage() {
-  const [nexisData, stats] = await Promise.all([
-    fetchNexisPortfolio().catch((err) => {
-      console.warn('[HomePage] NEXIS prefetch fallback triggered:', err?.message);
-      return null;
-    }),
-    fetchGitHubUserStats('KrishnaNaik6').catch((err) => {
-      console.error('Failed to prefetch GitHub stats on server:', err);
-      return null;
-    }),
-  ]);
+  const nexisData = await fetchNexisPortfolio().catch((err) => {
+    console.warn('[HomePage] NEXIS prefetch failed:', err?.message);
+    return null;
+  });
+
+  const sections = nexisData?.sections ?? null;
+  const isGitHubEnabled = sections ? isSectionIdEnabled(sections, 'github') : true;
+
+  // Only prefetch GitHub stats if the GitHub Intelligence section is actually enabled
+  const stats = isGitHubEnabled
+    ? await fetchGitHubUserStats('KrishnaNaik6').catch((err) => {
+        console.error('Failed to prefetch GitHub stats on server:', err);
+        return null;
+      })
+    : null;
 
   let details = nexisData?.details || null;
   let projects = nexisData?.projects || [];
-  const sections = nexisData?.sections || undefined;
 
   // Fallback to GitHub legacy data sources only if NEXIS data is completely unavailable
-  if (!details) {
+  if (!details && !sections) {
     const [ghDetails, ghProjects] = await Promise.all([
       fetchGitHubDetails().catch(() => null),
       fetchGitHubProjects().catch(() => []),

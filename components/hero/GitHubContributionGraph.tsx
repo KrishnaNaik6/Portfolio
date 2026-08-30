@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useTheme } from 'next-themes';
 import { GitHubContributionsResponse, ContributionDay } from '@/lib/types';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 
@@ -13,13 +12,18 @@ interface GitHubContributionGraphProps {
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+const LEVEL_BG_CLASSES: Record<number, string> = {
+  0: 'bg-[#ebedf0] dark:bg-[#161b22]',
+  1: 'bg-[#9be9a8] dark:bg-[#0e4429]',
+  2: 'bg-[#40c463] dark:bg-[#006d32]',
+  3: 'bg-[#30a14e] dark:bg-[#26a641]',
+  4: 'bg-[#216e39] dark:bg-[#39d353]',
+};
+
 export const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = ({
   contributionsData,
   username,
 }) => {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-
   // Available years from API data or fallback
   const availableYears = useMemo(() => {
     if (contributionsData?.total && Object.keys(contributionsData.total).length > 0) {
@@ -129,38 +133,6 @@ export const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = (
     return { weeks: weekCols, monthLabels: labels };
   }, [activeContributions]);
 
-  // Cell colors based on level & theme
-  const getCellColor = (level: number) => {
-    if (isDark) {
-      switch (level) {
-        case 1:
-          return '#0e4429';
-        case 2:
-          return '#006d32';
-        case 3:
-          return '#26a641';
-        case 4:
-          return '#39d353';
-        default:
-          return '#161b22';
-      }
-    } else {
-      switch (level) {
-        case 1:
-          return '#0e4429';
-        case 2:
-          return '#006d32';
-        case 3:
-          return '#26a641';
-        case 4:
-          return '#39d353';
-        default:
-          return '#22272e';
-      }
-    }
-  };
-
-
   const formatDateString = (dateStr: string) => {
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -245,8 +217,9 @@ export const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = (
                             });
                           }}
                           onMouseLeave={() => setHoveredDay(null)}
-                          style={{ backgroundColor: getCellColor(day.level) }}
-                          className="w-[10px] h-[10px] rounded-[2px] border border-black/10 transition-transform hover:scale-125 hover:z-20 cursor-pointer"
+                          className={`w-[10px] h-[10px] rounded-[2px] border border-black/10 transition-transform hover:scale-125 hover:z-20 cursor-pointer ${
+                            LEVEL_BG_CLASSES[day.level] || LEVEL_BG_CLASSES[0]
+                          }`}
                         />
                       );
                     })}
@@ -272,8 +245,9 @@ export const GitHubContributionGraph: React.FC<GitHubContributionGraphProps> = (
                 {[0, 1, 2, 3, 4].map((lvl) => (
                   <div
                     key={lvl}
-                    style={{ backgroundColor: getCellColor(lvl) }}
-                    className="w-[10px] h-[10px] rounded-[2px] border border-black/10"
+                    className={`w-[10px] h-[10px] rounded-[2px] border border-black/10 ${
+                      LEVEL_BG_CLASSES[lvl] || LEVEL_BG_CLASSES[0]
+                    }`}
                   />
                 ))}
                 <span>More</span>

@@ -8,6 +8,27 @@ import {
   SkillData,
   ContactInfo,
 } from './types';
+import {
+  normalizeSectionId,
+  validateSections,
+  isSectionEnabled,
+  getOrderedBodySections,
+  CanonicalSectionId,
+  VALID_CANONICAL_SECTION_IDS,
+} from './sectionConfig';
+
+export {
+  normalizeSectionId,
+  validateSections,
+  isSectionEnabled,
+  getOrderedBodySections,
+  VALID_CANONICAL_SECTION_IDS,
+};
+export type { CanonicalSectionId };
+
+// Backwards compatibility aliases
+export const isSectionIdEnabled = isSectionEnabled;
+export const getOrderedInnerSections = getOrderedBodySections;
 
 export const NexisProfileSchema = z.object({
   fullName: z.string().optional(),
@@ -23,7 +44,7 @@ export const NexisSectionSchema = z.object({
   id: z.string(),
   label: z.string().optional(),
   enabled: z.boolean(),
-  order: z.number(),
+  order: z.number().optional().default(999),
 }).passthrough();
 
 export const NexisProjectSchema = z.object({
@@ -64,7 +85,7 @@ export const NexisEducationSchema = z.object({
   fieldOfStudy: z.string().nullable().optional(),
   startDate: z.string().nullable().optional(),
   endDate: z.string().nullable().optional(),
-  status: z.string(),
+  status: z.string().optional().default('Completed'),
   completionYear: z.string().nullable().optional(),
   grade: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
@@ -166,20 +187,14 @@ export interface NormalizedNexisData {
 
 /**
  * Normalizes validated NEXIS API response into typed frontend structures without inventing dummy data.
+ * Sections are validated and filtered strictly using validateSections().
  */
 export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNexisData {
   const data = 'data' in input && input.data && typeof input.data === 'object' ? (input.data as any) : input;
 
-  // 1. Sections: filter enabled and sort by order
-  const sections: SectionConfig[] = (data.sections || [])
-    .filter((s: any) => s.enabled !== false)
-    .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
-    .map((s: any) => ({
-      id: s.id,
-      label: s.label,
-      enabled: s.enabled,
-      order: s.order,
-    }));
+  // 1. Sections: validated and filtered strictly to enabled === true
+  const rawSections = Array.isArray(data.sections) ? data.sections : [];
+  const { validSections: sections } = validateSections(rawSections);
 
   // 2. Education: sort by displayOrder
   const education: EducationItem[] = (data.education || [])
@@ -188,7 +203,7 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
       id: e.id,
       edu: e.fieldOfStudy ? `${e.degree} - ${e.fieldOfStudy}` : e.degree,
       college: e.institution,
-      status: e.status,
+      status: e.status || 'Completed',
       year: e.completionYear || (e.endDate ? e.endDate.substring(0, 4) : undefined),
       grade: e.grade,
     }));

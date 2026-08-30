@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import TypingText from '../ui/TypingText';
 import { ArrowDownRight, FileText, Send } from 'lucide-react';
 import AnchorLink from '../ui/AnchorLink';
 import dynamic from 'next/dynamic';
-import { ProfileData } from '@/lib/types';
+import { ProfileData, SectionConfig } from '@/lib/types';
+import { isSectionEnabled } from '@/lib/sectionConfig';
 
 const Hero3DCanvas = dynamic(() => import('./Hero3DCanvas'), {
   ssr: false,
@@ -20,9 +21,10 @@ const Hero3DCanvas = dynamic(() => import('./Hero3DCanvas'), {
 interface WelcomeProps {
   onComplete: () => void;
   profile?: ProfileData;
+  sections?: SectionConfig[] | null;
 }
 
-const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile }) => {
+const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
   const [complete, setComplete] = useState(false);
 
   useEffect(() => {
@@ -38,6 +40,10 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile }) => {
     : '01 / CREATIVE DEVELOPER & AI ENGINEER';
 
   const resumeHref = profile?.resumeUrl || '/KrishnaNaik.pdf';
+
+  const isProjectsActive = useMemo(() => isSectionEnabled(sections, 'projects'), [sections]);
+  const isContactActive = useMemo(() => isSectionEnabled(sections, 'contact'), [sections]);
+  const workTarget = isProjectsActive ? 'projects' : 'about';
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-8 pb-16 px-4 max-w-7xl mx-auto relative z-10">
@@ -108,19 +114,21 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile }) => {
           transition={{ delay: 0.7, duration: 0.6 }}
           className="flex flex-wrap items-center gap-4 pt-4"
         >
-          <AnchorLink to="projects">
+          <AnchorLink to={workTarget}>
             <div className="px-7 py-4 rounded-full bg-neon-indigo text-white font-bold text-sm font-sora flex items-center gap-2.5 hover:bg-neon-indigo/90 transition-all shadow-[0_0_25px_rgba(99,102,241,0.4)] hover:scale-105 cursor-pointer">
               <span>EXPLORE WORK</span>
               <ArrowDownRight size={18} />
             </div>
           </AnchorLink>
 
-          <AnchorLink to="contact">
-            <div className="px-7 py-4 rounded-full bg-card-bg border border-border-color text-text-primary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-cyan hover:text-neon-cyan transition-all hover:scale-105 cursor-pointer">
-              <Send size={16} />
-              <span>CONNECT</span>
-            </div>
-          </AnchorLink>
+          {isContactActive && (
+            <AnchorLink to="contact">
+              <div className="px-7 py-4 rounded-full bg-card-bg border border-border-color text-text-primary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-cyan hover:text-neon-cyan transition-all hover:scale-105 cursor-pointer">
+                <Send size={16} />
+                <span>CONNECT</span>
+              </div>
+            </AnchorLink>
+          )}
 
           <a
             href={resumeHref}

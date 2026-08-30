@@ -21,10 +21,11 @@ import {
 import { useTheme } from 'next-themes';
 import AnchorLink from '../ui/AnchorLink';
 import { SectionConfig } from '@/lib/types';
+import { normalizeSectionId, getOrderedBodySections } from '@/lib/sectionConfig';
 
 interface HeaderProps {
   activeSection: string;
-  sections?: SectionConfig[];
+  sections?: SectionConfig[] | null;
   fullName?: string;
 }
 
@@ -34,7 +35,7 @@ const defaultNavItems = [
   { name: 'Experience', id: 'experience', icon: Briefcase },
   { name: 'Projects', id: 'projects', icon: FolderGit2 },
   { name: 'Skills', id: 'skills', icon: Code2 },
-  { name: 'Interest', id: 'interest', icon: Compass },
+  { name: 'Interests', id: 'interest', icon: Compass },
   { name: 'Git Stats', id: 'git-stats', icon: Activity },
   { name: 'Contact', id: 'contact', icon: Mail },
 ];
@@ -67,20 +68,30 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
   }, []);
 
   const navItems = useMemo(() => {
-    if (!sections || sections.length === 0) return defaultNavItems;
+    // If sections array is provided, use ONLY enabled inner sections
+    if (sections !== undefined && sections !== null) {
+      const innerSections = getOrderedBodySections(sections);
+      return innerSections.map((s) => {
+        const canonical = normalizeSectionId(s.id);
+        const defaultMatch = defaultNavItems.find(
+          (d) => normalizeSectionId(d.id) === canonical
+        );
+        const domId =
+          canonical === 'interests'
+            ? 'interest'
+            : canonical === 'github'
+            ? 'git-stats'
+            : canonical;
 
-    return sections
-      .filter((s) => s.enabled !== false && s.id !== 'hero' && s.id !== 'footer')
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      .map((s) => {
-        const normalizedId = s.id === 'interests' ? 'interest' : s.id === 'github' ? 'git-stats' : s.id;
-        const defaultMatch = defaultNavItems.find((d) => d.id === normalizedId);
         return {
           name: s.label || defaultMatch?.name || s.id,
-          id: normalizedId,
-          icon: iconMap[s.id] || iconMap[normalizedId] || Sparkles,
+          id: domId,
+          icon: iconMap[canonical] || iconMap[s.id] || Sparkles,
         };
       });
+    }
+
+    return defaultNavItems;
   }, [sections]);
 
   const cycleTheme = () => {
@@ -97,9 +108,24 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
 
   const displayName = fullName ? fullName.split(' ')[0].toUpperCase() : 'KRISHNA';
 
+  // Robust active section checker supporting both canonical and DOM IDs
+  const isItemActive = (itemId: string) => {
+    if (!activeSection) return false;
+    const canonicalActive = normalizeSectionId(activeSection);
+    const canonicalItem = normalizeSectionId(itemId);
+    return (
+      activeSection === itemId ||
+      canonicalActive === canonicalItem ||
+      (canonicalActive === 'interests' && itemId === 'interest') ||
+      (canonicalActive === 'github' && itemId === 'git-stats')
+    );
+  };
+
+  const activeItem = navItems.find((item) => isItemActive(item.id));
+
   return (
     <>
-      {/* Top Header Bar: Brand Logo + Clock + Theme Switcher + Mobile Menu Button */}
+      {/* Top Header Bar: Brand Logo + Active Section Pill + Clock + Theme Switcher + Mobile Menu Button */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -108,17 +134,34 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
       >
         <div className="pointer-events-auto backdrop-blur-2xl bg-card-bg border border-border-color rounded-full px-5 py-2.5 shadow-2xl flex justify-between items-center transition-all duration-300">
           {/* Logo Tag */}
-          <AnchorLink
-            to="about"
-            className="text-xl md:text-2xl font-extrabold font-sora tracking-wider flex items-center gap-2.5 group"
-          >
-            <div className="w-8 h-8 rounded-full bg-neon-indigo/15 border border-neon-indigo/30 flex items-center justify-center text-neon-indigo group-hover:scale-110 transition-transform">
-              <Sparkles size={15} />
-            </div>
-            <span className="text-text-primary group-hover:text-neon-indigo transition-colors font-sora">
-              <span className="text-xs font-mono text-neon-indigo mr-1.5 font-normal">01 /</span>{displayName}
-            </span>
-          </AnchorLink>
+          <div className="flex items-center gap-3">
+            <AnchorLink
+              to="about"
+              className="text-xl md:text-2xl font-extrabold font-sora tracking-wider flex items-center gap-2.5 group"
+            >
+              <div className="w-8 h-8 rounded-full bg-neon-indigo/15 border border-neon-indigo/30 flex items-center justify-center text-neon-indigo group-hover:scale-110 transition-transform">
+                <Sparkles size={15} />
+              </div>
+              <span className="text-text-primary group-hover:text-neon-indigo transition-colors font-sora">
+                <span className="text-xs font-mono text-neon-indigo mr-1.5 font-normal">01 /</span>{displayName}
+              </span>
+            </AnchorLink>
+
+            {/* Active Section In-View Badge */}
+            {activeItem && (
+              <motion.div
+                key={activeItem.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-indigo/10 border border-neon-indigo/30 text-neon-indigo text-xs font-mono shadow-sm"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-ping" />
+                <span className="font-bold tracking-wider uppercase">
+                  {activeItem.name}
+                </span>
+              </motion.div>
+            )}
+          </div>
 
           {/* Top Controls: Clock + Theme Switcher + Mobile Menu Toggle */}
           <div className="flex items-center space-x-3">
@@ -153,83 +196,94 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
               </button>
             )}
 
-            <button
-              className="lg:hidden p-2.5 rounded-full text-text-primary hover:text-neon-indigo bg-slate-950/20 dark:bg-slate-950/40 border border-border-color focus:outline-none"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle navigation menu"
-            >
-              {isOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
+            {navItems.length > 0 && (
+              <button
+                className="lg:hidden p-2.5 rounded-full text-text-primary hover:text-neon-indigo bg-slate-950/20 dark:bg-slate-950/40 border border-border-color focus:outline-none"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle navigation menu"
+              >
+                {isOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            )}
           </div>
         </div>
       </motion.header>
 
-      {/* Bottom Floating Navigation Dock (Centered Icons Only + Hover Tooltip) */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 pointer-events-none hidden lg:flex justify-center items-center">
-        <motion.nav
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-          className="pointer-events-auto flex items-center gap-1.5 p-2 rounded-full backdrop-blur-2xl bg-card-bg/90 border border-border-color shadow-[0_10px_35px_rgba(0,0,0,0.5)]"
-        >
-          {navItems.map((item) => {
-            const isActive = activeSection === item.id;
-            const IconComponent = item.icon;
-            const isHovered = hoveredId === item.id;
+      {/* Bottom Floating Navigation Dock (Animated In-View Transition Icons + Tooltip) */}
+      {navItems.length > 0 && (
+        <div className="fixed bottom-6 left-0 right-0 z-50 pointer-events-none hidden lg:flex justify-center items-center">
+          <motion.nav
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+            className="pointer-events-auto flex items-center gap-2 p-2.5 rounded-full backdrop-blur-2xl bg-card-bg/95 border border-border-color shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
+          >
+            {navItems.map((item) => {
+              const isActive = isItemActive(item.id);
+              const IconComponent = item.icon;
+              const isHovered = hoveredId === item.id;
 
-            return (
-              <AnchorLink key={item.id} to={item.id}>
-                <div
-                  onMouseEnter={() => setHoveredId(item.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  className="relative flex items-center justify-center"
-                >
-                  {/* Floating Hover Tooltip showing Nav Item Name */}
-                  <AnimatePresence>
-                    {isHovered && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.85 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.85 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute -top-11 left-1/2 -translate-x-1/2 px-3 py-1 rounded-xl bg-slate-900 text-white text-[11px] font-mono font-bold shadow-2xl border border-white/20 whitespace-nowrap pointer-events-none z-50 flex items-center gap-1"
-                      >
-                        <span className="text-neon-cyan">/</span>
-                        <span>{item.name}</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Icon Button */}
-                  <button
-                    aria-label={item.name}
-                    className={`relative p-3 rounded-full transition-all duration-300 flex items-center justify-center ${
-                      isActive
-                        ? 'bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/40 scale-110 shadow-[0_0_20px_rgba(47,129,247,0.4)]'
-                        : 'text-text-secondary hover:text-text-primary hover:bg-slate-800/40 hover:scale-105 border border-transparent'
-                    }`}
+              return (
+                <AnchorLink key={item.id} to={item.id}>
+                  <div
+                    onMouseEnter={() => setHoveredId(item.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                    className="relative flex items-center justify-center"
                   >
-                    <IconComponent size={19} />
+                    {/* Floating Hover Tooltip showing Nav Item Name */}
+                    <AnimatePresence>
+                      {isHovered && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.85 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.85 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute -top-11 left-1/2 -translate-x-1/2 px-3 py-1 rounded-xl bg-slate-900 text-white text-[11px] font-mono font-bold shadow-2xl border border-white/20 whitespace-nowrap pointer-events-none z-50 flex items-center gap-1"
+                        >
+                          <span className="text-neon-cyan">/</span>
+                          <span>{item.name}</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                    {/* Active Indicator Dot */}
-                    {isActive && (
-                      <motion.span
-                        layoutId="activeDockDot"
-                        className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-neon-indigo shadow-[0_0_8px_#388bfd]"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    {/* Animated Icon Button */}
+                    <motion.button
+                      aria-label={item.name}
+                      animate={{
+                        scale: isActive ? 1.15 : 1,
+                      }}
+                      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                      className={`relative p-3 rounded-full transition-all duration-300 flex items-center justify-center ${
+                        isActive
+                          ? 'bg-neon-indigo/25 text-neon-indigo border border-neon-indigo/50 shadow-[0_0_20px_rgba(99,102,241,0.5)]'
+                          : 'text-text-secondary hover:text-text-primary hover:bg-slate-800/40 hover:scale-105 border border-transparent'
+                      }`}
+                    >
+                      <IconComponent
+                        size={19}
+                        className={isActive ? 'text-neon-cyan drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : ''}
                       />
-                    )}
-                  </button>
-                </div>
-              </AnchorLink>
-            );
-          })}
-        </motion.nav>
-      </div>
+
+                      {/* Active Indicator Spring Dot */}
+                      {isActive && (
+                        <motion.span
+                          layoutId="activeDockDot"
+                          className="absolute -bottom-1 w-2 h-2 rounded-full bg-gradient-to-r from-neon-indigo to-neon-cyan shadow-[0_0_10px_#388bfd]"
+                          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                        />
+                      )}
+                    </motion.button>
+                  </div>
+                </AnchorLink>
+              );
+            })}
+          </motion.nav>
+        </div>
+      )}
 
       {/* Mobile Cybernetic Dropdown Menu */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && navItems.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -239,6 +293,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
           >
             <div className="flex flex-col space-y-2">
               {navItems.map((item, idx) => {
+                const isActive = isItemActive(item.id);
                 const IconComponent = item.icon;
                 return (
                   <AnchorLink
@@ -246,13 +301,13 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
                     to={item.id}
                     onClick={() => setIsOpen(false)}
                     className={`text-sm font-mono tracking-wider p-3.5 rounded-2xl transition-all flex items-center justify-between ${
-                      activeSection === item.id
-                        ? 'bg-neon-indigo/15 text-neon-indigo font-bold border border-neon-indigo/30'
+                      isActive
+                        ? 'bg-neon-indigo/20 text-neon-indigo font-bold border border-neon-indigo/40 shadow-sm'
                         : 'text-text-primary hover:text-neon-indigo hover:bg-slate-900/40'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <IconComponent size={18} />
+                      <IconComponent size={18} className={isActive ? 'text-neon-cyan' : ''} />
                       <span>{item.name}</span>
                     </div>
                     <span className="text-xs text-text-secondary font-mono">/0{idx + 1}</span>

@@ -18,9 +18,9 @@ import { CircleArrowDown, CircleArrowUp } from 'lucide-react';
 import { PortfolioDetails, ProjectItem, GitHubStatsResponse, SectionConfig } from '@/lib/types';
 import {
   normalizeSectionId,
-  isSectionIdEnabled,
-  getOrderedInnerSections,
-} from '@/lib/nexisSchema';
+  isSectionEnabled,
+  getOrderedBodySections,
+} from '@/lib/sectionConfig';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface HeroClientProps {
@@ -29,19 +29,6 @@ interface HeroClientProps {
   initialStats?: GitHubStatsResponse | null;
   initialSections?: SectionConfig[] | null;
 }
-
-const defaultFallbackSections: SectionConfig[] = [
-  { id: 'hero', label: 'Hero', enabled: true, order: 1 },
-  { id: 'about', label: 'About Me', enabled: true, order: 2 },
-  { id: 'education', label: 'Academic Background', enabled: true, order: 3 },
-  { id: 'experience', label: 'Work Experience', enabled: true, order: 4 },
-  { id: 'projects', label: 'Featured Projects', enabled: true, order: 5 },
-  { id: 'skills', label: 'Technical Constellation', enabled: true, order: 6 },
-  { id: 'interests', label: 'Interests', enabled: true, order: 7 },
-  { id: 'github', label: 'GitHub Intelligence', enabled: true, order: 8 },
-  { id: 'contact', label: 'Get In Touch', enabled: true, order: 9 },
-  { id: 'footer', label: 'Footer', enabled: true, order: 10 },
-];
 
 const HeroClient: React.FC<HeroClientProps> = ({
   initialDetails,
@@ -53,13 +40,14 @@ const HeroClient: React.FC<HeroClientProps> = ({
   const [projects, setProjects] = useState<ProjectItem[]>(initialProjects);
   const [stats, setStats] = useState<GitHubStatsResponse | null>(initialStats);
 
-  // If initialSections or initialDetails is provided from server, use it directly without fallback
-  const [sections, setSections] = useState<SectionConfig[]>(
-    initialSections ?? initialDetails?.sections ?? defaultFallbackSections
+  // Authoritative sections state: use initialSections if provided (including empty array []),
+  // otherwise initialDetails.sections, otherwise null. NEVER default to all enabled!
+  const [sections, setSections] = useState<SectionConfig[] | null>(
+    initialSections ?? initialDetails?.sections ?? null
   );
 
-  const isHeroEnabled = useMemo(() => isSectionIdEnabled(sections, 'hero'), [sections]);
-  const isFooterEnabled = useMemo(() => isSectionIdEnabled(sections, 'footer'), [sections]);
+  const isHeroEnabled = useMemo(() => isSectionEnabled(sections, 'hero'), [sections]);
+  const isFooterEnabled = useMemo(() => isSectionEnabled(sections, 'footer'), [sections]);
 
   const [showContent, setShowContent] = useState<boolean>(true);
   const [activeSection, setActiveSection] = useState<string>('about');
@@ -94,8 +82,8 @@ const HeroClient: React.FC<HeroClientProps> = ({
     }
   }, [details, initialSections]);
 
-  // Fetch GitHub stats ONLY if GitHub section is enabled and stats are not already loaded
-  const isGitHubEnabled = useMemo(() => isSectionIdEnabled(sections, 'github'), [sections]);
+  // Fetch GitHub stats ONLY if GitHub section is enabled in NEXIS sections configuration
+  const isGitHubEnabled = useMemo(() => isSectionEnabled(sections, 'github'), [sections]);
 
   useEffect(() => {
     if (isGitHubEnabled && !stats) {
@@ -112,7 +100,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
 
   // Determine enabled and ordered inner sections (strictly excluding hero and footer)
   const orderedSections = useMemo(() => {
-    return getOrderedInnerSections(sections);
+    return getOrderedBodySections(sections);
   }, [sections]);
 
   // Section Observer for active header highlight
@@ -168,6 +156,15 @@ const HeroClient: React.FC<HeroClientProps> = ({
 
   const renderSection = (sec: SectionConfig) => {
     const canonical = normalizeSectionId(sec.id);
+
+    // Development assertion: prevent rendering any section that is not enabled
+    if (!isSectionEnabled(sections, canonical)) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[HeroClient Warning] Prevented rendering disabled section: ${canonical}`);
+      }
+      return null;
+    }
+
     switch (canonical) {
       case 'about':
         return (
@@ -259,6 +256,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
         {isHeroEnabled && (
           <Welcome
             profile={details?.profile}
+            sections={sections}
             onComplete={() => setShowContent(true)}
           />
         )}

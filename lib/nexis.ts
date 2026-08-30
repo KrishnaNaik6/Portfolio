@@ -11,7 +11,7 @@ import {
  * The API key is strictly accessed via server-side process.env and never exposed to the client.
  */
 export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null> {
-  const apiUrl = process.env.NEXIS_API_URL || 'http://localhost:4000';
+  const apiUrl = process.env.NEXIS_API_URL || 'https://nexis-02is.onrender.com';
   const apiKey = process.env.NEXIS_API_KEY;
 
   const baseUrl = apiUrl.replace(/\/$/, '');
@@ -38,11 +38,17 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
       : `Bearer ${cleanKey}`;
   }
 
+  // Use no-store in development so changes published in NEXIS are visible immediately upon refresh
+  const fetchOptions =
+    process.env.NODE_ENV === 'development'
+      ? { cache: 'no-store' as const }
+      : { next: { revalidate: 30 } };
+
   for (const endpoint of candidateEndpoints) {
     try {
       const res = await fetch(endpoint, {
         headers,
-        next: { revalidate: 3600 },
+        ...fetchOptions,
       });
 
       if (!res.ok) {
@@ -58,7 +64,7 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
         return null;
       }
 
-      console.log(`[NEXIS Client] Successfully fetched and validated portfolio data from ${endpoint}`);
+      console.log(`[NEXIS Client] Successfully fetched live portfolio data from ${endpoint}`);
       return normalizeNexisPortfolio(parseResult.data);
     } catch (err: any) {
       console.warn(`[NEXIS Client] Connection failed on ${endpoint}:`, err?.message || 'Network error');
@@ -73,7 +79,7 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
  * Fetches GitHub Intelligence and contribution analytics from NEXIS API
  */
 export async function fetchNexisGitHubIntelligence(year?: number | string): Promise<any | null> {
-  const apiUrl = process.env.NEXIS_API_URL || 'http://localhost:4000';
+  const apiUrl = process.env.NEXIS_API_URL || 'https://nexis-02is.onrender.com';
   const apiKey = process.env.NEXIS_API_KEY;
 
   const baseUrl = apiUrl.replace(/\/$/, '');
@@ -100,11 +106,16 @@ export async function fetchNexisGitHubIntelligence(year?: number | string): Prom
       : `Bearer ${cleanKey}`;
   }
 
+  const fetchOptions =
+    process.env.NODE_ENV === 'development'
+      ? { cache: 'no-store' as const }
+      : { next: { revalidate: 30 } };
+
   for (const endpoint of candidateEndpoints) {
     try {
       const res = await fetch(endpoint, {
         headers,
-        next: { revalidate: 1800 },
+        ...fetchOptions,
       });
       if (res.ok) {
         return await res.json();

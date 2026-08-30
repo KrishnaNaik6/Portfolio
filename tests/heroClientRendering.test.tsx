@@ -138,6 +138,44 @@ const mockDetails: PortfolioDetails = {
 };
 
 describe('HeroClient Component Section Visibility Verification', () => {
+  // Scenario 1: Live Render API Config (8 sections: hero, about, education, experience, projects, skills, interests, footer; github & contact disabled)
+  it('Live Config: Renders 8 active sections and does NOT render disabled GitHub Intelligence or Contact', () => {
+    const liveRenderSections: SectionConfig[] = [
+      { id: 'hero', label: 'Hero', order: 1, enabled: true },
+      { id: 'about', label: 'About Me', order: 2, enabled: true },
+      { id: 'education', label: 'Academic Background', order: 3, enabled: true },
+      { id: 'experience', label: 'Work Experience', order: 4, enabled: true },
+      { id: 'projects', label: 'Featured Projects', order: 5, enabled: true },
+      { id: 'skills', label: 'Technical Constellation', order: 6, enabled: true },
+      { id: 'interests', label: 'Interests', order: 7, enabled: true },
+      { id: 'footer', label: 'Footer', order: 10, enabled: true },
+    ];
+
+    const { container } = render(
+      <HeroClient
+        initialDetails={mockDetails}
+        initialProjects={[{ name: 'MehendiAura', description: 'test', link: { git: '', live: '' } }]}
+        initialSections={liveRenderSections}
+      />
+    );
+
+    // Active Sections MUST BE RENDERED
+    expect(screen.getByText(/01 \/ FULL - STACK DEVELOPER/i)).toBeInTheDocument();
+    expect(container.querySelector('#about')).toBeInTheDocument();
+    expect(container.querySelector('#education')).toBeInTheDocument();
+    expect(container.querySelector('#experience')).toBeInTheDocument();
+    expect(container.querySelector('#projects')).toBeInTheDocument();
+    expect(container.querySelector('#skills')).toBeInTheDocument();
+    expect(container.querySelector('#interest')).toBeInTheDocument();
+    expect(container.querySelector('#footer')).toBeInTheDocument();
+
+    // Disabled Sections MUST NOT BE RENDERED
+    expect(container.querySelector('#git-stats')).not.toBeInTheDocument();
+    expect(container.querySelector('#github')).not.toBeInTheDocument();
+    expect(container.querySelector('#contact')).not.toBeInTheDocument();
+  });
+
+  // Scenario 2: ONLY Hero, About, and Footer
   it('renders ONLY Hero, About, and Footer when only those 3 sections are enabled in NEXIS', () => {
     const onlyHeroAboutFooterSections: SectionConfig[] = [
       { id: 'hero', label: 'Hero', enabled: true, order: 1 },
@@ -177,6 +215,7 @@ describe('HeroClient Component Section Visibility Verification', () => {
     expect(container.querySelector('#contact')).not.toBeInTheDocument();
   });
 
+  // Scenario 3: All sections enabled
   it('renders all sections when all sections are enabled in sections array', () => {
     const allEnabledSections: SectionConfig[] = [
       { id: 'hero', label: 'Hero', enabled: true, order: 1 },
@@ -211,6 +250,7 @@ describe('HeroClient Component Section Visibility Verification', () => {
     expect(container.querySelector('#footer')).toBeInTheDocument();
   });
 
+  // Scenario 4: Hero disabled
   it('does not render Hero when hero section is disabled', () => {
     const noHeroSections: SectionConfig[] = [
       { id: 'hero', label: 'Hero', enabled: false, order: 1 },

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Sparkles, Github, Linkedin, Instagram, Mail, ArrowUpRight } from 'lucide-react';
 import AnchorLink from '../ui/AnchorLink';
 import { ContactInfo, SectionConfig } from '@/lib/types';
-import { normalizeSectionId, getOrderedInnerSections } from '@/lib/nexisSchema';
+import { normalizeSectionId, getOrderedBodySections } from '@/lib/sectionConfig';
 
 interface FooterProps {
   contact?: ContactInfo;
@@ -19,6 +19,7 @@ const defaultNavLinks = [
   { name: 'Experience', id: 'experience' },
   { name: 'Projects', id: 'projects' },
   { name: 'Skills', id: 'skills' },
+  { name: 'Interests', id: 'interest' },
   { name: 'Git Stats', id: 'git-stats' },
   { name: 'Contact', id: 'contact' },
 ];
@@ -47,9 +48,9 @@ const Footer: React.FC<FooterProps> = ({
   }, []);
 
   const navLinks = useMemo(() => {
-    // If sections array is provided (even if filtered to 1 item), use only those enabled sections
+    // If sections array is provided (even if filtered to a few items or empty []), use ONLY enabled inner sections
     if (sections !== undefined && sections !== null) {
-      const innerSections = getOrderedInnerSections(sections);
+      const innerSections = getOrderedBodySections(sections);
       return innerSections.map((s) => {
         const canonical = normalizeSectionId(s.id);
         const defaultMatch = defaultNavLinks.find(

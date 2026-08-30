@@ -8,66 +8,27 @@ import {
   SkillData,
   ContactInfo,
 } from './types';
+import {
+  normalizeSectionId,
+  validateSections,
+  isSectionEnabled,
+  getOrderedBodySections,
+  CanonicalSectionId,
+  VALID_CANONICAL_SECTION_IDS,
+} from './sectionConfig';
 
-export type CanonicalSectionId =
-  | 'hero'
-  | 'about'
-  | 'education'
-  | 'experience'
-  | 'projects'
-  | 'skills'
-  | 'interests'
-  | 'github'
-  | 'contact'
-  | 'footer';
+export {
+  normalizeSectionId,
+  validateSections,
+  isSectionEnabled,
+  getOrderedBodySections,
+  VALID_CANONICAL_SECTION_IDS,
+};
+export type { CanonicalSectionId };
 
-/**
- * Maps incoming section IDs to their standard canonical IDs.
- */
-export function normalizeSectionId(id: string): CanonicalSectionId | string {
-  if (!id) return '';
-  const lower = id.toLowerCase().trim();
-  if (lower === 'interest' || lower === 'interests') return 'interests';
-  if (
-    lower === 'git-stats' ||
-    lower === 'git_stats' ||
-    lower === 'github' ||
-    lower === 'github-intelligence' ||
-    lower === 'githubintelligence'
-  ) {
-    return 'github';
-  }
-  return lower;
-}
-
-/**
- * Checks whether a specific canonical section is enabled in the sections list.
- */
-export function isSectionIdEnabled(
-  sections: SectionConfig[] | undefined | null,
-  targetId: string
-): boolean {
-  if (!sections || !Array.isArray(sections)) return false;
-  const canonicalTarget = normalizeSectionId(targetId);
-  return sections.some(
-    (s) => normalizeSectionId(s.id) === canonicalTarget && s.enabled === true
-  );
-}
-
-/**
- * Filters out hero and footer, returning only enabled inner sections sorted by order.
- */
-export function getOrderedInnerSections(
-  sections: SectionConfig[] | undefined | null
-): SectionConfig[] {
-  if (!sections || !Array.isArray(sections)) return [];
-  return sections
-    .filter((s) => {
-      const canonical = normalizeSectionId(s.id);
-      return s.enabled === true && canonical !== 'hero' && canonical !== 'footer';
-    })
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-}
+// Backwards compatibility aliases
+export const isSectionIdEnabled = isSectionEnabled;
+export const getOrderedInnerSections = getOrderedBodySections;
 
 export const NexisProfileSchema = z.object({
   fullName: z.string().optional(),
@@ -226,22 +187,14 @@ export interface NormalizedNexisData {
 
 /**
  * Normalizes validated NEXIS API response into typed frontend structures without inventing dummy data.
- * Sections are strictly filtered to only those with enabled === true, mapped to canonical IDs, and sorted by order.
+ * Sections are validated and filtered strictly using validateSections().
  */
 export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNexisData {
   const data = 'data' in input && input.data && typeof input.data === 'object' ? (input.data as any) : input;
 
-  // 1. Sections: strictly keep only items where enabled === true, normalize ID, and sort by order
-  const rawSections: any[] = Array.isArray(data.sections) ? data.sections : [];
-  const sections: SectionConfig[] = rawSections
-    .filter((s: any) => s && typeof s.id === 'string' && s.enabled === true)
-    .map((s: any) => ({
-      id: normalizeSectionId(s.id),
-      label: s.label || s.id,
-      enabled: true,
-      order: typeof s.order === 'number' ? s.order : 999,
-    }))
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  // 1. Sections: validated and filtered strictly to enabled === true
+  const rawSections = Array.isArray(data.sections) ? data.sections : [];
+  const { validSections: sections } = validateSections(rawSections);
 
   // 2. Education: sort by displayOrder
   const education: EducationItem[] = (data.education || [])

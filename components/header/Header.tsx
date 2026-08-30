@@ -21,7 +21,7 @@ import {
 import { useTheme } from 'next-themes';
 import AnchorLink from '../ui/AnchorLink';
 import { SectionConfig } from '@/lib/types';
-import { normalizeSectionId, getOrderedInnerSections } from '@/lib/nexisSchema';
+import { normalizeSectionId, getOrderedBodySections } from '@/lib/sectionConfig';
 
 interface HeaderProps {
   activeSection: string;
@@ -35,7 +35,7 @@ const defaultNavItems = [
   { name: 'Experience', id: 'experience', icon: Briefcase },
   { name: 'Projects', id: 'projects', icon: FolderGit2 },
   { name: 'Skills', id: 'skills', icon: Code2 },
-  { name: 'Interest', id: 'interest', icon: Compass },
+  { name: 'Interests', id: 'interest', icon: Compass },
   { name: 'Git Stats', id: 'git-stats', icon: Activity },
   { name: 'Contact', id: 'contact', icon: Mail },
 ];
@@ -68,9 +68,9 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
   }, []);
 
   const navItems = useMemo(() => {
-    // If sections array is provided (even if filtered to 1 item), use only those enabled sections
+    // If sections array is provided (even if filtered to a few items or empty []), use ONLY enabled inner sections
     if (sections !== undefined && sections !== null) {
-      const innerSections = getOrderedInnerSections(sections);
+      const innerSections = getOrderedBodySections(sections);
       return innerSections.map((s) => {
         const canonical = normalizeSectionId(s.id);
         const defaultMatch = defaultNavItems.find(

@@ -10,12 +10,20 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
       },
       {
-        userAgent: ['Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'Applebot'],
+        userAgent: [
+          'Googlebot',
+          'Googlebot-Image',
+          'Google-Favicon',
+          'Bingbot',
+          'Slurp',
+          'DuckDuckBot',
+          'Baiduspider',
+          'YandexBot',
+          'Applebot',
+        ],
         allow: '/',
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }
-
-

@@ -7,11 +7,22 @@ interface AnchorLinkProps {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
+  ariaLabel?: string;
+  title?: string;
 }
 
-const AnchorLink: React.FC<AnchorLinkProps> = ({ to, children, onClick, className = '' }) => (
+const AnchorLink: React.FC<AnchorLinkProps> = ({
+  to,
+  children,
+  onClick,
+  className = '',
+  ariaLabel,
+  title,
+}) => (
   <a
     href={`#${to.toLowerCase()}`}
+    aria-label={ariaLabel}
+    title={title}
     onClick={(e) => {
       e.preventDefault();
       const target = document.getElementById(to.toLowerCase());

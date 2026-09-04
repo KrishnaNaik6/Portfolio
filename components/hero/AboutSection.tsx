@@ -32,7 +32,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
             </div>
 
             <p className="text-xl md:text-2xl text-text-primary leading-relaxed font-sora font-semibold tracking-tight">
-              I&apos;m <strong className="text-neon-indigo font-bold text-glow-indigo">{fullName}</strong>, a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology.
+              I&apos;m <strong className="text-neon-indigo font-bold text-glow-indigo">{fullName}</strong> (<span className="text-text-secondary font-medium">Krishna Umesh Naik / Krishna</span>), a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology.
             </p>
 
             <p className="text-text-secondary leading-relaxed text-base md:text-lg">

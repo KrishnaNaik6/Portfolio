@@ -137,6 +137,8 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
           <div className="flex items-center gap-3">
             <AnchorLink
               to="about"
+              ariaLabel="Krishna Naik Portfolio Home"
+              title="Krishna Naik (Krishna) — Portfolio Home"
               className="text-xl md:text-2xl font-extrabold font-sora tracking-wider flex items-center gap-2.5 group"
             >
               <div className="w-8 h-8 rounded-full bg-neon-indigo/15 border border-neon-indigo/30 flex items-center justify-center text-neon-indigo group-hover:scale-110 transition-transform">

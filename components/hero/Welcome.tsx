@@ -69,9 +69,14 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
             tracking-tight select-none leading-[1.1]
           "
         >
-          <TypingText speed={40} onComplete={() => setComplete(true)}>
-            Hey there!! Welcome to my Portfolio
-          </TypingText>
+          <span className="sr-only">
+            Krishna Naik | Krishna — Full-Stack Developer &amp; AI/ML Engineer Portfolio
+          </span>
+          <span aria-hidden="true">
+            <TypingText speed={40} onComplete={() => setComplete(true)}>
+              Hey there!! Welcome to my Portfolio
+            </TypingText>
+          </span>
         </h1>
 
         {/* Short Editorial Intro Paragraph */}
@@ -82,7 +87,13 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
           className="text-text-secondary text-base md:text-lg max-w-2xl leading-relaxed font-normal"
         >
           {profile?.bio ? (
-            profile.bio
+            profile.bio.includes('Krishna') ? (
+              profile.bio
+            ) : (
+              <>
+                I am <strong className="text-text-primary font-semibold">{profile.fullName || 'Krishna Naik'}</strong> (<strong className="text-text-primary font-semibold">Krishna</strong>) — {profile.bio}
+              </>
+            )
           ) : (
             <>
               I am <strong className="text-text-primary font-semibold">Krishna Naik</strong> (<strong className="text-text-primary font-semibold">Krishna Umesh Naik</strong>), a Computer Science student specializing in AI & ML at Ramaiah Institute of Technology. Crafting intelligent systems, full-stack web applications, and immersive digital experiences.

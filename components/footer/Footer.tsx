@@ -97,6 +97,8 @@ const Footer: React.FC<FooterProps> = ({
           <div className={`${navLinks.length > 0 ? 'sm:col-span-2 lg:col-span-6' : 'sm:col-span-2 lg:col-span-8'} flex flex-col space-y-3`}>
             <AnchorLink
               to="about"
+              ariaLabel="Krishna Naik Portfolio — Back to Top"
+              title="Krishna Naik (Krishna) Portfolio"
               className="text-xl sm:text-2xl font-black font-sora text-text-primary tracking-tight flex items-center gap-2.5 w-fit group"
             >
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neon-indigo/15 border border-neon-indigo/30 flex items-center justify-center text-neon-indigo group-hover:scale-110 transition-transform">
@@ -193,7 +195,7 @@ const Footer: React.FC<FooterProps> = ({
         {/* Copyright Bar */}
         <div className="pt-2 text-center">
           <p className="text-[11px] sm:text-xs font-mono text-text-secondary tracking-wider">
-            © {year} <span className="text-text-primary font-semibold font-sora">{fullName}</span>. All Rights Reserved.
+            © {year} <span className="text-text-primary font-semibold font-sora">{fullName}</span> (Krishna Umesh Naik / Krishna). All Rights Reserved.
           </p>
         </div>
       </div>

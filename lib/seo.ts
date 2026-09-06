@@ -249,6 +249,7 @@ export function generateWebSiteJSONLD() {
       'Krishna Naik',
     ],
     url: 'https://krishna-naik.vercel.app',
+    image: 'https://krishna-naik.vercel.app/k.svg',
     description:
       'Official portfolio website of Krishna Naik (Krishna Umesh Naik, Krishna) — Full Stack Developer, Software Developer & AI/ML Engineer.',
     publisher: {

@@ -196,6 +196,23 @@ body {
   border-color: var(--border-color);
 }
 
+/* GPU Compositor-Accelerated Portrait Float Animation */
+@keyframes portrait-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+.animate-portrait-float {
+  animation: portrait-float 6s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -208,7 +225,8 @@ body {
   }
   .ambient-blob-1,
   .ambient-blob-2,
-  .ambient-blob-3 {
+  .ambient-blob-3,
+  .animate-portrait-float {
     animation: none !important;
   }
 }

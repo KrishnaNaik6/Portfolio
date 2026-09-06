@@ -17,13 +17,24 @@ export const HeroPortrait: React.FC<HeroPortraitProps> = ({
 }) => {
   const [imgError, setImgError] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const imgRef = React.useRef<HTMLImageElement>(null);
   const shouldReduceMotion = useReducedMotion();
+
+  const validAvatar = avatarUrl?.trim() || null;
 
   // Reset state dynamically whenever avatarUrl changes (e.g. fresh CMS publishing)
   useEffect(() => {
     setImgError(false);
-    setImgLoaded(false);
-  }, [avatarUrl]);
+    if (imgRef.current?.complete) {
+      if (imgRef.current.naturalWidth > 0) {
+        setImgLoaded(true);
+      } else {
+        setImgError(true);
+      }
+    } else {
+      setImgLoaded(false);
+    }
+  }, [validAvatar]);
 
   const altText = fullName
     ? `${fullName} – Full-Stack Developer & AI Engineer Profile Portrait`
@@ -97,10 +108,10 @@ export const HeroPortrait: React.FC<HeroPortraitProps> = ({
             </div>
 
             {/* Shimmer Skeleton Placeholder while loading */}
-            {!imgLoaded && !imgError && avatarUrl && (
+            {!imgLoaded && !imgError && validAvatar && (
               <div
                 aria-hidden="true"
-                className="absolute inset-0 z-10 bg-slate-900/90 flex items-center justify-center overflow-hidden"
+                className="absolute inset-0 z-10 bg-slate-900/90 pointer-events-none flex items-center justify-center overflow-hidden transition-opacity duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                 <div className="flex flex-col items-center gap-3 text-text-secondary/50">
@@ -113,9 +124,19 @@ export const HeroPortrait: React.FC<HeroPortraitProps> = ({
             )}
 
             {/* Profile Image Render */}
-            {avatarUrl && !imgError ? (
+            {validAvatar && !imgError ? (
               <img
-                src={avatarUrl}
+                ref={(node) => {
+                  imgRef.current = node;
+                  if (node && node.complete && !imgLoaded) {
+                    if (node.naturalWidth > 0) {
+                      setImgLoaded(true);
+                    } else if (node.naturalWidth === 0 && node.src) {
+                      setImgError(true);
+                    }
+                  }
+                }}
+                src={validAvatar}
                 alt={altText}
                 loading="eager"
                 fetchPriority="high"
@@ -123,10 +144,11 @@ export const HeroPortrait: React.FC<HeroPortraitProps> = ({
                 width={420}
                 height={525}
                 onLoad={() => setImgLoaded(true)}
-                onError={() => setImgError(true)}
-                className={`w-full h-full object-cover object-[center_16%] transition-all duration-700 select-none ${
-                  imgLoaded ? 'opacity-100 scale-100 filter-none' : 'opacity-0 scale-105'
-                } group-hover:scale-[1.02]`}
+                onError={() => {
+                  console.warn('[HeroPortrait] Failed to load avatar image:', validAvatar);
+                  setImgError(true);
+                }}
+                className="w-full h-full object-cover object-[center_16%] transition-transform duration-700 select-none group-hover:scale-[1.02]"
               />
             ) : (
               /* Fallback Placeholder Presentation (if avatarUrl is null, empty, or fails) */

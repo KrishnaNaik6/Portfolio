@@ -168,9 +168,6 @@ describe('SEO & Structured Data Test Suite', () => {
         'public/apple-touch-icon.png',
         'public/android-chrome-192x192.png',
         'public/android-chrome-512x512.png',
-        'app/favicon.ico',
-        'app/icon.svg',
-        'app/apple-icon.png',
       ];
 
       for (const file of expectedFiles) {

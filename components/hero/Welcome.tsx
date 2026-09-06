@@ -41,7 +41,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
       {/* Right Column (Desktop) / Top Section (Mobile): Hero Profile Portrait Composition */}
       <div className="lg:col-span-5 w-full flex justify-center lg:justify-end order-1 lg:order-2">
         <HeroPortrait
-          avatarUrl={profile?.avatarUrl}
+          avatarUrl={profile?.avatarUrl || profile?.imageUrl}
           fullName={profile?.fullName}
         />
       </div>

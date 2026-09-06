@@ -13,7 +13,8 @@ import {
  */
 export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null> {
   const apiUrl = process.env.NEXIS_API_URL || 'https://nexis-02is.onrender.com';
-  const apiKey = process.env.NEXIS_API_KEY;
+  const apiKey =
+    process.env.NEXIS_API_KEY || 'nx_app_ea6a9af6_a125bd4ce953cd697c052f03918a4e69ea3a9f515f3001f2';
 
   const baseUrl = apiUrl.replace(/\/$/, '');
   const candidateEndpoints = [
@@ -75,7 +76,8 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
  */
 export async function fetchNexisGitHubIntelligence(year?: number | string): Promise<any | null> {
   const apiUrl = process.env.NEXIS_API_URL || 'https://nexis-02is.onrender.com';
-  const apiKey = process.env.NEXIS_API_KEY;
+  const apiKey =
+    process.env.NEXIS_API_KEY || 'nx_app_ea6a9af6_a125bd4ce953cd697c052f03918a4e69ea3a9f515f3001f2';
 
   const baseUrl = apiUrl.replace(/\/$/, '');
   const query = year ? `?year=${year}` : '';

@@ -22,6 +22,14 @@ export const HeroPortrait: React.FC<HeroPortraitProps> = ({
 
   const validAvatar = avatarUrl?.trim() || null;
 
+  const shortName = React.useMemo(() => {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length > 2) {
+      return `${parts[0]} ${parts[parts.length - 1]}`;
+    }
+    return fullName;
+  }, [fullName]);
+
   // Reset state dynamically whenever avatarUrl changes (e.g. fresh CMS publishing)
   useEffect(() => {
     setImgError(false);
@@ -60,7 +68,7 @@ export const HeroPortrait: React.FC<HeroPortraitProps> = ({
         animate={animateVariants}
         transition={transitionConfig}
         whileHover={shouldReduceMotion ? undefined : { y: -4, transition: { duration: 0.3 } }}
-        className="relative group w-[210px] xs:w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px] xl:w-[400px] 2xl:w-[420px] max-w-full aspect-[4/5] transform-gpu [backface-visibility:hidden]"
+        className="relative group w-[250px] xs:w-[280px] sm:w-[320px] md:w-[340px] lg:w-[360px] xl:w-[400px] 2xl:w-[420px] max-w-[calc(100vw-2.5rem)] aspect-[4/5] transform-gpu [backface-visibility:hidden]"
       >
         {/* Floating Chassis Wrapper: Off-thread GPU compositor floating (zero-lag on HUD text) */}
         <div className="relative w-full h-full animate-portrait-float transform-gpu [backface-visibility:hidden] [transform-style:preserve-3d]">
@@ -89,18 +97,20 @@ export const HeroPortrait: React.FC<HeroPortraitProps> = ({
           />
 
           {/* Layer 3: Layered Glass Bezel Chassis (Crisp dark backing without expensive backdrop-filter repaints) */}
-          <div className="relative w-full h-full rounded-[26px] sm:rounded-[34px] p-2 sm:p-2.5 bg-slate-900/90 dark:bg-slate-900/90 border border-neon-indigo/30 group-hover:border-neon-indigo/60 shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_30px_rgba(47,129,247,0.15)] transition-all duration-500 flex flex-col transform-gpu [backface-visibility:hidden]">
+          <div className="relative w-full h-full rounded-[24px] sm:rounded-[34px] p-2 sm:p-2.5 bg-slate-900/90 dark:bg-slate-900/90 border border-neon-indigo/30 group-hover:border-neon-indigo/60 shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_30px_rgba(47,129,247,0.15)] transition-all duration-500 flex flex-col transform-gpu [backface-visibility:hidden]">
             {/* Layer 4: Inner Portrait Screen Viewport */}
-            <div className="relative w-full h-full rounded-[20px] sm:rounded-[28px] overflow-hidden bg-slate-950 flex items-center justify-center transform-gpu [backface-visibility:hidden]">
+            <div className="relative w-full h-full rounded-[18px] sm:rounded-[28px] overflow-hidden bg-slate-950 flex items-center justify-center transform-gpu [backface-visibility:hidden]">
               {/* Top Micro Tech HUD Badges: Locked zero-lag composite layer */}
-              <div className="absolute top-2.5 left-2.5 right-2.5 sm:top-3 sm:left-3 sm:right-3 flex items-center justify-between z-20 pointer-events-none transform-gpu [backface-visibility:hidden]">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/90 border border-white/10 text-[9px] sm:text-[10px] font-mono tracking-widest text-text-secondary uppercase shadow-sm">
-                  <Terminal size={11} className="text-neon-cyan" />
-                  <span>AI_ENGINEER</span>
+              <div className="absolute top-2.5 left-2.5 right-2.5 sm:top-3 sm:left-3 sm:right-3 flex items-center justify-between gap-1.5 z-20 pointer-events-none transform-gpu [backface-visibility:hidden]">
+                <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-slate-950/90 border border-white/10 text-[8px] xs:text-[8.5px] sm:text-[10px] font-mono tracking-wider sm:tracking-widest text-text-secondary uppercase shadow-sm shrink-0">
+                  <Terminal size={10} className="text-neon-cyan shrink-0 sm:w-3 sm:h-3" />
+                  <span className="hidden xs:inline">AI_ENGINEER</span>
+                  <span className="xs:hidden">AI_ENG</span>
                 </span>
 
-                <span className="px-2.5 py-1 rounded-full bg-slate-950/90 border border-neon-indigo/40 text-[8px] sm:text-[9px] font-mono tracking-widest text-neon-indigo uppercase font-bold shadow-sm">
-                  SYS_VERIFIED
+                <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-slate-950/90 border border-neon-indigo/40 text-[7.5px] xs:text-[8px] sm:text-[9px] font-mono tracking-wider sm:tracking-widest text-neon-indigo uppercase font-bold shadow-sm shrink-0">
+                  <span className="hidden xs:inline">SYS_VERIFIED</span>
+                  <span className="xs:hidden">VERIFIED</span>
                 </span>
               </div>
 
@@ -198,17 +208,21 @@ export const HeroPortrait: React.FC<HeroPortraitProps> = ({
               />
 
               {/* Bottom Status / Entity HUD Pill: Locked zero-lag composite layer */}
-              <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-3 sm:left-3 sm:right-3 z-20 flex items-center justify-between px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-slate-950/90 border border-white/10 shadow-lg pointer-events-none transform-gpu [backface-visibility:hidden]">
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-2 w-2">
+              <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-3 sm:left-3 sm:right-3 z-20 flex items-center justify-between gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-950/90 border border-white/10 shadow-lg pointer-events-none transform-gpu [backface-visibility:hidden]">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+                  <span className="relative flex h-2 w-2 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                   </span>
-                  <span className="text-[10px] sm:text-xs font-mono font-medium text-text-primary truncate max-w-[120px] sm:max-w-[160px]">
-                    {fullName}
+                  <span
+                    title={fullName}
+                    className="text-[9.5px] xs:text-[10.5px] sm:text-xs font-mono font-medium text-text-primary truncate min-w-0"
+                  >
+                    <span className="hidden sm:inline">{fullName}</span>
+                    <span className="sm:hidden">{shortName}</span>
                   </span>
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-mono tracking-widest text-neon-cyan font-semibold">
+                <span className="text-[8.5px] xs:text-[9px] sm:text-[10px] font-mono tracking-wider sm:tracking-widest text-neon-cyan font-semibold shrink-0 pl-1">
                   ACTIVE
                 </span>
               </div>

@@ -32,6 +32,9 @@ const config: Config = {
         'neon-purple': 'var(--shadow-purple)',
         'neon-indigo': 'var(--shadow-indigo)',
       },
+      screens: {
+        xs: '380px',
+      },
     },
   },
   plugins: [],

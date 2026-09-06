@@ -210,10 +210,11 @@ describe('NEXIS Schema Validation & Normalization', () => {
     expect(result.success).toBe(true);
     if (!result.success) return;
 
-    expect(result.data.profile?.fullName).toBe('Krishna Umesh Naik');
-    expect(result.data.sections?.length).toBe(10);
-    expect(result.data.projects?.length).toBe(5);
-    expect(result.data.skills?.length).toBe(5);
+    const validatedData = result.data as any;
+    expect(validatedData.profile?.fullName).toBe('Krishna Umesh Naik');
+    expect(validatedData.sections?.length).toBe(10);
+    expect(validatedData.projects?.length).toBe(5);
+    expect(validatedData.skills?.length).toBe(5);
   });
 
   it('rejects invalid API response structures', () => {

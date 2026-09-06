@@ -34,6 +34,7 @@ export const NexisProfileSchema = z.object({
   fullName: z.string().optional(),
   headline: z.string().optional(),
   bio: z.string().optional(),
+  avatarUrl: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
   email: z.string().nullable().optional(),
   phone: z.string().nullable().optional(),
@@ -150,7 +151,7 @@ export const NexisPortfolioResponseSchema = z.union([
   BaseNexisPayload,
 ]);
 
-export type NexisPortfolioRaw = z.infer<typeof NexisPortfolioResponseSchema>;
+export type NexisPortfolioRaw = z.infer<typeof NexisPortfolioResponseSchema> | Record<string, any>;
 
 /**
  * Formats ISO / YYYY-MM-DD date strings into human-readable tenure (e.g. "Jul 2026 - Aug 2026")
@@ -306,6 +307,7 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
           fullName: data.profile.fullName,
           headline: data.profile.headline,
           bio: data.profile.bio,
+          avatarUrl: data.profile.avatarUrl,
           location: data.profile.location,
           email: data.profile.email,
           phone: data.profile.phone,

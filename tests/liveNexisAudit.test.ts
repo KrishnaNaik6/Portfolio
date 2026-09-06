@@ -24,9 +24,10 @@ describe('Live Render NEXIS Snapshot Audit', () => {
       );
 
       // Verify normalization produces valid sections matching API enabled states
-      const rawSectionsList: any[] = 'data' in parseResult.data && parseResult.data.data
-        ? parseResult.data.data.sections || []
-        : (parseResult.data as any).sections || [];
+      const payloadData = parseResult.data as any;
+      const rawSectionsList: any[] = 'data' in payloadData && payloadData.data
+        ? payloadData.data.sections || []
+        : payloadData.sections || [];
 
       for (const rawSec of rawSectionsList) {
         if (rawSec.enabled === true) {

@@ -5,18 +5,9 @@ import { motion } from 'framer-motion';
 import TypingText from '../ui/TypingText';
 import { ArrowDownRight, FileText, Send } from 'lucide-react';
 import AnchorLink from '../ui/AnchorLink';
-import dynamic from 'next/dynamic';
 import { ProfileData, SectionConfig } from '@/lib/types';
 import { isSectionEnabled } from '@/lib/sectionConfig';
-
-const Hero3DCanvas = dynamic(() => import('./Hero3DCanvas'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-[320px] sm:h-[380px] md:h-[450px] flex items-center justify-center">
-      <div className="w-12 h-12 border-2 border-neon-indigo/20 border-t-neon-indigo rounded-full animate-spin" />
-    </div>
-  ),
-});
+import HeroPortrait from './HeroPortrait';
 
 interface WelcomeProps {
   onComplete: () => void;
@@ -46,9 +37,17 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
   const workTarget = isProjectsActive ? 'projects' : 'about';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-8 pb-16 px-4 max-w-7xl mx-auto relative z-10">
-      {/* Left Column: Asymmetric Editorial Typography & Hero Copy */}
-      <div className="lg:col-span-7 flex flex-col text-left space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center pt-4 sm:pt-8 pb-16 px-4 max-w-7xl mx-auto relative z-10">
+      {/* Right Column (Desktop) / Top Section (Mobile): Hero Profile Portrait Composition */}
+      <div className="lg:col-span-5 w-full flex justify-center lg:justify-end order-1 lg:order-2">
+        <HeroPortrait
+          avatarUrl={profile?.avatarUrl}
+          fullName={profile?.fullName}
+        />
+      </div>
+
+      {/* Left Column (Desktop) / Bottom Section (Mobile): Asymmetric Editorial Typography & Hero Copy */}
+      <div className="lg:col-span-7 flex flex-col text-left space-y-6 order-2 lg:order-1">
         {/* Editorial Subtitle Pill */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -151,11 +150,6 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
             <span>RESUME</span>
           </a>
         </motion.div>
-      </div>
-
-      {/* Right Column: Interactive 3D Cosmic Core Visual */}
-      <div className="lg:col-span-5 w-full">
-        <Hero3DCanvas />
       </div>
     </div>
   );

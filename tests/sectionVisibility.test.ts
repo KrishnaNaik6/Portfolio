@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { normalizeNexisPortfolio } from '../lib/nexisSchema';
 import {
-  normalizeNexisPortfolio,
   normalizeSectionId,
   isSectionEnabled,
   getOrderedBodySections,

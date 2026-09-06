@@ -9,6 +9,7 @@ export interface ProfileData {
   fullName?: string;
   headline?: string;
   bio?: string;
+  avatarUrl?: string | null;
   location?: string | null;
   email?: string | null;
   phone?: string | null;

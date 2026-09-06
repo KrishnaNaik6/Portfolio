@@ -60,6 +60,49 @@ describe('SEO & Structured Data Test Suite', () => {
 
       expect(seoKeywords.length).toBeGreaterThan(40);
     });
+
+    it('contains comprehensive casing variations (lowercase, uppercase, title case, slug) for search keys', () => {
+      const casingVariations = [
+        // 'krishna' variations
+        'krishna',
+        'Krishna',
+        'KRISHNA',
+        // 'krishna naik' variations
+        'krishna naik',
+        'Krishna Naik',
+        'KRISHNA NAIK',
+        // 'krishna umesh naik' variations
+        'krishna umesh naik',
+        'Krishna Umesh Naik',
+        'KRISHNA UMESH NAIK',
+        // username and slug variations
+        'krishnanaik',
+        'KrishnaNaik',
+        'KRISHNANAIK',
+        'krishnanaik6',
+        'KrishnaNaik6',
+        'KRISHNANAIK6',
+        'krishna_naik',
+        'krishna-naik',
+        // query variations
+        'krishna portfolio',
+        'Krishna portfolio',
+        'KRISHNA PORTFOLIO',
+        'krishna naik portfolio',
+        'Krishna Naik portfolio',
+        'KRISHNA NAIK PORTFOLIO',
+        'krishna developer',
+        'Krishna developer',
+        'KRISHNA DEVELOPER',
+        'krishna naik developer',
+        'Krishna Naik developer',
+        'KRISHNA NAIK DEVELOPER',
+      ];
+
+      casingVariations.forEach((kw) => {
+        expect(seoKeywords).toContain(kw);
+      });
+    });
   });
 
   describe('generatePersonJSONLD()', () => {

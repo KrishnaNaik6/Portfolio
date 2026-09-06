@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   ],
   creator: 'Krishna Naik (Krishna Umesh Naik)',
   publisher: 'Krishna Naik',
-  applicationName: 'Krishna Naik Portfolio',
+  applicationName: 'Krishna Naik',
   category: 'technology',
   classification: 'Software Engineering & AI Portfolio',
   icons: {
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     title: 'Krishna Naik | Krishna — Full Stack Developer & AI/ML Engineer Portfolio',
     description:
       'Official portfolio of Krishna Naik (Krishna Umesh Naik, Krishna) — Full Stack Developer & AI/ML Engineer based in Bengaluru, India.',
-    siteName: 'Krishna Naik Portfolio',
+    siteName: 'Krishna Naik',
     images: [
       {
         url: 'https://krishna-naik.vercel.app/android-chrome-512x512.png',
@@ -118,8 +118,8 @@ export const metadata: Metadata = {
     'profile:first_name': 'Krishna',
     'profile:last_name': 'Naik',
     'profile:username': 'KrishnaNaik6',
-    author: 'Krishna Naik, Krishna Umesh Naik, Krishna',
-    subject: 'Krishna Naik Portfolio - Full Stack Web Development and Artificial Intelligence',
+    author: 'Krishna Naik, Krishna, Krishna Umesh Naik',
+    subject: 'Krishna Naik (Krishna) Portfolio - Full Stack Web Development and Artificial Intelligence',
     owner: 'Krishna Naik',
     designer: 'Krishna Naik',
     copyright: 'Krishna Naik',
@@ -127,6 +127,8 @@ export const metadata: Metadata = {
     coverage: 'Worldwide',
     distribution: 'Global',
     rating: 'General',
+    'apple-mobile-web-app-title': 'Krishna Naik',
+    'application-name': 'Krishna Naik',
   },
 };
 

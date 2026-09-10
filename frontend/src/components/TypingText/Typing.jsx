@@ -1,30 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
-const TypingText = ({ children, speed = 50, onComplete }) => {
+const TypingText = ({ children, speed = 40, onComplete }) => {
     const [displayedText, setDisplayedText] = useState("");
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [complete, setComplete] = useState(false);
+    const [isComplete, setIsComplete] = useState(false);
+    const onCompleteRef = useRef(onComplete);
 
     useEffect(() => {
-        const text = children.toString();
-        
-        if (currentIndex < text.length) {
-            const timeoutId = setTimeout(() => {
-                setDisplayedText(prev => prev + text[currentIndex]);
-                setCurrentIndex(prev => prev + 1);
-            }, speed);
+        onCompleteRef.current = onComplete;
+    }, [onComplete]);
 
-            return () => clearTimeout(timeoutId);
-        } else if (!complete) {
-            setComplete(true);
-            if (onComplete) onComplete();
-        }
-    }, [currentIndex, children, speed, complete, onComplete]);
+    useEffect(() => {
+        const text = typeof children === "string" ? children : String(children);
+        setDisplayedText("");
+        setIsComplete(false);
+
+        let currentIndex = 0;
+        const intervalId = setInterval(() => {
+            currentIndex += 1;
+            setDisplayedText(text.slice(0, currentIndex));
+
+            if (currentIndex >= text.length) {
+                clearInterval(intervalId);
+                setIsComplete(true);
+                if (onCompleteRef.current) {
+                    onCompleteRef.current();
+                }
+            }
+        }, speed);
+
+        return () => clearInterval(intervalId);
+    }, [children, speed]);
 
     return (
         <>
             {displayedText}
-            {!complete && <span className="blinking-cursor">|</span>}
+            {!isComplete && <span className="blinking-cursor">|</span>}
         </>
     );
 };

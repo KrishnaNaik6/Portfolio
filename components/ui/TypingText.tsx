@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 interface TypingTextProps {
   children: string;
@@ -8,32 +8,46 @@ interface TypingTextProps {
   onComplete?: () => void;
 }
 
-const TypingText: React.FC<TypingTextProps> = ({ children, speed = 50, onComplete }) => {
+const TypingText: React.FC<TypingTextProps> = ({ children, speed = 40, onComplete }) => {
   const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [complete, setComplete] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const onCompleteRef = useRef(onComplete);
+
+  // Keep onComplete ref updated without restarting the typing effect
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
-    const text = children.toString();
+    const text = typeof children === 'string' ? children : String(children);
+    setDisplayedText('');
+    setIsComplete(false);
 
-    if (currentIndex < text.length) {
-      const timeoutId = setTimeout(() => {
-        setDisplayedText((prev) => prev + text[currentIndex]);
-        setCurrentIndex((prev) => prev + 1);
-      }, speed);
+    let currentIndex = 0;
+    const intervalId = setInterval(() => {
+      currentIndex += 1;
+      setDisplayedText(text.slice(0, currentIndex));
 
-      return () => clearTimeout(timeoutId);
-    } else if (!complete) {
-      setComplete(true);
-      if (onComplete) onComplete();
-    }
-  }, [currentIndex, children, speed, complete, onComplete]);
+      if (currentIndex >= text.length) {
+        clearInterval(intervalId);
+        setIsComplete(true);
+        if (onCompleteRef.current) {
+          onCompleteRef.current();
+        }
+      }
+    }, speed);
+
+    return () => clearInterval(intervalId);
+  }, [children, speed]);
 
   return (
     <>
-      <span>{displayedText}</span>
-      {!complete && (
-        <span className="inline-block w-1.5 h-8 ml-1 bg-neon-cyan animate-pulse align-middle" />
+      <span data-testid="typing-text">{displayedText}</span>
+      {!isComplete && (
+        <span
+          aria-hidden="true"
+          className="inline-block w-1.5 h-8 ml-1 bg-neon-cyan animate-pulse align-middle"
+        />
       )}
     </>
   );

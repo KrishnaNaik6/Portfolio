@@ -138,6 +138,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${sora.variable} ${firaCode.variable}`}>
       <head>
+        {/* Performance & Connection Optimization */}
+        <link rel="preconnect" href="https://nexis-02is.onrender.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://api.github.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://avatars.githubusercontent.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://nexis-02is.onrender.com" />
+        <link rel="dns-prefetch" href="https://api.github.com" />
+        <link rel="dns-prefetch" href="https://avatars.githubusercontent.com" />
+
         {/* Structured Data */}
         <script
           type="application/ld+json"

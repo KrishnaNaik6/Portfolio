@@ -6,7 +6,14 @@ import { Briefcase, Calendar, ChevronRight } from 'lucide-react';
 import { ExperienceItem } from '@/lib/types';
 import SectionWrapper, { staggerContainer } from '../ui/SectionWrapper';
 import GlassCard, { itemVariants } from '../cards/GlassCard';
-import Experience3DNode from '../3d/Experience3DNode';
+import dynamic from 'next/dynamic';
+
+const Experience3DNode = dynamic(() => import('../3d/Experience3DNode'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-5 h-5 rounded-full bg-neon-indigo ring-4 ring-neon-indigo/20 shadow-[0_0_15px_#388bfd]" />
+  ),
+});
 
 interface ExperienceSectionProps {
   expData?: ExperienceItem[];

@@ -1,10 +1,10 @@
 import { fetchNexisPortfolio } from '@/lib/nexis';
-import { fetchGitHubDetails, fetchGitHubProjects, fetchGitHubUserStats } from '@/lib/github';
+import { fetchGitHubDetails, fetchGitHubProjects } from '@/lib/github';
 import HeroClient from '@/components/hero/HeroClient';
-import { isSectionIdEnabled } from '@/lib/nexisSchema';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Enable Incremental Static Regeneration (ISR) with Edge Caching
+// The page is served instantly (<50ms) from Vercel Global Edge CDN, and revalidates in the background every 30s
+export const revalidate = 30;
 
 export default async function HomePage() {
   const nexisData = await fetchNexisPortfolio().catch((err) => {
@@ -13,16 +13,6 @@ export default async function HomePage() {
   });
 
   const sections = nexisData?.sections ?? null;
-  const isGitHubEnabled = sections ? isSectionIdEnabled(sections, 'github') : true;
-
-  // Only prefetch GitHub stats if the GitHub Intelligence section is actually enabled
-  const stats = isGitHubEnabled
-    ? await fetchGitHubUserStats('KrishnaNaik6').catch((err) => {
-        console.error('Failed to prefetch GitHub stats on server:', err);
-        return null;
-      })
-    : null;
-
   let details = nexisData?.details || null;
   let projects = nexisData?.projects || [];
 
@@ -42,7 +32,7 @@ export default async function HomePage() {
     <HeroClient
       initialDetails={details}
       initialProjects={projects}
-      initialStats={stats}
+      initialStats={null}
       initialSections={sections}
     />
   );

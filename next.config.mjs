@@ -3,8 +3,22 @@ import path from 'path';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  compress: true,
+  poweredByHeader: false,
   outputFileTracingRoot: path.resolve(process.cwd()),
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      'chart.js',
+      'react-chartjs-2',
+      '@react-three/fiber',
+      '@react-three/drei',
+      'three',
+    ],
+  },
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',

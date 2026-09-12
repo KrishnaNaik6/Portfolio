@@ -2,29 +2,33 @@ import { fetchNexisPortfolio } from '@/lib/nexis';
 import { fetchGitHubDetails, fetchGitHubProjects } from '@/lib/github';
 import HeroClient from '@/components/hero/HeroClient';
 
-// Enable Incremental Static Regeneration (ISR) with Edge Caching
-// The page is served instantly (<50ms) from Vercel Global Edge CDN, and revalidates in the background every 30s
 export const revalidate = 30;
 
 export default async function HomePage() {
-  const nexisData = await fetchNexisPortfolio().catch((err) => {
-    console.warn('[HomePage] NEXIS prefetch failed:', err?.message);
-    return null;
-  });
+  // External portfolio services are enhancements, never prerequisites for rendering.
+  // All failures are contained so the homepage always has a renderable UI.
+  let nexisData = null;
+  try {
+    nexisData = await fetchNexisPortfolio();
+  } catch (err) {
+    console.warn('[HomePage] NEXIS prefetch failed:', err instanceof Error ? err.message : err);
+  }
 
-  const sections = nexisData?.sections ?? null;
   let details = nexisData?.details || null;
   let projects = nexisData?.projects || [];
+  const sections = nexisData?.sections ?? null;
 
-  // Fallback to GitHub legacy data sources only if NEXIS data is completely unavailable
+  // GitHub remains a safe secondary source. It is also fully failure-tolerant.
   if (!details && !sections) {
-    const [ghDetails, ghProjects] = await Promise.all([
-      fetchGitHubDetails().catch(() => null),
-      fetchGitHubProjects().catch(() => []),
-    ]);
-    details = ghDetails;
-    if (projects.length === 0) {
-      projects = ghProjects;
+    try {
+      const [ghDetails, ghProjects] = await Promise.all([
+        fetchGitHubDetails().catch(() => null),
+        fetchGitHubProjects().catch(() => []),
+      ]);
+      details = ghDetails;
+      if (projects.length === 0) projects = ghProjects;
+    } catch (err) {
+      console.warn('[HomePage] GitHub fallback failed:', err instanceof Error ? err.message : err);
     }
   }
 

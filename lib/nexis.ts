@@ -4,159 +4,127 @@ import {
   NormalizedNexisData,
 } from './nexisSchema';
 
-// In-memory fallback cache to ensure zero-downtime and sub-50ms TTFB even during Render.com cold starts
 let cachedPortfolioSnapshot: NormalizedNexisData | null = null;
-let cachedPortfolioTimestamp: number = 0;
-const CACHE_TTL_MS = 30 * 1000; // 30 seconds
+let cachedPortfolioTimestamp = 0;
+const CACHE_TTL_MS = 30 * 1000;
+const REQUEST_TIMEOUT_MS = 3500;
 
-/**
- * Helper to execute fetch with a strict timeout to prevent slow Render spin-ups from blocking the site
- */
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = 3500): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeoutMs = REQUEST_TIMEOUT_MS
+): Promise<Response> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetch(url, {
+    return await fetch(url, {
       ...options,
       signal: controller.signal,
     });
+  } finally {
     clearTimeout(id);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    throw error;
   }
 }
 
-/**
- * Server-Side NEXIS API Client
- *
- * Fetches published portfolio data from the NEXIS API.
- * Uses strict 3.5s timeout, ISR caching (revalidate: 30), and in-memory fallback cache
- * so page loads remain blazing fast (sub-50ms) even if Render is waking up from sleep.
- */
+function getNexisConfig() {
+  const apiUrl = (process.env.NEXIS_API_URL || '').trim();
+  const apiKey = (process.env.NEXIS_API_KEY || '').trim();
+  return { apiUrl: apiUrl.replace(/\/$/, ''), apiKey };
+}
+
+function getNexisHeaders(apiKey: string): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    'User-Agent': 'Krishna-Naik-Portfolio/1.0',
+  };
+
+  if (apiKey) {
+    headers['X-Nexus-Api-Key'] = apiKey;
+    headers['X-Nexis-Api-Key'] = apiKey;
+    headers['x-api-key'] = apiKey;
+    headers.Authorization = apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`;
+  }
+
+  return headers;
+}
+
 export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null> {
   const now = Date.now();
-
-  // If memory cache is still fresh within TTL, return instantly
   if (cachedPortfolioSnapshot && now - cachedPortfolioTimestamp < CACHE_TTL_MS) {
     return cachedPortfolioSnapshot;
   }
 
-  const apiUrl = process.env.NEXIS_API_URL || 'https://nexis-02is.onrender.com';
-  const apiKey =
-    process.env.NEXIS_API_KEY || 'nx_app_ea6a9af6_a125bd4ce953cd697c052f03918a4e69ea3a9f515f3001f2';
-
-  const baseUrl = apiUrl.replace(/\/$/, '');
-  const candidateEndpoints = [
-    `${baseUrl}/api/v1/public/portfolio`,
-    `${baseUrl}/api/v1/portfolio/published`,
-    `${baseUrl}/api/v1/portfolio`,
-  ];
-
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-    'User-Agent': 'Krishna-Naik-Portfolio-Client/1.0',
-  };
-
-  if (apiKey && apiKey.trim()) {
-    const cleanKey = apiKey.trim();
-    headers['X-Nexus-Api-Key'] = cleanKey;
-    headers['X-Nexis-Api-Key'] = cleanKey;
-    headers['x-api-key'] = cleanKey;
-    headers.Authorization = cleanKey.startsWith('Bearer ')
-      ? cleanKey
-      : `Bearer ${cleanKey}`;
+  const { apiUrl, apiKey } = getNexisConfig();
+  if (!apiUrl) {
+    console.warn('[NEXIS Client] NEXIS_API_URL is not configured; using fallback data source.');
+    return cachedPortfolioSnapshot;
   }
+
+  const candidateEndpoints = [
+    `${apiUrl}/api/v1/public/portfolio`,
+    `${apiUrl}/api/v1/portfolio/published`,
+    `${apiUrl}/api/v1/portfolio`,
+  ];
+  const headers = getNexisHeaders(apiKey);
 
   for (const endpoint of candidateEndpoints) {
     try {
-      const res = await fetchWithTimeout(
-        endpoint,
-        {
-          headers,
-          next: { revalidate: 30 },
-        },
-        3500
-      );
+      const res = await fetchWithTimeout(endpoint, {
+        headers,
+        next: { revalidate: 30 },
+      });
 
       if (!res.ok) {
-        console.warn(`[NEXIS Client] ${endpoint} returned HTTP status ${res.status}`);
+        console.warn(`[NEXIS Client] ${endpoint} returned HTTP ${res.status}`);
         continue;
       }
 
       const rawJson = await res.json();
       const parseResult = NexisPortfolioResponseSchema.safeParse(rawJson);
-
       if (!parseResult.success) {
-        console.error(`[NEXIS Client] Validation failed on ${endpoint}:`, parseResult.error.format());
-        return cachedPortfolioSnapshot;
+        console.error(`[NEXIS Client] Validation failed on ${endpoint}`);
+        continue;
       }
 
       const normalized = normalizeNexisPortfolio(parseResult.data);
       cachedPortfolioSnapshot = normalized;
       cachedPortfolioTimestamp = Date.now();
       return normalized;
-    } catch (err: any) {
-      console.warn(`[NEXIS Client] Fetch failed on ${endpoint}:`, err?.message || 'Timeout / Network error');
+    } catch (err) {
+      console.warn(
+        `[NEXIS Client] Fetch failed on ${endpoint}:`,
+        err instanceof Error ? err.message : 'Unknown error'
+      );
     }
   }
 
-  // Fallback to last known good cached snapshot if available
   if (cachedPortfolioSnapshot) {
     console.log('[NEXIS Client] Serving last known cached snapshot');
-    return cachedPortfolioSnapshot;
   }
-
-  return null;
+  return cachedPortfolioSnapshot;
 }
 
-/**
- * Fetches GitHub Intelligence and contribution analytics from NEXIS API with fast timeout
- */
 export async function fetchNexisGitHubIntelligence(year?: number | string): Promise<any | null> {
-  const apiUrl = process.env.NEXIS_API_URL || 'https://nexis-02is.onrender.com';
-  const apiKey =
-    process.env.NEXIS_API_KEY || 'nx_app_ea6a9af6_a125bd4ce953cd697c052f03918a4e69ea3a9f515f3001f2';
+  const { apiUrl, apiKey } = getNexisConfig();
+  if (!apiUrl) return null;
 
-  const baseUrl = apiUrl.replace(/\/$/, '');
-  const query = year ? `?year=${year}` : '';
+  const query = year ? `?year=${encodeURIComponent(String(year))}` : '';
   const candidateEndpoints = [
-    `${baseUrl}/api/v1/public/portfolio/github-intelligence${query}`,
-    `${baseUrl}/api/v1/public/github/intelligence${query}`,
-    `${baseUrl}/api/v1/github/intelligence${query}`,
+    `${apiUrl}/api/v1/public/portfolio/github-intelligence${query}`,
+    `${apiUrl}/api/v1/public/github/intelligence${query}`,
+    `${apiUrl}/api/v1/github/intelligence${query}`,
   ];
-
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-    'User-Agent': 'Krishna-Naik-Portfolio-Client/1.0',
-  };
-
-  if (apiKey && apiKey.trim()) {
-    const cleanKey = apiKey.trim();
-    headers['X-Nexus-Api-Key'] = cleanKey;
-    headers['X-Nexis-Api-Key'] = cleanKey;
-    headers['x-api-key'] = cleanKey;
-    headers.Authorization = cleanKey.startsWith('Bearer ')
-      ? cleanKey
-      : `Bearer ${cleanKey}`;
-  }
+  const headers = getNexisHeaders(apiKey);
 
   for (const endpoint of candidateEndpoints) {
     try {
-      const res = await fetchWithTimeout(
-        endpoint,
-        {
-          headers,
-          next: { revalidate: 60 },
-        },
-        3000
-      );
-      if (res.ok) {
-        return await res.json();
-      }
+      const res = await fetchWithTimeout(endpoint, {
+        headers,
+        next: { revalidate: 60 },
+      }, 3000);
+      if (res.ok) return await res.json();
     } catch {
-      // Continue to next candidate
+      // Optional enhancement; continue without it.
     }
   }
 

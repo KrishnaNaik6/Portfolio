@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 describe('Security & Non-Exposure Verification', () => {
-  it('ensures NEXIS_API_KEY is not prefixed with NEXT_PUBLIC_', () => {
+  it('keeps NEXIS credentials server-side and out of example public prefixes', () => {
     const envExamplePath = path.resolve(__dirname, '../.env.example');
     const envContent = fs.readFileSync(envExamplePath, 'utf-8');
 
@@ -18,28 +18,29 @@ describe('Security & Non-Exposure Verification', () => {
       let files: string[] = [];
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          files = files.concat(readDirRecursive(fullPath));
-        } else if (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts')) {
-          files.push(fullPath);
-        }
+        if (entry.isDirectory()) files = files.concat(readDirRecursive(fullPath));
+        else if (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts')) files.push(fullPath);
       }
       return files;
     };
 
-    const componentFiles = readDirRecursive(componentsDir);
-
-    for (const file of componentFiles) {
+    for (const file of readDirRecursive(componentsDir)) {
       const content = fs.readFileSync(file, 'utf-8');
       expect(content).not.toContain('process.env.NEXIS_API_KEY');
       expect(content).not.toContain('NEXT_PUBLIC_NEXIS_API_KEY');
     }
   });
 
-  it('ensures API route handlers do not expose NEXIS credentials in responses or headers', async () => {
+  it('ensures source contains no hard-coded NEXIS credential fallback', () => {
+    const nexisPath = path.resolve(__dirname, '../lib/nexis.ts');
+    const content = fs.readFileSync(nexisPath, 'utf-8');
+    expect(content).not.toMatch(/NEXIS_API_KEY\s*\|\|\s*['\"]/);
+    expect(content).not.toContain('nx_app_');
+  });
+
+  it('ensures API route handlers do not expose NEXIS credentials in responses or headers', () => {
     const routePath = path.resolve(__dirname, '../app/api/portfolio/route.ts');
     const content = fs.readFileSync(routePath, 'utf-8');
-
     expect(content).not.toContain('Authorization');
     expect(content).not.toContain('NEXIS_API_KEY');
   });

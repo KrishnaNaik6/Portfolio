@@ -144,7 +144,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
             </span>
           )}
 
-          <a
+          {project.link.git ? <a
             href={project.link.git}
             target="_blank"
             rel="noopener noreferrer"
@@ -152,7 +152,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
           >
             <Github className="w-3.5 h-3.5" />
             <span>Repository</span>
-          </a>
+          </a> : null}
         </div>
       </div>
     </motion.div>

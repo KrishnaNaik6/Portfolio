@@ -387,7 +387,7 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
     publishedAt: data.publishedAt,
   };
 
-  if (githubStats) (details as any).githubIntelligence = githubStats;
+  if (githubStats) details.githubIntelligence = githubStats;
 
   return {
     details,

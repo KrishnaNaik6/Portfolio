@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Cpu,
   Layers,
@@ -34,39 +35,181 @@ const renderPillarIcon = (iconName?: string) => {
   const key = iconName?.toLowerCase().trim();
   switch (key) {
     case 'layers':
-      return <Layers size={22} />;
+      return <Layers size={20} />;
     case 'code':
     case 'code2':
-      return <Code2 size={22} />;
+      return <Code2 size={20} />;
     case 'terminal':
-      return <Terminal size={22} />;
+      return <Terminal size={20} />;
     case 'rocket':
-      return <Rocket size={22} />;
+      return <Rocket size={20} />;
     case 'sparkles':
-      return <Sparkles size={22} />;
+      return <Sparkles size={20} />;
     case 'brain':
     case 'ai':
     case 'ml':
-      return <Brain size={22} />;
+      return <Brain size={20} />;
     case 'database':
-      return <Database size={22} />;
+      return <Database size={20} />;
     case 'server':
-      return <Server size={22} />;
+      return <Server size={20} />;
     case 'globe':
-      return <Globe size={22} />;
+      return <Globe size={20} />;
     case 'workflow':
-      return <Workflow size={22} />;
+      return <Workflow size={20} />;
     case 'zap':
-      return <Zap size={22} />;
+      return <Zap size={20} />;
     case 'boxes':
-      return <Boxes size={22} />;
+      return <Boxes size={20} />;
     case 'bot':
-      return <Bot size={22} />;
+      return <Bot size={20} />;
     case 'laptop':
-      return <Laptop size={22} />;
+      return <Laptop size={20} />;
     default:
-      return <Cpu size={22} />;
+      return <Cpu size={20} />;
   }
+};
+
+const ScatteredPillars: React.FC<{ pillars: import('@/lib/types').AboutPillar[] }> = ({ pillars }) => {
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  // Deterministic scatter offsets based on index for hydration stability
+  const getScatterStyle = (index: number, isActive: boolean) => {
+    if (isActive) {
+      return {
+        rotate: 0,
+        x: 0,
+        y: 0,
+        scale: 1,
+        zIndex: 30,
+      };
+    }
+
+    const rotations = [-3, 3.5, -2.5, 4, -3.5];
+    const xOffsets = [-6, 8, -4, 6, -8];
+    const rot = rotations[index % rotations.length];
+    const x = xOffsets[index % xOffsets.length];
+
+    return {
+      rotate: rot,
+      x: x,
+      y: 0,
+      scale: 0.97,
+      zIndex: 10 + (pillars.length - index),
+    };
+  };
+
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <div className="flex items-center justify-between text-xs font-mono text-text-secondary px-1">
+        <span className="flex items-center gap-1.5 text-neon-cyan font-medium">
+          <Layers size={14} />
+          <span className="uppercase tracking-wider font-semibold">HIGHLIGHT PILLARS</span>
+        </span>
+        <span className="text-[10px] text-text-secondary/70">Click card to focus</span>
+      </div>
+
+      <div className="relative flex flex-col gap-3.5 w-full">
+        {pillars.map((pillar, index) => {
+          const isActive = index === activeIndex;
+          const scatter = getScatterStyle(index, isActive);
+
+          return (
+            <motion.div
+              key={pillar.title || index}
+              role="button"
+              tabIndex={0}
+              aria-label={`Highlight ${pillar.title} pillar`}
+              aria-expanded={isActive}
+              onClick={() => setActiveIndex(index)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setActiveIndex(index);
+                }
+              }}
+              initial={false}
+              animate={{
+                rotate: scatter.rotate,
+                x: scatter.x,
+                scale: scatter.scale,
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 320,
+                damping: 24,
+              }}
+              style={{ zIndex: scatter.zIndex }}
+              className={`p-5 md:p-6 rounded-2xl cursor-pointer transition-all duration-300 border backdrop-blur-md shadow-xl focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:outline-none ${
+                isActive
+                  ? 'bg-card-bg/95 border-neon-indigo/60 shadow-[0_0_25px_rgba(99,102,241,0.22)] ring-1 ring-neon-indigo/40'
+                  : 'bg-card-bg/75 border-neon-indigo/20 hover:border-neon-indigo/40 hover:bg-card-bg/85 opacity-85 hover:opacity-100'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3.5">
+                  <div
+                    className={`p-2.5 rounded-xl transition-colors duration-300 shrink-0 ${
+                      isActive
+                        ? 'bg-neon-indigo/25 text-neon-indigo border border-neon-indigo/50 shadow-sm'
+                        : 'bg-neon-indigo/15 text-neon-indigo/80 border border-neon-indigo/20'
+                    }`}
+                  >
+                    {renderPillarIcon(pillar.icon)}
+                  </div>
+                  <div>
+                    <h4 className="text-base md:text-lg font-bold text-text-primary font-sora leading-snug">
+                      {pillar.title}
+                    </h4>
+                    {pillar.subtitle && (
+                      <p className="text-[11px] text-neon-cyan font-mono font-medium mt-0.5">
+                        {pillar.subtitle}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {isActive && (
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/40 shrink-0 font-semibold uppercase tracking-wider">
+                    ACTIVE
+                  </span>
+                )}
+              </div>
+
+              {pillar.description && (
+                <p className="text-xs text-text-secondary font-mono leading-relaxed mt-3">
+                  {pillar.description}
+                </p>
+              )}
+
+              <AnimatePresence>
+                {isActive && pillar.highlights && pillar.highlights.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-3.5 p-3 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
+                      <ul className="space-y-1.5 text-[11px] text-text-secondary font-mono">
+                        {pillar.highlights.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="text-neon-indigo font-bold select-none">•</span>
+                            <span className="leading-snug">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
 const AboutSection: React.FC<AboutSectionProps> = ({
@@ -77,54 +220,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   pillars = [],
   sectionRef,
 }) => {
-  const sidePillars = (pillars || []).slice(0, 2);
-  const bottomPillars = (pillars || []).slice(2);
-  const hasSidePillars = sidePillars.length > 0;
-  const hasBottomPillars = bottomPillars.length > 0;
-
-  const renderPillarCard = (pillar: import('@/lib/types').AboutPillar, index: number) => (
-    <GlassCard
-      key={pillar.title || index}
-      className="p-5 md:p-6 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 via-card-bg/95 to-transparent border-neon-indigo/25 hover:border-neon-indigo/50 transition-all duration-300 shadow-xl rounded-2xl h-full"
-    >
-      <div>
-        <div className="flex items-start gap-3.5 mb-3">
-          <div className="p-2.5 rounded-xl bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/30 shrink-0">
-            {renderPillarIcon(pillar.icon)}
-          </div>
-          <div>
-            <h4 className="text-base md:text-lg font-bold text-text-primary font-sora leading-snug">
-              {pillar.title}
-            </h4>
-            {pillar.subtitle && (
-              <p className="text-[11px] text-neon-cyan font-mono font-medium mt-0.5">
-                {pillar.subtitle}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {pillar.description && (
-          <p className="text-xs text-text-secondary font-mono leading-relaxed mt-2.5">
-            {pillar.description}
-          </p>
-        )}
-
-        {pillar.highlights && pillar.highlights.length > 0 && (
-          <div className="mt-3.5 p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-            <ul className="space-y-1.5 text-[11px] text-text-secondary font-mono">
-              {pillar.highlights.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <span className="text-neon-indigo font-bold select-none">•</span>
-                  <span className="leading-snug">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    </GlassCard>
-  );
+  const hasPillars = pillars && pillars.length > 0;
 
   return (
     <SectionWrapper ref={sectionRef} id="about" title="About Me" terminalCommand="whoami">
@@ -132,7 +228,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
         {/* Main Editorial Card */}
         <GlassCard
           className={`${
-            hasSidePillars ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12'
+            hasPillars ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12'
           } p-6 md:p-10 shadow-2xl flex flex-col border-neon-indigo/30 rounded-3xl bg-card-bg/90 backdrop-blur-md`}
         >
           <div className="space-y-6 flex-1">
@@ -182,17 +278,10 @@ const AboutSection: React.FC<AboutSectionProps> = ({
           </div>
         </GlassCard>
 
-        {/* Side Pillars (Up to 2) */}
-        {hasSidePillars && (
-          <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-4 lg:gap-5 w-full">
-            {sidePillars.map(renderPillarCard)}
-          </div>
-        )}
-
-        {/* Extra Bottom Pillars (3rd pillar onwards move underneath to the left/full width) */}
-        {hasBottomPillars && (
-          <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full mt-2">
-            {bottomPillars.map(renderPillarCard)}
+        {/* Scattered/Stacked Interactive NEXIS About Pillars */}
+        {hasPillars && (
+          <div className="lg:col-span-5 xl:col-span-4 w-full">
+            <ScatteredPillars pillars={pillars} />
           </div>
         )}
       </div>

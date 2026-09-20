@@ -24,11 +24,8 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
     }
   }, [complete, onComplete]);
 
-  const badges = ['Full-Stack Dev', 'AI & ML Systems', 'React 19 / Next.js 15', 'TypeScript', 'Python'];
-
-  const headline = profile?.headline
-    ? `01 / ${profile.headline.toUpperCase()}`
-    : '01 / CREATIVE DEVELOPER & AI ENGINEER';
+  const headline = profile?.headline ? `01 / ${profile.headline.toUpperCase()}` : null;
+  const typewriterTexts = (profile as ProfileData & { typewriterTexts?: string[] })?.typewriterTexts || [];
 
   const resumeHref = profile?.resumeUrl || '/KrishnaNaik.pdf';
 
@@ -73,7 +70,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
           </span>
           <span aria-hidden="true">
             <TypingText speed={40} onComplete={() => setComplete(true)}>
-              Hey there!! Welcome to my Portfolio
+              {typewriterTexts.length > 0 ? typewriterTexts.join(' • ') : profile?.headline || ''}
             </TypingText>
           </span>
         </h1>
@@ -101,13 +98,14 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
         </motion.p>
 
         {/* Interactive Tech Badge Pills */}
+        {typewriterTexts.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
           className="flex flex-wrap gap-2.5 pt-2"
         >
-          {badges.map((badge, idx) => (
+          {typewriterTexts.slice(1).map((badge, idx) => (
             <span
               key={idx}
               className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-card-bg border border-border-color text-text-secondary hover:text-neon-indigo hover:border-neon-indigo/40 transition-all cursor-default shadow-sm"
@@ -116,6 +114,7 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
             </span>
           ))}
         </motion.div>
+        )}
 
         {/* Action CTAs */}
         <motion.div

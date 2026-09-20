@@ -3,13 +3,14 @@
 import React from 'react';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
-import { Cpu, Code2, Sparkles, Terminal, Rocket } from 'lucide-react';
+import { Cpu, Code2, Layers, Sparkles, Terminal, Rocket } from 'lucide-react';
 
 interface AboutSectionProps {
   bio?: string;
   fullName?: string;
   location?: string | null;
   achievements?: string[];
+  pillars?: import('@/lib/types').AboutPillar[];
   sectionRef?: React.RefObject<HTMLElement | null>;
 }
 
@@ -18,6 +19,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   fullName = 'Krishna Naik',
   location = 'Bengaluru, IN',
   achievements = [],
+  pillars = [],
   sectionRef,
 }) => {
   return (
@@ -72,32 +74,28 @@ const AboutSection: React.FC<AboutSectionProps> = ({
           </div>
         </GlassCard>
 
-        {/* Side Highlight Pillars */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 via-card-bg to-transparent border-neon-indigo/25">
-            <div className="p-3.5 rounded-2xl bg-neon-indigo/20 w-fit mb-4 text-neon-indigo">
-              <Cpu size={24} />
-            </div>
-            <div>
-              <h4 className="text-lg font-bold text-text-primary font-sora mb-1.5">AI & Machine Learning</h4>
-              <p className="text-xs text-text-secondary font-mono leading-relaxed">
-                Specialized in neural model exploration, intelligent algorithms, and smart automation.
-              </p>
-            </div>
-          </GlassCard>
-
-          <GlassCard className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-cyan/10 via-card-bg to-transparent border-neon-cyan/25">
-            <div className="p-3.5 rounded-2xl bg-neon-cyan/20 w-fit mb-4 text-neon-cyan">
-              <Code2 size={24} />
-            </div>
-            <div>
-              <h4 className="text-lg font-bold text-text-primary font-sora mb-1.5">Full-Stack Architecture</h4>
-              <p className="text-xs text-text-secondary font-mono leading-relaxed">
-                Building scalable web apps, clean APIs, and interactive UI systems with modern tech.
-              </p>
-            </div>
-          </GlassCard>
-        </div>
+        {/* Published NEXIS About Pillars */}
+        {pillars.length > 0 && (
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            {pillars.map((pillar, index) => (
+              <GlassCard key={pillar.title || index} className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 via-card-bg to-transparent border-neon-indigo/25">
+                <div>
+                  <div className="p-3.5 rounded-2xl bg-neon-indigo/20 w-fit mb-4 text-neon-indigo">
+                    {pillar.icon === 'Layers' ? <Layers size={24} /> : <Cpu size={24} />}
+                  </div>
+                  <h4 className="text-lg font-bold text-text-primary font-sora mb-1.5">{pillar.title}</h4>
+                  {pillar.subtitle && <p className="text-[11px] text-neon-cyan font-mono mb-2">{pillar.subtitle}</p>}
+                  {pillar.description && <p className="text-xs text-text-secondary font-mono leading-relaxed">{pillar.description}</p>}
+                  {pillar.highlights && pillar.highlights.length > 0 && (
+                    <ul className="mt-3 space-y-1 text-[11px] text-text-secondary font-mono">
+                      {pillar.highlights.map((item) => <li key={item}>• {item}</li>)}
+                    </ul>
+                  )}
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        )}
       </div>
     </SectionWrapper>
   );

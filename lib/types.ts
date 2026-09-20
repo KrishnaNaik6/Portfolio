@@ -5,6 +5,21 @@ export interface SectionConfig {
   order: number;
 }
 
+export interface AboutPillar {
+  title: string;
+  subtitle?: string;
+  description?: string;
+  icon?: string;
+  highlights?: string[];
+}
+
+export interface ConstellationMeshConfig {
+  enabled?: boolean;
+  nodeDensity?: number;
+  interactive?: boolean;
+  categoryColors?: Record<string, string>;
+}
+
 export interface ProfileData {
   fullName?: string;
   headline?: string;
@@ -15,6 +30,7 @@ export interface ProfileData {
   email?: string | null;
   phone?: string | null;
   resumeUrl?: string | null;
+  websiteUrl?: string | null;
 }
 
 export interface EducationItem {
@@ -73,6 +89,8 @@ export interface PortfolioDetails {
   contact: ContactInfo;
   achievements?: string[];
   about?: string;
+  aboutPillars?: AboutPillar[];
+  constellationMeshConfig?: ConstellationMeshConfig;
   sections?: SectionConfig[];
   publishedAt?: string;
 }

@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Code, Zap, Monitor, Terminal, CheckCircle2, Cpu } from 'lucide-react';
-import { SkillData } from '@/lib/types';
+import { ConstellationMeshConfig, SkillData } from '@/lib/types';
 import SectionWrapper, { staggerContainer } from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
 import dynamic from 'next/dynamic';
@@ -19,10 +19,11 @@ const Skills3DConstellation = dynamic(() => import('../3d/Skills3DConstellation'
 
 interface SkillsSectionProps {
   skillData?: SkillData;
+  constellationConfig?: ConstellationMeshConfig;
   sectionRef?: React.RefObject<HTMLElement | null>;
 }
 
-const SkillsSection: React.FC<SkillsSectionProps> = ({ skillData, sectionRef }) => {
+const SkillsSection: React.FC<SkillsSectionProps> = ({ skillData, constellationConfig, sectionRef }) => {
   const technicalSkills = skillData?.Technical || {};
   const softSkills = skillData?.['Soft Skills'] || [];
   const technicalCategories = Object.keys(technicalSkills);
@@ -43,9 +44,11 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skillData, sectionRef }) 
   return (
     <SectionWrapper ref={sectionRef} id="skills" title="Technical Constellation" terminalCommand="ls -l $skills">
       {/* Interactive 3D Skill Constellation Canvas */}
-      <div className="w-full max-w-3xl mx-auto mb-6">
-        <Skills3DConstellation />
-      </div>
+      {constellationConfig?.enabled !== false && (
+        <div className="w-full max-w-3xl mx-auto mb-6">
+          <Skills3DConstellation />
+        </div>
+      )}
 
       {technicalCategories.length > 0 ? (
         <>

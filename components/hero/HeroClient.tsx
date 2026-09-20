@@ -174,11 +174,11 @@ const HeroClient: React.FC<HeroClientProps> = ({
     const canonical = normalizeSectionId(sec.id);
     if (!isSectionEnabled(sections, canonical)) return null;
     switch (canonical) {
-      case 'about': return <AboutSection key="about" sectionRef={aboutRef} bio={details?.profile?.bio} fullName={details?.profile?.fullName} location={details?.profile?.location} achievements={details?.achievements || []} />;
+      case 'about': return <AboutSection key="about" sectionRef={aboutRef} bio={details?.profile?.bio} fullName={details?.profile?.fullName} location={details?.profile?.location} achievements={details?.achievements || []} pillars={details?.aboutPillars || []} />;
       case 'education': return <EducationSection key="education" sectionRef={eduRef} eduData={details?.education || []} />;
       case 'experience': return <ExperienceSection key="experience" sectionRef={expRef} expData={details?.experience || []} />;
       case 'projects': return <ProjectsSection key="projects" sectionRef={projRef} initialProjects={projects || []} />;
-      case 'skills': return <SkillsSection key="skills" sectionRef={skillRef} skillData={details?.skills} />;
+      case 'skills': return <SkillsSection key="skills" sectionRef={skillRef} skillData={details?.skills} constellationConfig={details?.constellationMeshConfig} />;
       case 'interests': return <InterestSection key="interests" sectionRef={interestRef} interest={details?.interest || []} />;
       case 'github': return <GitHubStatsSection key="github" sectionRef={gitRef} initialUsername={githubUsername} initialStats={stats} />;
       case 'contact': return <ContactSection key="contact" sectionRef={contactRef} contact={details?.contact} resumeUrl={details?.profile?.resumeUrl} />;

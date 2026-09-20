@@ -42,7 +42,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({ eduData = [], secti
                   <Award size={14} />
                   <span>{edu.status}</span>
                 </div>
-                {edu.year && <span className="font-mono text-text-secondary">{edu.year}</span>}
+                <div className="flex items-center gap-3">{edu.grade && <span className="font-mono text-text-secondary">{edu.grade}</span>}{edu.year && <span className="font-mono text-text-secondary">{edu.year}</span>}</div>
               </div>
             </GlassCard>
           ))}

@@ -113,6 +113,7 @@ export interface ProjectItem {
   type?: string;
   featured?: boolean;
   displayOrder?: number;
+  highlightLabel?: string | null;
 }
 
 export interface GitHubUser {

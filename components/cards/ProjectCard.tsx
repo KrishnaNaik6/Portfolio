@@ -25,6 +25,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
       ? safeDescription
       : safeDescription.substring(0, maxChars);
 
+  const highlightLabel =
+    typeof project.highlightLabel === 'string'
+      ? project.highlightLabel.trim()
+      : '';
+
   // Mouse position state for 3D tilt
   const x = useMotionValue(0.5);
   const y = useMotionValue(0.5);
@@ -95,12 +100,22 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
               <span className="text-[11px] sm:text-xs font-mono text-neon-indigo font-bold block mb-1">
                 {projectNum} / PROJECT
               </span>
-              {featured && (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neon-indigo/20 border border-neon-indigo/40 text-neon-indigo text-[10px] font-mono font-semibold uppercase tracking-wider mb-2">
-                  <Sparkles size={11} />
-                  <span>Featured Project</span>
-                </div>
-              )}
+              <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                {highlightLabel && (
+                  <span
+                    data-testid="project-highlight-badge"
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-neon-cyan/15 border border-neon-cyan/35 text-neon-cyan text-[10px] font-mono font-semibold uppercase tracking-wider max-w-full truncate"
+                  >
+                    {highlightLabel}
+                  </span>
+                )}
+                {featured && (
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neon-indigo/20 border border-neon-indigo/40 text-neon-indigo text-[10px] font-mono font-semibold uppercase tracking-wider">
+                    <Sparkles size={11} />
+                    <span>Featured Project</span>
+                  </div>
+                )}
+              </div>
               <h3 className="text-lg sm:text-2xl md:text-3xl font-black font-sora text-text-primary group-hover:text-neon-indigo transition-colors duration-300 tracking-tight break-words">
                 {project.name}
               </h3>

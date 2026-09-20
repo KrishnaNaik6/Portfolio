@@ -64,6 +64,7 @@ export const NexisProjectSchema = z.object({
   displayOrder: z.number().optional().default(0),
   collabed: z.boolean().optional(),
   tags: z.array(z.string()).optional(),
+  highlightLabel: z.string().nullable().optional(),
 }).passthrough();
 
 export const NexisExperienceSchema = z.object({
@@ -309,6 +310,7 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
       type: p.type ? p.type.charAt(0).toUpperCase() + p.type.slice(1) : 'Project',
       featured: p.featured ?? (idx === 0),
       displayOrder: p.displayOrder ?? idx,
+      highlightLabel: p.highlightLabel ?? null,
     }));
 
   const githubIntelligence = (data as any).githubIntelligence;

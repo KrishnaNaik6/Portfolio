@@ -15,7 +15,7 @@ interface ProjectCardProps {
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = false }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const maxChars = featured ? 140 : 75;
+  const maxChars = 85;
 
   const safeDescription = project.description || 'No description provided.';
   const needsTruncation = safeDescription.length > maxChars;
@@ -68,18 +68,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
         rotateX,
         rotateY,
       }}
-      className={`rounded-2xl sm:rounded-3xl transition-shadow duration-300 relative z-10 h-full flex flex-col ${
-        featured ? 'md:col-span-2' : ''
-      }`}
+      className="rounded-2xl sm:rounded-3xl transition-shadow duration-300 relative z-10 h-full flex flex-col"
     >
       <div
         className={`
-          relative p-5 sm:p-7 md:p-9 rounded-2xl sm:rounded-3xl h-full flex flex-col justify-between
-          bg-card-bg backdrop-blur-xl border border-border-color
-          shadow-2xl group overflow-hidden transition-all duration-300
-          ${featured ? 'bg-gradient-to-br from-card-bg via-card-bg to-neon-indigo/15 border-neon-indigo/30' : ''}
+          relative p-5 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl h-full flex flex-col justify-between
+          backdrop-blur-xl transition-all duration-300 group overflow-hidden
+          ${
+            featured
+              ? 'bg-gradient-to-br from-neon-indigo/15 via-card-bg/95 to-neon-cyan/10 border border-neon-indigo/50 hover:border-neon-indigo/80 shadow-[0_0_20px_rgba(99,102,241,0.15)] ring-1 ring-neon-indigo/30'
+              : 'bg-card-bg/90 border border-border-color shadow-xl hover:border-neon-indigo/40'
+          }
         `}
       >
+        {/* Featured Top Highlight Line */}
+        {featured && (
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-neon-indigo via-neon-cyan to-neon-rose opacity-80" />
+        )}
+
         {/* Neon Glow Hover Ring */}
         <div className="absolute inset-0 rounded-2xl sm:rounded-3xl pointer-events-none transition-all duration-500 group-hover:ring-2 group-hover:ring-neon-indigo/70 group-hover:shadow-[0_0_30px_var(--shadow-indigo)]" />
 
@@ -90,7 +96,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, featured = fa
                 {projectNum} / PROJECT
               </span>
               {featured && (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-neon-indigo/20 border border-neon-indigo/40 text-neon-indigo text-[9px] sm:text-[10px] font-mono uppercase tracking-widest mb-2 sm:mb-3">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neon-indigo/20 border border-neon-indigo/40 text-neon-indigo text-[10px] font-mono font-semibold uppercase tracking-wider mb-2">
                   <Sparkles size={11} />
                   <span>Featured Project</span>
                 </div>

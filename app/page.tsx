@@ -32,33 +32,13 @@ export default async function HomePage() {
     }
   }
 
-  // KNYK Labs is a first-class project on Krishna's portfolio.
-  // Keep it in the presentation layer so it remains visible even when
-  // NEXIS portfolio content or GitHub synchronization changes.
-  const knykLabsProject = {
-    id: 'knyk-labs',
-    name: 'KNYK Labs',
-    description:
-      'Founder-led digital solutions studio building software, websites, AI automation, and digital experiences.',
-    link: {
-      git: 'https://github.com/KrishnaNaik6/KNYK-Labs',
-      live: 'https://knyklabs.com',
-    },
-    collabed: false,
-    type: 'Digital Solutions Studio',
-    featured: true,
-    displayOrder: -1,
-  };
 
-  if (!projects.some((project) => project.name.trim().toLowerCase() === 'knyk labs')) {
-    projects = [knykLabsProject, ...projects];
-  }
 
   return (
     <HeroClient
       initialDetails={details}
       initialProjects={projects}
-      initialStats={null}
+      initialStats={details?.githubIntelligence || null}
       initialSections={sections}
     />
   );

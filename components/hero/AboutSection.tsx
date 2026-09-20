@@ -3,7 +3,7 @@
 import React from 'react';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
-import { Cpu, Code2, Layers, Sparkles, Terminal, Rocket } from 'lucide-react';
+import { Cpu, Layers, Sparkles, Terminal, Rocket } from 'lucide-react';
 
 interface AboutSectionProps {
   bio?: string;

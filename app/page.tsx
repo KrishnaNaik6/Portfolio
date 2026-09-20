@@ -13,8 +13,8 @@ export default async function HomePage() {
     console.warn('[HomePage] NEXIS prefetch failed:', err instanceof Error ? err.message : err);
   }
 
-  let details = nexisData?.details || null;
-  let projects = nexisData?.projects || [];
+  const details = nexisData?.details || null;
+  const projects = nexisData?.projects || [];
   const sections = nexisData?.sections ?? null;
 
 

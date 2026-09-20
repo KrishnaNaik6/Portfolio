@@ -96,6 +96,7 @@ export interface PortfolioDetails {
   constellationMeshConfig?: ConstellationMeshConfig;
   sections?: SectionConfig[];
   publishedAt?: string;
+  githubIntelligence?: GitHubStatsResponse;
 }
 
 export interface ProjectLink {

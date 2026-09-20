@@ -3,7 +3,23 @@
 import React from 'react';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
-import { Cpu, Layers, Sparkles, Terminal, Rocket } from 'lucide-react';
+import {
+  Cpu,
+  Layers,
+  Sparkles,
+  Terminal,
+  Rocket,
+  Code2,
+  Brain,
+  Database,
+  Server,
+  Globe,
+  Workflow,
+  Zap,
+  Boxes,
+  Bot,
+  Laptop,
+} from 'lucide-react';
 
 interface AboutSectionProps {
   bio?: string;
@@ -14,6 +30,45 @@ interface AboutSectionProps {
   sectionRef?: React.RefObject<HTMLElement | null>;
 }
 
+const renderPillarIcon = (iconName?: string) => {
+  const key = iconName?.toLowerCase().trim();
+  switch (key) {
+    case 'layers':
+      return <Layers size={22} />;
+    case 'code':
+    case 'code2':
+      return <Code2 size={22} />;
+    case 'terminal':
+      return <Terminal size={22} />;
+    case 'rocket':
+      return <Rocket size={22} />;
+    case 'sparkles':
+      return <Sparkles size={22} />;
+    case 'brain':
+    case 'ai':
+    case 'ml':
+      return <Brain size={22} />;
+    case 'database':
+      return <Database size={22} />;
+    case 'server':
+      return <Server size={22} />;
+    case 'globe':
+      return <Globe size={22} />;
+    case 'workflow':
+      return <Workflow size={22} />;
+    case 'zap':
+      return <Zap size={22} />;
+    case 'boxes':
+      return <Boxes size={22} />;
+    case 'bot':
+      return <Bot size={22} />;
+    case 'laptop':
+      return <Laptop size={22} />;
+    default:
+      return <Cpu size={22} />;
+  }
+};
+
 const AboutSection: React.FC<AboutSectionProps> = ({
   bio,
   fullName = 'Krishna Naik',
@@ -22,12 +77,18 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   pillars = [],
   sectionRef,
 }) => {
+  const hasPillars = pillars && pillars.length > 0;
+
   return (
     <SectionWrapper ref={sectionRef} id="about" title="About Me" terminalCommand="whoami">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start max-w-6xl mx-auto">
         {/* Main Editorial Card */}
-        <GlassCard className="lg:col-span-8 p-8 md:p-12 shadow-2xl flex flex-col justify-between border-neon-indigo/30">
-          <div className="space-y-6">
+        <GlassCard
+          className={`${
+            hasPillars ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12'
+          } p-6 md:p-10 shadow-2xl flex flex-col border-neon-indigo/30 rounded-3xl bg-card-bg/90 backdrop-blur-md`}
+        >
+          <div className="space-y-6 flex-1">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neon-indigo/15 border border-neon-indigo/30 text-neon-indigo text-xs font-mono">
               <Sparkles size={14} />
               <span>BIO & PHILOSOPHY</span>
@@ -56,7 +117,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
             )}
           </div>
 
-          <div className="pt-6 mt-6 border-t border-border-color flex flex-wrap items-center gap-4 text-xs font-mono text-text-secondary">
+          <div className="pt-6 mt-8 border-t border-border-color flex flex-wrap items-center gap-4 text-xs font-mono text-text-secondary">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
               <span>Based in {location || 'Bengaluru, IN'}</span>
@@ -75,21 +136,47 @@ const AboutSection: React.FC<AboutSectionProps> = ({
         </GlassCard>
 
         {/* Published NEXIS About Pillars */}
-        {pillars.length > 0 && (
-          <div className="lg:col-span-4 flex flex-col gap-6">
+        {hasPillars && (
+          <div className="lg:col-span-5 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-5 w-full">
             {pillars.map((pillar, index) => (
-              <GlassCard key={pillar.title || index} className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 via-card-bg to-transparent border-neon-indigo/25">
+              <GlassCard
+                key={pillar.title || index}
+                className="p-5 md:p-6 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 via-card-bg/95 to-transparent border-neon-indigo/25 hover:border-neon-indigo/50 transition-all duration-300 shadow-xl rounded-2xl"
+              >
                 <div>
-                  <div className="p-3.5 rounded-2xl bg-neon-indigo/20 w-fit mb-4 text-neon-indigo">
-                    {pillar.icon === 'Layers' ? <Layers size={24} /> : <Cpu size={24} />}
+                  <div className="flex items-start gap-3.5 mb-3">
+                    <div className="p-2.5 rounded-xl bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/30 shrink-0">
+                      {renderPillarIcon(pillar.icon)}
+                    </div>
+                    <div>
+                      <h4 className="text-base md:text-lg font-bold text-text-primary font-sora leading-snug">
+                        {pillar.title}
+                      </h4>
+                      {pillar.subtitle && (
+                        <p className="text-[11px] text-neon-cyan font-mono font-medium mt-0.5">
+                          {pillar.subtitle}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <h4 className="text-lg font-bold text-text-primary font-sora mb-1.5">{pillar.title}</h4>
-                  {pillar.subtitle && <p className="text-[11px] text-neon-cyan font-mono mb-2">{pillar.subtitle}</p>}
-                  {pillar.description && <p className="text-xs text-text-secondary font-mono leading-relaxed">{pillar.description}</p>}
+
+                  {pillar.description && (
+                    <p className="text-xs text-text-secondary font-mono leading-relaxed mt-2.5">
+                      {pillar.description}
+                    </p>
+                  )}
+
                   {pillar.highlights && pillar.highlights.length > 0 && (
-                    <ul className="mt-3 space-y-1 text-[11px] text-text-secondary font-mono">
-                      {pillar.highlights.map((item) => <li key={item}>• {item}</li>)}
-                    </ul>
+                    <div className="mt-3.5 p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+                      <ul className="space-y-1.5 text-[11px] text-text-secondary font-mono">
+                        {pillar.highlights.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="text-neon-indigo font-bold select-none">•</span>
+                            <span className="leading-snug">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
               </GlassCard>

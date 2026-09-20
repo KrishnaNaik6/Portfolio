@@ -31,6 +31,9 @@ export interface ProfileData {
   phone?: string | null;
   resumeUrl?: string | null;
   websiteUrl?: string | null;
+  welcomeGreeting?: string | null;
+  typewriterTexts?: string[];
+  pillars?: AboutPillar[];
 }
 
 export interface EducationItem {

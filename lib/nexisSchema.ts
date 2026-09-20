@@ -311,6 +311,51 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
       displayOrder: p.displayOrder ?? idx,
     }));
 
+  const githubIntelligence = (data as any).githubIntelligence;
+  const githubStats = githubIntelligence
+    ? {
+        user: {
+          login: githubIntelligence.profile.username,
+          id: 0,
+          avatar_url: githubIntelligence.profile.avatarUrl,
+          html_url: githubIntelligence.profile.profileUrl,
+          name: githubIntelligence.profile.name,
+          bio: githubIntelligence.profile.bio,
+          location: githubIntelligence.profile.location,
+          public_repos: githubIntelligence.profile.publicRepos,
+          followers: githubIntelligence.profile.followers,
+          following: githubIntelligence.profile.following,
+        },
+        repos: (githubIntelligence.repositories || []).map((repo: any) => ({
+          id: 0,
+          name: repo.name,
+          description: repo.description,
+          html_url: repo.url,
+          homepage: null,
+          stargazers_count: repo.stars,
+          forks_count: repo.forks,
+          language: repo.language,
+        })),
+        extraStats: {
+          commits: githubIntelligence.stats.totalCommits,
+          prs: githubIntelligence.stats.totalPullRequests,
+          issues: githubIntelligence.stats.totalIssues,
+        },
+        contributionsData: githubIntelligence.activity?.calendar
+          ? {
+              total: { [String(githubIntelligence.activity.selectedYear)]: githubIntelligence.activity.totalContributions },
+              contributions: (githubIntelligence.activity.calendar.weeks || []).flatMap((week: any) =>
+                (week.contributionDays || []).map((day: any) => ({
+                  date: day.date,
+                  count: day.contributionCount,
+                  level: day.contributionCount > 0 ? 1 : 0,
+                }))
+              ),
+            }
+          : undefined,
+      }
+    : null;
+
   const details: PortfolioDetails = {
     profile: data.profile
       ? {
@@ -341,6 +386,8 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
     sections,
     publishedAt: data.publishedAt,
   };
+
+  if (githubStats) (details as any).githubIntelligence = githubStats;
 
   return {
     details,

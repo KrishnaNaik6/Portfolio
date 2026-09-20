@@ -5,7 +5,7 @@ describe('Live Render NEXIS Snapshot Audit', () => {
   it('parses and normalizes the live Render snapshot dynamically', async () => {
     const res = await fetch('https://nexis-02is.onrender.com/api/v1/public/portfolio', {
       headers: {
-        'X-Nexus-Api-Key': 'nx_app_ea6a9af6_a125bd4ce953cd697c052f03918a4e69ea3a9f515f3001f2',
+        'X-Nexus-Api-Key': process.env.NEXIS_API_KEY || '',
       },
       cache: 'no-store',
     });

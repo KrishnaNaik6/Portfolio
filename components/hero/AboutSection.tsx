@@ -77,7 +77,54 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   pillars = [],
   sectionRef,
 }) => {
-  const hasPillars = pillars && pillars.length > 0;
+  const sidePillars = (pillars || []).slice(0, 2);
+  const bottomPillars = (pillars || []).slice(2);
+  const hasSidePillars = sidePillars.length > 0;
+  const hasBottomPillars = bottomPillars.length > 0;
+
+  const renderPillarCard = (pillar: import('@/lib/types').AboutPillar, index: number) => (
+    <GlassCard
+      key={pillar.title || index}
+      className="p-5 md:p-6 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 via-card-bg/95 to-transparent border-neon-indigo/25 hover:border-neon-indigo/50 transition-all duration-300 shadow-xl rounded-2xl h-full"
+    >
+      <div>
+        <div className="flex items-start gap-3.5 mb-3">
+          <div className="p-2.5 rounded-xl bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/30 shrink-0">
+            {renderPillarIcon(pillar.icon)}
+          </div>
+          <div>
+            <h4 className="text-base md:text-lg font-bold text-text-primary font-sora leading-snug">
+              {pillar.title}
+            </h4>
+            {pillar.subtitle && (
+              <p className="text-[11px] text-neon-cyan font-mono font-medium mt-0.5">
+                {pillar.subtitle}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {pillar.description && (
+          <p className="text-xs text-text-secondary font-mono leading-relaxed mt-2.5">
+            {pillar.description}
+          </p>
+        )}
+
+        {pillar.highlights && pillar.highlights.length > 0 && (
+          <div className="mt-3.5 p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+            <ul className="space-y-1.5 text-[11px] text-text-secondary font-mono">
+              {pillar.highlights.map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="text-neon-indigo font-bold select-none">•</span>
+                  <span className="leading-snug">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </GlassCard>
+  );
 
   return (
     <SectionWrapper ref={sectionRef} id="about" title="About Me" terminalCommand="whoami">
@@ -85,7 +132,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
         {/* Main Editorial Card */}
         <GlassCard
           className={`${
-            hasPillars ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12'
+            hasSidePillars ? 'lg:col-span-7 xl:col-span-8' : 'lg:col-span-12'
           } p-6 md:p-10 shadow-2xl flex flex-col border-neon-indigo/30 rounded-3xl bg-card-bg/90 backdrop-blur-md`}
         >
           <div className="space-y-6 flex-1">
@@ -135,52 +182,17 @@ const AboutSection: React.FC<AboutSectionProps> = ({
           </div>
         </GlassCard>
 
-        {/* Published NEXIS About Pillars */}
-        {hasPillars && (
-          <div className="lg:col-span-5 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-5 w-full">
-            {pillars.map((pillar, index) => (
-              <GlassCard
-                key={pillar.title || index}
-                className="p-5 md:p-6 flex flex-col justify-between bg-gradient-to-br from-neon-indigo/10 via-card-bg/95 to-transparent border-neon-indigo/25 hover:border-neon-indigo/50 transition-all duration-300 shadow-xl rounded-2xl"
-              >
-                <div>
-                  <div className="flex items-start gap-3.5 mb-3">
-                    <div className="p-2.5 rounded-xl bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/30 shrink-0">
-                      {renderPillarIcon(pillar.icon)}
-                    </div>
-                    <div>
-                      <h4 className="text-base md:text-lg font-bold text-text-primary font-sora leading-snug">
-                        {pillar.title}
-                      </h4>
-                      {pillar.subtitle && (
-                        <p className="text-[11px] text-neon-cyan font-mono font-medium mt-0.5">
-                          {pillar.subtitle}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+        {/* Side Pillars (Up to 2) */}
+        {hasSidePillars && (
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-4 lg:gap-5 w-full">
+            {sidePillars.map(renderPillarCard)}
+          </div>
+        )}
 
-                  {pillar.description && (
-                    <p className="text-xs text-text-secondary font-mono leading-relaxed mt-2.5">
-                      {pillar.description}
-                    </p>
-                  )}
-
-                  {pillar.highlights && pillar.highlights.length > 0 && (
-                    <div className="mt-3.5 p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-                      <ul className="space-y-1.5 text-[11px] text-text-secondary font-mono">
-                        {pillar.highlights.map((item, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <span className="text-neon-indigo font-bold select-none">•</span>
-                            <span className="leading-snug">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </GlassCard>
-            ))}
+        {/* Extra Bottom Pillars (3rd pillar onwards move underneath to the left/full width) */}
+        {hasBottomPillars && (
+          <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full mt-2">
+            {bottomPillars.map(renderPillarCard)}
           </div>
         )}
       </div>

@@ -72,7 +72,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skillData, constellationC
                     {Object.keys(technicalSkills[category] || {}).map((skillName, i) => (
                       <li key={i} className="flex items-center text-sm font-medium text-text-secondary hover:text-neon-indigo transition-colors">
                         <span className="w-1.5 h-1.5 rounded-full bg-neon-indigo mr-3 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-                        <span className="font-mono text-text-primary">{skillName}</span>
+                        <span className="font-mono text-text-primary">{skillName}</span><span className="ml-auto text-[10px] uppercase text-text-secondary">{String(technicalSkills[category]?.[skillName]?.proficiency || '')}</span>
                       </li>
                     ))}
                   </ul>

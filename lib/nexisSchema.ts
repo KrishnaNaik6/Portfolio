@@ -40,6 +40,10 @@ export const NexisProfileSchema = z.object({
   email: z.string().nullable().optional(),
   phone: z.string().nullable().optional(),
   resumeUrl: z.string().nullable().optional(),
+  websiteUrl: z.string().nullable().optional(),
+  welcomeGreeting: z.string().nullable().optional(),
+  typewriterTexts: z.array(z.string()).optional(),
+  pillars: z.array(z.any()).optional(),
 }).passthrough();
 
 export const NexisSectionSchema = z.object({
@@ -142,6 +146,11 @@ const BaseNexisPayload = z.object({
   achievements: z.array(NexisAchievementSchema).optional(),
   socialLinks: z.array(NexisSocialLinkSchema).optional(),
   interests: z.array(z.string()).optional(),
+  welcomeGreeting: z.string().nullable().optional(),
+  typewriterTexts: z.array(z.string()).optional(),
+  aboutPillars: z.array(z.any()).optional(),
+  constellationMeshConfig: z.any().optional(),
+  githubIntelligence: z.any().optional(),
 }).passthrough();
 
 export const NexisPortfolioResponseSchema = z.union([
@@ -314,6 +323,7 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
           email: data.profile.email,
           phone: data.profile.phone,
           resumeUrl: data.profile.resumeUrl,
+          websiteUrl: data.profile.websiteUrl,
         }
       : undefined,
     education,
@@ -323,6 +333,8 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
     contact,
     achievements,
     about: data.profile?.bio,
+    aboutPillars: data.aboutPillars || data.profile?.pillars || [],
+    constellationMeshConfig: data.constellationMeshConfig,
     sections,
     publishedAt: data.publishedAt,
   };

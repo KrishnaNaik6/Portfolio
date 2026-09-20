@@ -324,6 +324,9 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
           phone: data.profile.phone,
           resumeUrl: data.profile.resumeUrl,
           websiteUrl: data.profile.websiteUrl,
+          welcomeGreeting: data.welcomeGreeting ?? data.profile.welcomeGreeting,
+          typewriterTexts: data.typewriterTexts ?? data.profile.typewriterTexts,
+          pillars: data.profile.pillars,
         }
       : undefined,
     education,

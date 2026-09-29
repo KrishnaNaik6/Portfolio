@@ -7,7 +7,7 @@ import {
 let cachedPortfolioSnapshot: NormalizedNexisData | null = null;
 let cachedPortfolioTimestamp = 0;
 const CACHE_TTL_MS = 30 * 1000;
-const REQUEST_TIMEOUT_MS = 3500;
+const REQUEST_TIMEOUT_MS = 6000;
 
 async function fetchWithTimeout(
   url: string,
@@ -27,8 +27,8 @@ async function fetchWithTimeout(
 }
 
 function getNexisConfig() {
-  const apiUrl = (process.env.NEXIS_API_URL || '').trim();
-  const apiKey = (process.env.NEXIS_API_KEY || '').trim();
+  const apiUrl = (process.env.NEXIS_API_URL ?? '').trim();
+  const apiKey = (process.env.NEXIS_API_KEY ?? '').trim();
   return { apiUrl: apiUrl.replace(/\/$/, ''), apiKey };
 }
 

@@ -262,4 +262,32 @@ describe('HeroClient Component Section Visibility Verification', () => {
     expect(container.querySelector('#about')).toBeInTheDocument();
     expect(container.querySelector('#footer')).toBeInTheDocument();
   });
+
+  it('renders loading button and retry card when initialDetails or initialSections are null', () => {
+    // Mock global fetch for /api/portfolio
+    const originalFetch = global.fetch;
+    global.fetch = vi.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: false,
+        status: 404,
+        json: () => Promise.resolve(null),
+      })
+    );
+
+    render(
+      <HeroClient
+        initialDetails={null}
+        initialProjects={[]}
+        initialSections={null}
+      />
+    );
+
+    // Verify loading card elements and retry button
+    expect(screen.getByText(/Loading Portfolio/i)).toBeInTheDocument();
+    expect(screen.getByText(/Attempt #1/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Retry loading portfolio/i })).toBeInTheDocument();
+    expect(screen.getByText(/Connecting to Server\.\.\.|Retry Now/i)).toBeInTheDocument();
+
+    global.fetch = originalFetch;
+  });
 });

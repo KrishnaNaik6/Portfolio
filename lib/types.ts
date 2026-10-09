@@ -1,4 +1,4 @@
-export interface SectionConfig {
+﻿export interface SectionConfig {
   id: string;
   label?: string;
   enabled: boolean;
@@ -165,4 +165,107 @@ export interface GitHubStatsResponse {
   repos: GitHubRepo[];
   extraStats: ExtraStats;
   contributionsData?: GitHubContributionsResponse;
+}
+
+// -------------------------------------------------------------
+// NEXIS Published Resume Entities
+// -------------------------------------------------------------
+
+export interface ResumeProfileSnapshot {
+  fullName: string;
+  headline?: string | null;
+  bio?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  avatarUrl?: string | null;
+  websiteUrl?: string | null;
+}
+
+export interface ResumeExperienceSnapshot {
+  id: string;
+  company: string;
+  position: string;
+  location?: string | null;
+  startDate: string;
+  endDate?: string | null;
+  isCurrent: boolean;
+  description?: string | null;
+  companyUrl?: string | null;
+  link?: string | null;
+  displayOrder: number;
+}
+
+export interface ResumeEducationSnapshot {
+  id: string;
+  institution: string;
+  degree: string;
+  fieldOfStudy?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  grade?: string | null;
+  status?: string | null;
+  completionYear?: string | number | null;
+  description?: string | null;
+  displayOrder: number;
+}
+
+export interface ResumeSkillSnapshot {
+  id: string;
+  name: string;
+  category: string;
+  proficiencyLevel: 'beginner' | 'intermediate' | 'advanced' | 'expert' | string;
+  displayOrder: number;
+}
+
+export interface ResumeCertificationSnapshot {
+  id: string;
+  name: string;
+  issuer: string;
+  issueDate?: string | null;
+  expiryDate?: string | null;
+  credentialId?: string | null;
+  credentialUrl?: string | null;
+  displayOrder: number;
+}
+
+export interface ResumeAchievementSnapshot {
+  id: string;
+  title: string;
+  description?: string | null;
+  date?: string | null;
+  awarder?: string | null;
+  displayOrder: number;
+}
+
+export interface ResumeSocialLinkSnapshot {
+  id: string;
+  platform: string;
+  url: string;
+  username?: string | null;
+  displayOrder: number;
+}
+
+export interface ResumeProjectSnapshot {
+  id: string;
+  name: string;
+  type: string;
+  description?: string | null;
+  liveUrl?: string | null;
+  githubUrl: string;
+  isFeatured: boolean;
+  displayOrder: number;
+}
+
+export interface ResumeSnapshot {
+  schemaVersion: 1;
+  profile: ResumeProfileSnapshot;
+  experiences: ResumeExperienceSnapshot[];
+  educations: ResumeEducationSnapshot[];
+  skills: ResumeSkillSnapshot[];
+  certifications: ResumeCertificationSnapshot[];
+  achievements: ResumeAchievementSnapshot[];
+  socialLinks: ResumeSocialLinkSnapshot[];
+  projects: ResumeProjectSnapshot[];
+  publishedAt: string;
 }

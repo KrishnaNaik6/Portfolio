@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import TypingText from '../ui/TypingText';
 import { ArrowDownRight, FileText, Send } from 'lucide-react';
@@ -26,8 +27,6 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
 
   const headline = profile?.headline ? `01 / ${profile.headline.toUpperCase()}` : null;
   const typewriterTexts = (profile as ProfileData & { typewriterTexts?: string[] })?.typewriterTexts || [];
-
-  const resumeHref = profile?.resumeUrl || '/KrishnaNaik.pdf';
 
   const isProjectsActive = useMemo(() => isSectionEnabled(sections, 'projects'), [sections]);
   const isContactActive = useMemo(() => isSectionEnabled(sections, 'contact'), [sections]);
@@ -139,15 +138,13 @@ const Welcome: React.FC<WelcomeProps> = ({ onComplete, profile, sections }) => {
             </AnchorLink>
           )}
 
-          <a
-            href={resumeHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-7 py-4 rounded-full bg-card-bg border border-border-color text-text-secondary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-rose hover:text-neon-rose transition-all hover:scale-105"
+          <Link
+            href="/resume"
+            className="px-7 py-4 rounded-full bg-card-bg border border-border-color text-text-secondary font-semibold text-sm font-sora flex items-center gap-2 hover:border-neon-rose hover:text-neon-rose transition-all hover:scale-105 cursor-pointer"
           >
             <FileText size={16} />
             <span>RESUME</span>
-          </a>
+          </Link>
         </motion.div>
       </div>
     </div>

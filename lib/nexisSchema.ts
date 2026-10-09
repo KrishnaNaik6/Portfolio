@@ -8,27 +8,18 @@ import {
   SkillData,
   ContactInfo,
 } from './types';
-import {
-  normalizeSectionId,
-  validateSections,
-  isSectionEnabled,
-  getOrderedBodySections,
-  CanonicalSectionId,
-  VALID_CANONICAL_SECTION_IDS,
-} from './sectionConfig';
 
-export {
-  normalizeSectionId,
-  validateSections,
-  isSectionEnabled,
-  getOrderedBodySections,
-  VALID_CANONICAL_SECTION_IDS,
-};
-export type { CanonicalSectionId };
+// -------------------------------------------------------------
+// Existing NEXIS Portfolio Zod Validation Schemas
+// -------------------------------------------------------------
 
-// Backwards compatibility aliases
-export const isSectionIdEnabled = isSectionEnabled;
-export const getOrderedInnerSections = getOrderedBodySections;
+export const NexisPillarSchema = z.object({
+  title: z.string(),
+  subtitle: z.string().optional(),
+  description: z.string().optional(),
+  icon: z.string().optional(),
+  highlights: z.array(z.string()).optional(),
+});
 
 export const NexisProfileSchema = z.object({
   fullName: z.string().optional(),
@@ -43,153 +34,119 @@ export const NexisProfileSchema = z.object({
   websiteUrl: z.string().nullable().optional(),
   welcomeGreeting: z.string().nullable().optional(),
   typewriterTexts: z.array(z.string()).optional(),
-  pillars: z.array(z.any()).optional(),
-}).passthrough();
+  pillars: z.array(NexisPillarSchema).optional(),
+});
 
-export const NexisSectionSchema = z.object({
-  id: z.string(),
-  label: z.string().optional(),
-  enabled: z.boolean(),
-  order: z.number().optional().default(999),
-}).passthrough();
+export const NexisExperienceSchema = z.object({
+  id: z.string().optional(),
+  position: z.string().optional(),
+  role: z.string().optional(),
+  company: z.string(),
+  startDate: z.string().optional(),
+  endDate: z.string().nullable().optional(),
+  isCurrent: z.boolean().optional(),
+  tenure: z.string().optional(),
+  description: z.string().optional(),
+  works: z.array(z.string()).optional(),
+  displayOrder: z.number().optional(),
+  companyUrl: z.string().nullable().optional(),
+});
+
+export const NexisEducationSchema = z.object({
+  id: z.string().optional(),
+  degree: z.string().optional(),
+  edu: z.string().optional(),
+  institution: z.string().optional(),
+  college: z.string().optional(),
+  fieldOfStudy: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().nullable().optional(),
+  status: z.string().optional(),
+  grade: z.string().nullable().optional(),
+  displayOrder: z.number().optional(),
+});
+
+export const NexisSkillSchema = z.object({
+  name: z.string(),
+  category: z.string().optional().default('Other'),
+  proficiencyLevel: z.string().optional(),
+  displayOrder: z.number().optional(),
+});
 
 export const NexisProjectSchema = z.object({
   id: z.string().optional(),
   name: z.string(),
-  type: z.string().nullable().optional(),
+  title: z.string().optional(),
   description: z.string().nullable().optional(),
   repoUrl: z.string().nullable().optional(),
+  githubUrl: z.string().nullable().optional(),
   liveUrl: z.string().nullable().optional(),
+  collabed: z.boolean().optional().default(false),
+  type: z.string().optional().default('Project'),
   featured: z.boolean().optional().default(false),
-  displayOrder: z.number().optional().default(0),
-  collabed: z.boolean().optional(),
-  tags: z.array(z.string()).optional(),
+  displayOrder: z.number().optional(),
   highlightLabel: z.string().nullable().optional(),
-}).passthrough();
+});
 
-export const NexisExperienceSchema = z.object({
-  id: z.string().optional(),
-  profileId: z.string().optional(),
-  company: z.string(),
-  position: z.string(),
-  location: z.string().nullable().optional(),
-  startDate: z.string().nullable().optional(),
-  endDate: z.string().nullable().optional(),
-  isCurrent: z.boolean().optional(),
-  description: z.string().nullable().optional(),
-  companyUrl: z.string().nullable().optional(),
-  link: z.string().nullable().optional(),
-  displayOrder: z.number().optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-}).passthrough();
-
-export const NexisEducationSchema = z.object({
-  id: z.string().optional(),
-  profileId: z.string().optional(),
-  institution: z.string(),
-  degree: z.string(),
-  fieldOfStudy: z.string().nullable().optional(),
-  startDate: z.string().nullable().optional(),
-  endDate: z.string().nullable().optional(),
-  status: z.string().optional().default('Completed'),
-  completionYear: z.string().nullable().optional(),
-  grade: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
-  displayOrder: z.number().optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-}).passthrough();
-
-export const NexisSkillSchema = z.object({
-  id: z.string().optional(),
-  profileId: z.string().optional(),
-  name: z.string(),
-  category: z.string(),
-  proficiencyLevel: z.string().nullable().optional(),
-  displayOrder: z.number().optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-}).passthrough();
-
-export const NexisAchievementSchema = z.object({
-  id: z.string().optional(),
-  profileId: z.string().optional(),
-  title: z.string(),
-  description: z.string().nullable().optional(),
-  date: z.string().nullable().optional(),
-  awarder: z.string().nullable().optional(),
-  displayOrder: z.number().optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-}).passthrough();
+export const NexisSectionConfigSchema = z.object({
+  id: z.string(),
+  label: z.string().optional(),
+  enabled: z.boolean(),
+  order: z.number(),
+});
 
 export const NexisSocialLinkSchema = z.object({
-  id: z.string().optional(),
-  profileId: z.string().optional(),
   platform: z.string(),
   url: z.string(),
   username: z.string().nullable().optional(),
-  displayOrder: z.number().optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-}).passthrough();
+});
 
-const BaseNexisPayload = z.object({
-  publishedAt: z.string().optional(),
+export const NexisAchievementSchema = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  description: z.string().nullable().optional(),
+  date: z.string().nullable().optional(),
+  displayOrder: z.number().optional(),
+});
+
+export const NexisConstellationMeshSchema = z.object({
+  enabled: z.boolean().optional(),
+  nodeDensity: z.number().optional(),
+  interactive: z.boolean().optional(),
+  categoryColors: z.record(z.string(), z.string()).optional(),
+});
+
+export const NexisPortfolioSnapshotSchema = z.object({
   profile: NexisProfileSchema.optional(),
-  sections: z.array(NexisSectionSchema).optional(),
-  projects: z.array(NexisProjectSchema).optional(),
-  experience: z.array(NexisExperienceSchema).optional(),
-  education: z.array(NexisEducationSchema).optional(),
-  skills: z.array(NexisSkillSchema).optional(),
-  certifications: z.array(z.any()).optional(),
-  achievements: z.array(NexisAchievementSchema).optional(),
-  socialLinks: z.array(NexisSocialLinkSchema).optional(),
-  interests: z.array(z.string()).optional(),
+  experiences: z.array(NexisExperienceSchema).optional().default([]),
+  experience: z.array(NexisExperienceSchema).optional().default([]),
+  education: z.array(NexisEducationSchema).optional().default([]),
+  educations: z.array(NexisEducationSchema).optional().default([]),
+  skills: z.array(NexisSkillSchema).optional().default([]),
+  projects: z.array(NexisProjectSchema).optional().default([]),
+  sections: z.array(NexisSectionConfigSchema).optional().default([]),
+  socialLinks: z.array(NexisSocialLinkSchema).optional().default([]),
+  achievements: z.array(NexisAchievementSchema).optional().default([]),
+  interests: z.array(z.string()).optional().default([]),
+  aboutPillars: z.array(NexisPillarSchema).optional().default([]),
+  constellationMeshConfig: NexisConstellationMeshSchema.optional(),
   welcomeGreeting: z.string().nullable().optional(),
   typewriterTexts: z.array(z.string()).optional(),
-  aboutPillars: z.array(z.any()).optional(),
-  constellationMeshConfig: z.any().optional(),
+  publishedAt: z.string().optional(),
   githubIntelligence: z.any().optional(),
-}).passthrough();
+});
 
 export const NexisPortfolioResponseSchema = z.union([
   z.object({
-    success: z.boolean().optional(),
-    data: BaseNexisPayload,
-  }).passthrough(),
-  BaseNexisPayload,
+    success: z.boolean(),
+    data: NexisPortfolioSnapshotSchema,
+    timestamp: z.string().optional(),
+  }),
+  z.object({
+    data: NexisPortfolioSnapshotSchema,
+  }),
+  NexisPortfolioSnapshotSchema,
 ]);
-
-export type NexisPortfolioRaw = z.infer<typeof NexisPortfolioResponseSchema> | Record<string, any>;
-
-/**
- * Formats ISO / YYYY-MM-DD date strings into human-readable tenure (e.g. "Jul 2026 - Aug 2026")
- */
-export function formatTenurePeriod(
-  startDate?: string | null,
-  endDate?: string | null,
-  isCurrent?: boolean
-): string {
-  const formatMonthYear = (dateStr: string) => {
-    try {
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return dateStr;
-      return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    } catch {
-      return dateStr;
-    }
-  };
-
-  const start = startDate ? formatMonthYear(startDate) : '';
-  const end = isCurrent ? 'Present' : endDate ? formatMonthYear(endDate) : '';
-
-  if (!start && !end) return '';
-  if (!start) return end;
-  if (!end) return start;
-  return `${start} - ${end}`;
-}
 
 export interface NormalizedNexisData {
   details: PortfolioDetails;
@@ -197,82 +154,130 @@ export interface NormalizedNexisData {
   sections: SectionConfig[];
 }
 
-/**
- * Normalizes validated NEXIS API response into typed frontend structures without inventing dummy data.
- * Sections are validated and filtered strictly using validateSections().
- */
-export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNexisData {
-  const data = 'data' in input && input.data && typeof input.data === 'object' ? (input.data as any) : input;
+export function formatTenurePeriod(
+  startDate?: string | null,
+  endDate?: string | null,
+  isCurrent = false
+): string {
+  if (!startDate && !endDate && !isCurrent) return '';
+  const formatSingle = (dateStr?: string | null) => {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+    } catch {
+      return dateStr;
+    }
+  };
 
-  // 1. Sections: validated and filtered strictly to enabled === true
-  const rawSections = Array.isArray(data.sections) ? data.sections : [];
-  const { validSections: sections } = validateSections(rawSections);
+  const startFormatted = formatSingle(startDate);
+  if (isCurrent) {
+    return startFormatted ? `${startFormatted} - Present` : 'Present';
+  }
+  const endFormatted = formatSingle(endDate);
+  if (startFormatted && endFormatted) {
+    return `${startFormatted} - ${endFormatted}`;
+  }
+  return startFormatted || endFormatted || '';
+}
 
-  // 2. Education: sort by displayOrder
-  const education: EducationItem[] = (data.education || [])
-    .sort((a: any, b: any) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-    .map((e: any) => ({
-      id: e.id,
-      edu: e.fieldOfStudy ? `${e.degree} - ${e.fieldOfStudy}` : e.degree,
-      college: e.institution,
-      status: e.status || 'Completed',
-      year: e.completionYear || (e.endDate ? e.endDate.substring(0, 4) : undefined),
-      grade: e.grade,
+export function isSectionIdEnabled(sections: SectionConfig[], sectionId: string): boolean {
+  const match = sections.find((s) => s.id === sectionId);
+  return match !== undefined ? match.enabled : true;
+}
+
+export function getOrderedInnerSections(sections: SectionConfig[]): SectionConfig[] {
+  return [...sections]
+    .filter((s) => s.enabled && s.id !== 'hero')
+    .sort((a, b) => a.order - b.order);
+}
+
+export function normalizeNexisPortfolio(
+  rawResponse: z.infer<typeof NexisPortfolioResponseSchema>
+): NormalizedNexisData {
+  let data: z.infer<typeof NexisPortfolioSnapshotSchema>;
+  if ('success' in rawResponse && rawResponse.data) {
+    data = rawResponse.data;
+  } else if ('data' in rawResponse && rawResponse.data) {
+    data = rawResponse.data as any;
+  } else {
+    data = rawResponse as z.infer<typeof NexisPortfolioSnapshotSchema>;
+  }
+
+  const sections: SectionConfig[] = (data.sections || [])
+    .filter((s: any) => s.enabled !== false)
+    .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+    .map((s: any) => ({
+      id: s.id,
+      label: s.label,
+      enabled: s.enabled !== false,
+      order: s.order,
     }));
 
-  // 3. Experience: sort by displayOrder
-  const experience: ExperienceItem[] = (data.experience || [])
+  const educationRaw = (data.education && data.education.length > 0) ? data.education : (data.educations || []);
+  const education: EducationItem[] = educationRaw
+    .sort((a: any, b: any) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .map((edu: any) => ({
+      id: edu.id,
+      edu: edu.degree || edu.edu || edu.fieldOfStudy || 'Education',
+      college: edu.institution || edu.college || '',
+      status: edu.status || 'Graduated',
+      year: edu.endDate ? String(edu.endDate) : edu.startDate ? `${edu.startDate} - Present` : '',
+      grade: edu.grade ?? null,
+    }));
+
+  const experienceRaw = (data.experience && data.experience.length > 0) ? data.experience : (data.experiences || []);
+  const experience: ExperienceItem[] = experienceRaw
     .sort((a: any, b: any) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
     .map((exp: any) => {
-      const works = exp.description
-        ? exp.description
-            .split('\n')
-            .map((line: string) => line.trim())
-            .filter((line: string) => line.length > 0)
-        : [];
+      let works: string[] = [];
+      if (Array.isArray(exp.works) && exp.works.length > 0) {
+        works = exp.works;
+      } else if (exp.description) {
+        works = exp.description
+          .split('\n')
+          .map((line: string) => line.replace(/^[-*•]\s*/, '').trim())
+          .filter(Boolean);
+      }
+
+      const tenure = exp.tenure || formatTenurePeriod(exp.startDate, exp.endDate, exp.isCurrent ?? false);
 
       return {
         id: exp.id,
-        role: exp.position,
+        role: exp.position || exp.role || '',
         company: exp.company,
-        tenure_period: formatTenurePeriod(exp.startDate, exp.endDate, exp.isCurrent),
+        tenure_period: tenure,
         works,
-        companyUrl: exp.companyUrl || exp.link || null,
+        companyUrl: exp.companyUrl ?? null,
       };
     });
 
-  // 4. Skills: categorize into Technical clusters and Soft Skills
-  const technicalSkills: Record<string, Record<string, any>> = {};
-  const softSkills: string[] = [];
+  const skills: SkillData = {
+    Technical: {},
+    'Soft Skills': [],
+  };
 
-  const sortedSkills = (data.skills || []).sort(
-    (a: any, b: any) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
-  );
-
-  sortedSkills.forEach((skill: any) => {
-    if (skill.category === 'Soft Skills') {
-      softSkills.push(skill.name);
+  (data.skills || []).forEach((sk: any) => {
+    const category = sk.category || 'General';
+    if (category.toLowerCase().includes('soft')) {
+      if (!skills['Soft Skills']) skills['Soft Skills'] = [];
+      skills['Soft Skills'].push(sk.name);
     } else {
-      if (!technicalSkills[skill.category]) {
-        technicalSkills[skill.category] = {};
+      if (!skills.Technical[category]) {
+        skills.Technical[category] = {};
       }
-      technicalSkills[skill.category][skill.name] = {
-        proficiency: skill.proficiencyLevel,
+      skills.Technical[category][sk.name] = {
+        level: sk.proficiencyLevel || 'intermediate',
       };
     }
   });
 
-  const skills: SkillData = {
-    Technical: technicalSkills,
-    'Soft Skills': softSkills.length > 0 ? softSkills : undefined,
-  };
-
-  // 5. Contact info & Social Links
-  const githubLink = data.socialLinks?.find(
-    (s: any) => s.platform?.toLowerCase() === 'github'
-  );
   const linkedinLink = data.socialLinks?.find(
     (s: any) => s.platform?.toLowerCase() === 'linkedin'
+  );
+  const githubLink = data.socialLinks?.find(
+    (s: any) => s.platform?.toLowerCase() === 'github'
   );
   const instagramLink = data.socialLinks?.find(
     (s: any) => s.platform?.toLowerCase() === 'instagram'
@@ -290,20 +295,18 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
     },
   };
 
-  // 6. Achievements: format into display strings
   const achievements: string[] = (data.achievements || [])
     .sort((a: any, b: any) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
     .map((a: any) => (a.description ? `${a.title}: ${a.description}` : a.title));
 
-  // 7. Projects: sort by displayOrder and map links
   const projects: ProjectItem[] = (data.projects || [])
     .sort((a: any, b: any) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
     .map((p: any, idx: number) => ({
       id: p.id,
-      name: p.name,
+      name: p.name || p.title || 'Project',
       description: p.description ?? null,
       link: {
-        git: p.repoUrl || '',
+        git: p.repoUrl || p.githubUrl || '',
         live: p.liveUrl ?? null,
       },
       collabed: p.collabed ?? false,
@@ -397,3 +400,310 @@ export function normalizeNexisPortfolio(input: NexisPortfolioRaw): NormalizedNex
     sections,
   };
 }
+
+// -------------------------------------------------------------
+// Published Resume Zod Validation Schemas
+// -------------------------------------------------------------
+
+export const ResumeProfileSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    const rawName = val.fullName || val.name;
+    const fullName = typeof rawName === 'string' && rawName.trim() ? rawName.trim() : undefined;
+    if (!fullName) {
+      return val;
+    }
+    return {
+      fullName,
+      name: fullName,
+      headline: val.headline ?? val.title ?? null,
+      title: val.title ?? val.headline ?? null,
+      bio: val.bio ?? val.summary ?? null,
+      summary: val.summary ?? val.bio ?? null,
+      email: val.email ?? null,
+      phone: val.phone ?? null,
+      location: val.location ?? null,
+      avatarUrl: val.avatarUrl ?? val.imageUrl ?? null,
+      websiteUrl: val.websiteUrl ?? val.website ?? null,
+      website: val.website ?? val.websiteUrl ?? null,
+    };
+  }
+  return val;
+}, z.object({
+  fullName: z.string().min(1),
+  name: z.string().optional(),
+  headline: z.string().nullish(),
+  title: z.string().nullish(),
+  bio: z.string().nullish(),
+  summary: z.string().nullish(),
+  email: z.string().nullish(),
+  phone: z.string().nullish(),
+  location: z.string().nullish(),
+  avatarUrl: z.string().nullish(),
+  websiteUrl: z.string().nullish(),
+  website: z.string().nullish(),
+}));
+
+export const ResumeExperienceSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    let description = val.description ?? null;
+    let highlights: string[] = [];
+    if (Array.isArray(val.highlights)) {
+      highlights = val.highlights;
+      if (!description && highlights.length > 0) {
+        description = highlights.join('\n');
+      }
+    } else if (description) {
+      highlights = description
+        .split('\n')
+        .map((l: string) => l.replace(/^[-*•]\s*/, '').trim())
+        .filter(Boolean);
+    }
+
+    const isCurrent = val.isCurrent ?? val.current ?? false;
+
+    return {
+      id: val.id ?? '',
+      company: val.company ?? '',
+      position: val.position ?? val.role ?? '',
+      location: val.location ?? null,
+      startDate: val.startDate ?? '',
+      endDate: val.endDate ?? null,
+      isCurrent,
+      current: isCurrent,
+      description,
+      highlights,
+      companyUrl: val.companyUrl ?? val.link ?? null,
+      link: val.link ?? null,
+      displayOrder: val.displayOrder ?? 0,
+    };
+  }
+  return val;
+}, z.object({
+  id: z.string().default(''),
+  company: z.string(),
+  position: z.string(),
+  location: z.string().nullish(),
+  startDate: z.string(),
+  endDate: z.string().nullish(),
+  isCurrent: z.boolean().default(false),
+  current: z.boolean().default(false),
+  description: z.string().nullish(),
+  highlights: z.array(z.string()).default([]),
+  companyUrl: z.string().nullish(),
+  link: z.string().nullish(),
+  displayOrder: z.number().default(0),
+}));
+
+export const ResumeEducationSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      id: val.id ?? '',
+      institution: val.institution ?? val.college ?? '',
+      degree: val.degree ?? val.edu ?? '',
+      fieldOfStudy: val.fieldOfStudy ?? val.field ?? null,
+      field: val.field ?? val.fieldOfStudy ?? null,
+      startDate: val.startDate ?? null,
+      endDate: val.endDate ?? null,
+      grade: val.grade ?? null,
+      status: val.status ?? null,
+      completionYear: val.completionYear ?? null,
+      description: val.description ?? (Array.isArray(val.activities) ? val.activities.join(', ') : null),
+      activities: Array.isArray(val.activities) ? val.activities : [],
+      displayOrder: val.displayOrder ?? 0,
+    };
+  }
+  return val;
+}, z.object({
+  id: z.string().default(''),
+  institution: z.string(),
+  degree: z.string(),
+  fieldOfStudy: z.string().nullish(),
+  field: z.string().nullish(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
+  grade: z.string().nullish(),
+  status: z.string().nullish(),
+  completionYear: z.union([z.string(), z.number()]).nullish(),
+  description: z.string().nullish(),
+  activities: z.array(z.string()).default([]),
+  displayOrder: z.number().default(0),
+}));
+
+export const ResumeSkillSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      id: val.id ?? '',
+      name: val.name ?? '',
+      category: val.category ?? 'General',
+      proficiencyLevel: val.proficiencyLevel ?? 'intermediate',
+      displayOrder: val.displayOrder ?? 0,
+    };
+  }
+  return val;
+}, z.object({
+  id: z.string().default(''),
+  name: z.string(),
+  category: z.string().default('General'),
+  proficiencyLevel: z.string().default('intermediate'),
+  displayOrder: z.number().default(0),
+}));
+
+export const ResumeCertificationSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      id: val.id ?? '',
+      name: val.name ?? '',
+      issuer: val.issuer ?? '',
+      issueDate: val.issueDate ?? null,
+      expiryDate: val.expiryDate ?? null,
+      credentialId: val.credentialId ?? null,
+      credentialUrl: val.credentialUrl ?? val.url ?? null,
+      url: val.url ?? val.credentialUrl ?? null,
+      displayOrder: val.displayOrder ?? 0,
+    };
+  }
+  return val;
+}, z.object({
+  id: z.string().default(''),
+  name: z.string(),
+  issuer: z.string(),
+  issueDate: z.string().nullish(),
+  expiryDate: z.string().nullish(),
+  credentialId: z.string().nullish(),
+  credentialUrl: z.string().nullish(),
+  url: z.string().nullish(),
+  displayOrder: z.number().default(0),
+}));
+
+export const ResumeAchievementSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      id: val.id ?? '',
+      title: val.title ?? '',
+      description: val.description ?? null,
+      date: val.date ?? null,
+      awarder: val.awarder ?? null,
+      displayOrder: val.displayOrder ?? 0,
+    };
+  }
+  return val;
+}, z.object({
+  id: z.string().default(''),
+  title: z.string(),
+  description: z.string().nullish(),
+  date: z.string().nullish(),
+  awarder: z.string().nullish(),
+  displayOrder: z.number().default(0),
+}));
+
+export const ResumeSocialLinkSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      id: val.id ?? '',
+      platform: val.platform ?? '',
+      url: val.url ?? '',
+      username: val.username ?? null,
+      displayOrder: val.displayOrder ?? 0,
+    };
+  }
+  return val;
+}, z.object({
+  id: z.string().default(''),
+  platform: z.string(),
+  url: z.string(),
+  username: z.string().nullish(),
+  displayOrder: z.number().default(0),
+}));
+
+export const ResumeProjectSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    return {
+      id: val.id ?? '',
+      name: val.name ?? val.title ?? 'Project',
+      title: val.title ?? val.name ?? 'Project',
+      type: val.type ?? 'Project',
+      description: val.description ?? null,
+      liveUrl: val.liveUrl ?? val.url ?? null,
+      url: val.url ?? val.liveUrl ?? null,
+      githubUrl: val.githubUrl ?? val.repoUrl ?? '',
+      technologies: Array.isArray(val.technologies) ? val.technologies : [],
+      isFeatured: val.isFeatured ?? val.featured ?? false,
+      displayOrder: val.displayOrder ?? 0,
+    };
+  }
+  return val;
+}, z.object({
+  id: z.string().default(''),
+  name: z.string(),
+  title: z.string().optional(),
+  type: z.string().default('Project'),
+  description: z.string().nullish(),
+  liveUrl: z.string().nullish(),
+  url: z.string().nullish(),
+  githubUrl: z.string().default(''),
+  technologies: z.array(z.string()).default([]),
+  isFeatured: z.boolean().default(false),
+  displayOrder: z.number().default(0),
+}));
+
+export const ResumeSnapshotSchema = z.preprocess((val: any) => {
+  if (val && typeof val === 'object') {
+    let rawSkills = val.skills ?? [];
+    if (Array.isArray(rawSkills) && rawSkills.length > 0 && typeof rawSkills[0] === 'object' && 'skills' in rawSkills[0]) {
+      const flattened: any[] = [];
+      rawSkills.forEach((group: any) => {
+        const cat = group.category || 'General';
+        (group.skills || []).forEach((sk: string) => {
+          flattened.push({ name: sk, category: cat, proficiencyLevel: 'intermediate' });
+        });
+      });
+      rawSkills = flattened;
+    }
+
+    const experiences = val.experiences ?? val.experience ?? [];
+    const educations = val.educations ?? val.education ?? [];
+
+    return {
+      schemaVersion: val.schemaVersion ?? 1,
+      slug: val.slug ?? 'krishna-naik',
+      profile: val.profile,
+      experiences,
+      experience: experiences,
+      educations,
+      education: educations,
+      skills: rawSkills,
+      certifications: val.certifications ?? [],
+      achievements: val.achievements ?? [],
+      socialLinks: val.socialLinks ?? [],
+      projects: val.projects ?? [],
+      publishedAt: val.publishedAt ?? new Date().toISOString(),
+    };
+  }
+  return val;
+}, z.object({
+  schemaVersion: z.number().default(1),
+  slug: z.string().optional().default('krishna-naik'),
+  profile: ResumeProfileSchema,
+  experiences: z.array(ResumeExperienceSchema).default([]),
+  experience: z.array(ResumeExperienceSchema).optional(),
+  educations: z.array(ResumeEducationSchema).default([]),
+  education: z.array(ResumeEducationSchema).optional(),
+  skills: z.array(ResumeSkillSchema).default([]),
+  certifications: z.array(ResumeCertificationSchema).default([]),
+  achievements: z.array(ResumeAchievementSchema).default([]),
+  socialLinks: z.array(ResumeSocialLinkSchema).default([]),
+  projects: z.array(ResumeProjectSchema).default([]),
+  publishedAt: z.string(),
+}));
+
+export const NexisResumeResponseSchema = z.union([
+  z.object({
+    success: z.boolean(),
+    data: ResumeSnapshotSchema,
+    timestamp: z.string().optional(),
+  }),
+  z.object({
+    data: ResumeSnapshotSchema,
+  }),
+  ResumeSnapshotSchema,
+]);

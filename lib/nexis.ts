@@ -2,12 +2,23 @@ import {
   NexisPortfolioResponseSchema,
   normalizeNexisPortfolio,
   NormalizedNexisData,
+  NexisResumeResponseSchema,
 } from './nexisSchema';
+import type { ResumeSnapshot } from './types';
 
 let cachedPortfolioSnapshot: NormalizedNexisData | null = null;
 let cachedPortfolioTimestamp = 0;
+let cachedResumeSnapshot: ResumeSnapshot | null = null;
+let cachedResumeTimestamp = 0;
 const CACHE_TTL_MS = 30 * 1000;
 const REQUEST_TIMEOUT_MS = 6000;
+
+export function _resetResumeCacheForTesting(): void {
+  cachedResumeSnapshot = null;
+  cachedResumeTimestamp = 0;
+  cachedPortfolioSnapshot = null;
+  cachedPortfolioTimestamp = 0;
+}
 
 async function fetchWithTimeout(
   url: string,
@@ -102,6 +113,77 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
     console.log('[NEXIS Client] Serving last known cached snapshot');
   }
   return cachedPortfolioSnapshot;
+}
+
+export async function fetchNexisResume(
+  customSlug?: string
+): Promise<(ResumeSnapshot & { slug?: string }) | null> {
+  const now = Date.now();
+  if (cachedResumeSnapshot && now - cachedResumeTimestamp < CACHE_TTL_MS) {
+    return cachedResumeSnapshot;
+  }
+
+  const { apiUrl, apiKey } = getNexisConfig();
+  if (!apiUrl) {
+    console.warn('[NEXIS Client] NEXIS_API_URL is not configured; cannot fetch resume.');
+    return null;
+  }
+
+  const rawSlug = customSlug || process.env.NEXIS_RESUME_SLUG || 'krishna-naik';
+  const slug = encodeURIComponent(rawSlug.trim().toLowerCase());
+
+  const candidateEndpoints = [
+    `${apiUrl}/api/v1/public/resume/${slug}`,
+    `${apiUrl}/api/public/resume/${slug}`,
+  ];
+  const headers = getNexisHeaders(apiKey);
+
+  for (const endpoint of candidateEndpoints) {
+    try {
+      const res = await fetchWithTimeout(
+        endpoint,
+        {
+          headers,
+          next: { revalidate: 60 },
+        },
+        REQUEST_TIMEOUT_MS
+      );
+
+      if (res.status === 404) {
+        console.warn(`[NEXIS Client] Published resume not found on ${endpoint} (404 Not Found)`);
+        return null;
+      }
+
+      if (!res.ok) {
+        console.warn(`[NEXIS Client] Resume fetch returned HTTP ${res.status} on ${endpoint}`);
+        continue;
+      }
+
+      const rawJson = await res.json();
+      const parseResult = NexisResumeResponseSchema.safeParse(rawJson);
+      if (!parseResult.success) {
+        console.error(`[NEXIS Client] Resume validation failed on ${endpoint}:`, parseResult.error);
+        continue;
+      }
+
+      const parsed = parseResult.data as any;
+      const snapshot: ResumeSnapshot & { slug?: string } = 'data' in parsed && parsed.data
+        ? parsed.data
+        : parsed;
+
+      snapshot.slug = rawSlug;
+      cachedResumeSnapshot = snapshot as ResumeSnapshot;
+      cachedResumeTimestamp = Date.now();
+      return snapshot;
+    } catch (err) {
+      console.warn(
+        `[NEXIS Client] Resume fetch failed on ${endpoint}:`,
+        err instanceof Error ? err.message : 'Unknown error'
+      );
+    }
+  }
+
+  return null;
 }
 
 export async function fetchNexisGitHubIntelligence(year?: number | string): Promise<any | null> {

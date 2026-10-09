@@ -8,14 +8,18 @@ import type { ResumeSnapshot } from './types';
 
 let cachedPortfolioSnapshot: NormalizedNexisData | null = null;
 let cachedPortfolioTimestamp = 0;
-let cachedResumeSnapshot: ResumeSnapshot | null = null;
-let cachedResumeTimestamp = 0;
+interface CachedResumeEntry {
+  snapshot: ResumeSnapshot & { slug?: string };
+  timestamp: number;
+}
+
+const resumeCache = new Map<string, CachedResumeEntry>();
+
 const CACHE_TTL_MS = 30 * 1000;
 const REQUEST_TIMEOUT_MS = 6000;
 
 export function _resetResumeCacheForTesting(): void {
-  cachedResumeSnapshot = null;
-  cachedResumeTimestamp = 0;
+  resumeCache.clear();
   cachedPortfolioSnapshot = null;
   cachedPortfolioTimestamp = 0;
 }
@@ -50,7 +54,6 @@ function getNexisHeaders(apiKey: string): Record<string, string> {
   };
 
   if (apiKey) {
-    headers['X-Nexus-Api-Key'] = apiKey;
     headers['X-Nexis-Api-Key'] = apiKey;
     headers['x-api-key'] = apiKey;
     headers.Authorization = apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`;
@@ -71,42 +74,36 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
     return cachedPortfolioSnapshot;
   }
 
-  const candidateEndpoints = [
-    `${apiUrl}/api/v1/public/portfolio`,
-    `${apiUrl}/api/v1/portfolio/published`,
-    `${apiUrl}/api/v1/portfolio`,
-  ];
+  const endpoint = `${apiUrl}/api/v1/public/portfolio`;
   const headers = getNexisHeaders(apiKey);
 
-  for (const endpoint of candidateEndpoints) {
-    try {
-      const res = await fetchWithTimeout(endpoint, {
-        headers,
-        next: { revalidate: 30 },
-      });
+  try {
+    const res = await fetchWithTimeout(endpoint, {
+      headers,
+      next: { revalidate: 30 },
+    });
 
-      if (!res.ok) {
-        console.warn(`[NEXIS Client] ${endpoint} returned HTTP ${res.status}`);
-        continue;
-      }
-
-      const rawJson = await res.json();
-      const parseResult = NexisPortfolioResponseSchema.safeParse(rawJson);
-      if (!parseResult.success) {
-        console.error(`[NEXIS Client] Validation failed on ${endpoint}`);
-        continue;
-      }
-
-      const normalized = normalizeNexisPortfolio(parseResult.data);
-      cachedPortfolioSnapshot = normalized;
-      cachedPortfolioTimestamp = Date.now();
-      return normalized;
-    } catch (err) {
-      console.warn(
-        `[NEXIS Client] Fetch failed on ${endpoint}:`,
-        err instanceof Error ? err.message : 'Unknown error'
-      );
+    if (!res.ok) {
+      console.warn(`[NEXIS Client] ${endpoint} returned HTTP ${res.status}`);
+      return cachedPortfolioSnapshot;
     }
+
+    const rawJson = await res.json();
+    const parseResult = NexisPortfolioResponseSchema.safeParse(rawJson);
+    if (!parseResult.success) {
+      console.error(`[NEXIS Client] Validation failed on ${endpoint}`);
+      return cachedPortfolioSnapshot;
+    }
+
+    const normalized = normalizeNexisPortfolio(parseResult.data);
+    cachedPortfolioSnapshot = normalized;
+    cachedPortfolioTimestamp = Date.now();
+    return normalized;
+  } catch (err) {
+    console.warn(
+      `[NEXIS Client] Fetch failed on ${endpoint}:`,
+      err instanceof Error ? err.message : 'Unknown error'
+    );
   }
 
   if (cachedPortfolioSnapshot) {
@@ -118,9 +115,14 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
 export async function fetchNexisResume(
   customSlug?: string
 ): Promise<(ResumeSnapshot & { slug?: string }) | null> {
+  const rawSlug = customSlug || process.env.NEXIS_RESUME_SLUG || 'krishna-naik';
+  const normalizedSlug = rawSlug.trim().toLowerCase();
+  const slug = encodeURIComponent(normalizedSlug);
+
   const now = Date.now();
-  if (cachedResumeSnapshot && now - cachedResumeTimestamp < CACHE_TTL_MS) {
-    return cachedResumeSnapshot;
+  const cached = resumeCache.get(normalizedSlug);
+  if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+    return cached.snapshot;
   }
 
   const { apiUrl, apiKey } = getNexisConfig();
@@ -129,61 +131,57 @@ export async function fetchNexisResume(
     return null;
   }
 
-  const rawSlug = customSlug || process.env.NEXIS_RESUME_SLUG || 'krishna-naik';
-  const slug = encodeURIComponent(rawSlug.trim().toLowerCase());
-
-  const candidateEndpoints = [
-    `${apiUrl}/api/v1/public/resume/${slug}`,
-    `${apiUrl}/api/public/resume/${slug}`,
-  ];
+  const endpoint = `${apiUrl}/api/v1/public/resume/${slug}`;
   const headers = getNexisHeaders(apiKey);
 
-  for (const endpoint of candidateEndpoints) {
-    try {
-      const res = await fetchWithTimeout(
-        endpoint,
-        {
-          headers,
-          next: { revalidate: 60 },
-        },
-        REQUEST_TIMEOUT_MS
-      );
+  try {
+    const res = await fetchWithTimeout(
+      endpoint,
+      {
+        headers,
+        next: { revalidate: 60 },
+      },
+      REQUEST_TIMEOUT_MS
+    );
 
-      if (res.status === 404) {
-        console.warn(`[NEXIS Client] Published resume not found on ${endpoint} (404 Not Found)`);
-        return null;
-      }
-
-      if (!res.ok) {
-        console.warn(`[NEXIS Client] Resume fetch returned HTTP ${res.status} on ${endpoint}`);
-        continue;
-      }
-
-      const rawJson = await res.json();
-      const parseResult = NexisResumeResponseSchema.safeParse(rawJson);
-      if (!parseResult.success) {
-        console.error(`[NEXIS Client] Resume validation failed on ${endpoint}:`, parseResult.error);
-        continue;
-      }
-
-      const parsed = parseResult.data as any;
-      const snapshot: ResumeSnapshot & { slug?: string } = 'data' in parsed && parsed.data
-        ? parsed.data
-        : parsed;
-
-      snapshot.slug = rawSlug;
-      cachedResumeSnapshot = snapshot as ResumeSnapshot;
-      cachedResumeTimestamp = Date.now();
-      return snapshot;
-    } catch (err) {
-      console.warn(
-        `[NEXIS Client] Resume fetch failed on ${endpoint}:`,
-        err instanceof Error ? err.message : 'Unknown error'
-      );
+    // 404 explicitly signifies unpublished or non-existent resume snapshot
+    if (res.status === 404) {
+      console.warn(`[NEXIS Client] Published resume not found on ${endpoint} (404 Not Found)`);
+      // Evict any stale cache entry for this slug so unpublish takes immediate effect
+      resumeCache.delete(normalizedSlug);
+      return null;
     }
-  }
 
-  return null;
+    if (!res.ok) {
+      console.warn(`[NEXIS Client] Resume fetch returned HTTP ${res.status} on ${endpoint}`);
+      return null;
+    }
+
+    const rawJson = await res.json();
+    const parseResult = NexisResumeResponseSchema.safeParse(rawJson);
+    if (!parseResult.success) {
+      console.error(`[NEXIS Client] Resume validation failed on ${endpoint}:`, parseResult.error);
+      return null;
+    }
+
+    const parsed = parseResult.data as any;
+    const snapshot: ResumeSnapshot & { slug?: string } = 'data' in parsed && parsed.data
+      ? parsed.data
+      : parsed;
+
+    snapshot.slug = rawSlug;
+    resumeCache.set(normalizedSlug, {
+      snapshot,
+      timestamp: Date.now(),
+    });
+    return snapshot;
+  } catch (err) {
+    console.warn(
+      `[NEXIS Client] Resume fetch failed on ${endpoint}:`,
+      err instanceof Error ? err.message : 'Unknown error'
+    );
+    return null;
+  }
 }
 
 export async function fetchNexisGitHubIntelligence(year?: number | string): Promise<any | null> {

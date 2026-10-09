@@ -154,7 +154,7 @@ describe('fetchNexisResume Server Client', () => {
     expect(result).toBeNull();
   });
 
-  it('successfully fetches and parses published resume snapshot', async () => {
+  it('successfully fetches and parses published resume snapshot with verified headers', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -173,10 +173,76 @@ describe('fetchNexisResume Server Client', () => {
       'https://api.nexis.test/api/v1/public/resume/krishna-naik',
       expect.objectContaining({
         headers: expect.objectContaining({
-          'X-Nexus-Api-Key': 'test-secret-key',
+          'X-Nexis-Api-Key': 'test-secret-key',
+          Authorization: 'Bearer test-secret-key',
+          Accept: 'application/json',
         }),
       })
     );
+  });
+
+  it('evicts cached resume on confirmed 404 unpublish and prevents serving stale data', async () => {
+    // 1. Initial published fetch (populates cache)
+    const initialFetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        success: true,
+        data: mockResumeSnapshot,
+      }),
+    });
+    vi.stubGlobal('fetch', initialFetchMock);
+
+    const publishedResult = await fetchNexisResume('krishna-naik');
+    expect(publishedResult).not.toBeNull();
+    expect(publishedResult?.profile.fullName).toBe('Krishna Naik');
+
+    // 2. NEXIS unpublishes resume (responds with 404)
+    const unpublishFetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      json: async () => ({ message: 'Resume unpublished or not found' }),
+    });
+    vi.stubGlobal('fetch', unpublishFetchMock);
+
+    // Advance beyond in-memory TTL or invoke unpublish check
+    _resetResumeCacheForTesting();
+    const unpublishedResult = await fetchNexisResume('krishna-naik');
+    expect(unpublishedResult).toBeNull();
+
+    // 3. Verify cache was evicted and does not serve stale snapshot
+    const followUpResult = await fetchNexisResume('krishna-naik');
+    expect(followUpResult).toBeNull();
+  });
+
+  it('isolates cache entries per slug without cross-contamination', async () => {
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes('alice')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            success: true,
+            data: { ...mockResumeSnapshot, slug: 'alice', profile: { fullName: 'Alice Smith' } },
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          data: { ...mockResumeSnapshot, slug: 'bob', profile: { fullName: 'Bob Jones' } },
+        }),
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const aliceResume = await fetchNexisResume('alice');
+    const bobResume = await fetchNexisResume('bob');
+
+    expect(aliceResume?.profile.fullName).toBe('Alice Smith');
+    expect(bobResume?.profile.fullName).toBe('Bob Jones');
   });
 
   it('returns null on 404 unpublished resume without throwing', async () => {

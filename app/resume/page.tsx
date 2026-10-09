@@ -55,6 +55,21 @@ function formatDate(dateStr?: string | null): string {
   }
 }
 
+function sanitizeUrl(url?: string | null): string | null {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  // Allow safe protocols only: http, https, mailto, tel
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(trimmed)) {
+    return trimmed;
+  }
+  // Prepend https:// for domain-like strings
+  if (/^[a-zA-Z0-9][-a-zA-Z0-9+&@#/%?=~_|!:,.;]*\.[a-zA-Z]{2,}[-a-zA-Z0-9+&@#/%=~_|]*$/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return null;
+}
+
 function getSocialIcon(platform: string) {
   const p = (platform || '').toLowerCase();
   if (p.includes('github')) return <Github className="w-4 h-4" aria-hidden="true" />;
@@ -227,25 +242,41 @@ export default async function ResumePage() {
 
           {/* Contact Details & Links */}
           <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-xs sm:text-sm text-text-secondary pt-2">
-            {profile.email && (
-              <a
-                href={`mailto:${profile.email}`}
-                className="inline-flex items-center gap-1.5 hover:text-neon-cyan transition-colors"
-              >
-                <Mail className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{profile.email}</span>
-              </a>
-            )}
+            {profile.email && (() => {
+              const mailHref = sanitizeUrl(`mailto:${profile.email.trim()}`);
+              return mailHref ? (
+                <a
+                  href={mailHref}
+                  className="inline-flex items-center gap-1.5 hover:text-neon-cyan transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>{profile.email}</span>
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>{profile.email}</span>
+                </span>
+              );
+            })()}
 
-            {profile.phone && (
-              <a
-                href={`tel:${profile.phone}`}
-                className="inline-flex items-center gap-1.5 hover:text-neon-cyan transition-colors"
-              >
-                <Phone className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{profile.phone}</span>
-              </a>
-            )}
+            {profile.phone && (() => {
+              const phoneHref = sanitizeUrl(`tel:${profile.phone.replace(/\s+/g, '')}`);
+              return phoneHref ? (
+                <a
+                  href={phoneHref}
+                  className="inline-flex items-center gap-1.5 hover:text-neon-cyan transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>{profile.phone}</span>
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>{profile.phone}</span>
+                </span>
+              );
+            })()}
 
             {profile.location && (
               <span className="inline-flex items-center gap-1.5">
@@ -254,30 +285,37 @@ export default async function ResumePage() {
               </span>
             )}
 
-            {(profile.websiteUrl || profile.website) && (
-              <a
-                href={(profile.websiteUrl || profile.website).startsWith('http') ? (profile.websiteUrl || profile.website) : `https://${profile.websiteUrl || profile.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 hover:text-neon-cyan transition-colors"
-              >
-                <Globe className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{(profile.websiteUrl || profile.website).replace(/^https?:\/\//, '')}</span>
-              </a>
-            )}
+            {(profile.websiteUrl || profile.website) && (() => {
+              const websiteHref = sanitizeUrl(profile.websiteUrl || profile.website);
+              return websiteHref ? (
+                <a
+                  href={websiteHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 hover:text-neon-cyan transition-colors"
+                >
+                  <Globe className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>{(profile.websiteUrl || profile.website).replace(/^https?:\/\//, '')}</span>
+                </a>
+              ) : null;
+            })()}
 
-            {socialLinks.map((s: any, idx: number) => (
-              <a
-                key={idx}
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 hover:text-neon-cyan transition-colors"
-              >
-                {getSocialIcon(s.platform)}
-                <span>{s.platform}</span>
-              </a>
-            ))}
+            {socialLinks.map((s: any, idx: number) => {
+              const linkUrl = sanitizeUrl(s.url);
+              if (!linkUrl) return null;
+              return (
+                <a
+                  key={idx}
+                  href={linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 hover:text-neon-cyan transition-colors"
+                >
+                  {getSocialIcon(s.platform)}
+                  <span>{s.platform}</span>
+                </a>
+              );
+            })}
           </div>
         </header>
 
@@ -377,6 +415,8 @@ export default async function ResumePage() {
               {projects.map((proj: any, pIdx: number) => {
                 const pTitle = proj.name || proj.title || 'Project';
                 const technologies: string[] = Array.isArray(proj.technologies) ? proj.technologies : [];
+                const gitUrl = sanitizeUrl(proj.githubUrl);
+                const liveUrl = sanitizeUrl(proj.liveUrl || proj.url);
 
                 return (
                   <div
@@ -386,9 +426,9 @@ export default async function ResumePage() {
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="text-sm font-bold text-text-primary">{pTitle}</h3>
                       <div className="flex items-center gap-1.5 print:hidden">
-                        {proj.githubUrl && (
+                        {gitUrl && (
                           <a
-                            href={proj.githubUrl}
+                            href={gitUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-text-secondary hover:text-neon-cyan transition-colors"
@@ -397,9 +437,9 @@ export default async function ResumePage() {
                             <Github className="w-3.5 h-3.5" />
                           </a>
                         )}
-                        {(proj.liveUrl || proj.url) && (
+                        {liveUrl && (
                           <a
-                            href={proj.liveUrl || proj.url}
+                            href={liveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-text-secondary hover:text-neon-cyan transition-colors"
@@ -474,7 +514,7 @@ export default async function ResumePage() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {certifications.map((c: any, cIdx: number) => {
-                const certUrl = c.credentialUrl || c.url;
+                const certUrl = sanitizeUrl(c.credentialUrl || c.url);
                 return (
                   <div
                     key={c.id || cIdx}

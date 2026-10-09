@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Phone, Instagram, Linkedin, Mail, Github, FileText, Sparkles } from 'lucide-react';
 import { ContactInfo } from '@/lib/types';
 import SectionWrapper from '../ui/SectionWrapper';
@@ -17,14 +18,12 @@ interface ContactSectionProps {
   sectionRef?: React.RefObject<HTMLElement | null>;
 }
 
-const ContactSection: React.FC<ContactSectionProps> = ({ contact, resumeUrl, sectionRef }) => {
+const ContactSection: React.FC<ContactSectionProps> = ({ contact, sectionRef }) => {
   const mail = contact?.msg?.Mail;
   const phone = contact?.msg?.Phone;
   const linkedin = contact?.follow?.Linkedin;
   const instagram = contact?.follow?.Instagram;
   const github = contact?.follow?.Github;
-
-  const resumeHref = resumeUrl || '/KrishnaNaik.pdf';
 
   return (
     <SectionWrapper ref={sectionRef} id="contact" title="Get In Touch" terminalCommand="ssh reachout@krishna">
@@ -152,15 +151,13 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contact, resumeUrl, sec
 
         {/* Floating Resume Button */}
         <div className="text-center pt-2">
-          <a
-            href={resumeHref}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/resume"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-neon-indigo via-neon-purple to-neon-indigo bg-[length:200%_auto] text-white font-bold text-sm font-sora hover:scale-105 transition-all shadow-[0_0_25px_rgba(99,102,241,0.4)] group"
           >
             <FileText className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            <span>Download Official Resume</span>
-          </a>
+            <span>View Official Resume</span>
+          </Link>
         </div>
       </div>
     </SectionWrapper>

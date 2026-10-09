@@ -149,4 +149,57 @@ describe('ResumePage Component', () => {
     expect(backBtn).toBeInTheDocument();
     expect(backBtn).toHaveAttribute('href', '/');
   });
+
+  it('sanitizes unsafe javascript URL schemes preventing XSS attacks', async () => {
+    const maliciousResume = {
+      ...mockResume,
+      profile: {
+        ...mockResume.profile,
+        website: 'javascript:alert("XSS")',
+      },
+      socialLinks: [
+        { platform: 'Twitter', url: 'javascript:alert("XSS")' },
+      ],
+      projects: [
+        {
+          id: 'proj-malicious',
+          title: 'Exploit Project',
+          githubUrl: 'javascript:alert("XSS")',
+          url: 'javascript:alert("XSS")',
+        },
+      ],
+    };
+
+    vi.spyOn(nexisModule, 'fetchNexisResume').mockResolvedValue(maliciousResume as any);
+
+    const PageComponent = await ResumePage();
+    render(PageComponent);
+
+    const links = screen.queryAllByRole('link');
+    for (const link of links) {
+      const href = link.getAttribute('href');
+      if (href) {
+        expect(href.toLowerCase()).not.toContain('javascript:');
+      }
+    }
+  });
+
+  it('handles minimal resume payload without crashing or inventing facts', async () => {
+    const minimalResume = {
+      slug: 'krishna-naik',
+      publishedAt: '2026-03-01T00:00:00.000Z',
+      profile: {
+        fullName: 'Krishna Minimal',
+      },
+    };
+
+    vi.spyOn(nexisModule, 'fetchNexisResume').mockResolvedValue(minimalResume as any);
+
+    const PageComponent = await ResumePage();
+    render(PageComponent);
+
+    expect(screen.getByText('Krishna Minimal')).toBeInTheDocument();
+    expect(screen.queryByText('Technical Skills')).not.toBeInTheDocument();
+    expect(screen.queryByText('Work Experience')).not.toBeInTheDocument();
+  });
 });

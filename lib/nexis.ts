@@ -115,9 +115,18 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
   return cachedPortfolioSnapshot;
 }
 
-export async function fetchNexisResume(
+export type ResumeFetchStatus = 'published' | 'unpublished' | 'error' | 'not-configured';
+
+export interface ResumeFetchResult {
+  status: ResumeFetchStatus;
+  data: (ResumeSnapshot & { slug?: string }) | null;
+  statusCode?: number;
+  errorMessage?: string;
+}
+
+export async function fetchNexisResumeResult(
   customSlug?: string
-): Promise<(ResumeSnapshot & { slug?: string }) | null> {
+): Promise<ResumeFetchResult> {
   const rawSlug = customSlug || process.env.NEXIS_RESUME_SLUG || 'krishna-naik';
   const normalizedSlug = rawSlug.trim().toLowerCase();
   const slug = encodeURIComponent(normalizedSlug);
@@ -125,46 +134,71 @@ export async function fetchNexisResume(
   const now = Date.now();
   const cached = resumeCache.get(normalizedSlug);
   if (cached && now - cached.timestamp < CACHE_TTL_MS) {
-    return cached.snapshot;
+    return {
+      status: 'published',
+      data: cached.snapshot,
+    };
   }
 
-  const { apiUrl, apiKey } = getNexisConfig();
+  const { apiUrl } = getNexisConfig();
   if (!apiUrl) {
     console.warn('[NEXIS Client] NEXIS_API_URL is not configured; cannot fetch resume.');
-    return null;
+    return {
+      status: 'not-configured',
+      data: null,
+      errorMessage: 'NEXIS_API_URL is not configured',
+    };
   }
 
   const endpoint = `${apiUrl}/api/v1/public/resume/${slug}`;
-  const headers = getNexisHeaders(apiKey);
+  // Public resume endpoint is unauthenticated; do not transmit private API keys or auth headers
+  const publicHeaders: Record<string, string> = {
+    Accept: 'application/json',
+    'User-Agent': 'Krishna-Naik-Portfolio/1.0',
+  };
 
   try {
     const res = await fetchWithTimeout(
       endpoint,
       {
-        headers,
-        next: { revalidate: 60 },
+        headers: publicHeaders,
+        next: { revalidate: 30 },
       },
       REQUEST_TIMEOUT_MS
     );
 
-    // 404 explicitly signifies unpublished or non-existent resume snapshot
+    // 404 explicitly signifies unpublished or withdrawn resume snapshot
     if (res.status === 404) {
       console.warn(`[NEXIS Client] Published resume not found on ${endpoint} (404 Not Found)`);
       // Evict any stale cache entry for this slug so unpublish takes immediate effect
       resumeCache.delete(normalizedSlug);
-      return null;
+      return {
+        status: 'unpublished',
+        data: null,
+        statusCode: 404,
+        errorMessage: 'Resume is unpublished or does not exist',
+      };
     }
 
     if (!res.ok) {
       console.warn(`[NEXIS Client] Resume fetch returned HTTP ${res.status} on ${endpoint}`);
-      return null;
+      return {
+        status: 'error',
+        data: null,
+        statusCode: res.status,
+        errorMessage: `HTTP ${res.status}`,
+      };
     }
 
     const rawJson = await res.json();
     const parseResult = NexisResumeResponseSchema.safeParse(rawJson);
     if (!parseResult.success) {
       console.error(`[NEXIS Client] Resume validation failed on ${endpoint}:`, parseResult.error);
-      return null;
+      return {
+        status: 'error',
+        data: null,
+        errorMessage: 'Resume schema validation failed',
+      };
     }
 
     const parsed = parseResult.data as any;
@@ -177,14 +211,28 @@ export async function fetchNexisResume(
       snapshot,
       timestamp: Date.now(),
     });
-    return snapshot;
+    return {
+      status: 'published',
+      data: snapshot,
+    };
   } catch (err) {
     console.warn(
       `[NEXIS Client] Resume fetch failed on ${endpoint}:`,
       err instanceof Error ? err.message : 'Unknown error'
     );
-    return null;
+    return {
+      status: 'error',
+      data: null,
+      errorMessage: err instanceof Error ? err.message : 'Network error',
+    };
   }
+}
+
+export async function fetchNexisResume(
+  customSlug?: string
+): Promise<(ResumeSnapshot & { slug?: string }) | null> {
+  const result = await fetchNexisResumeResult(customSlug);
+  return result.data;
 }
 
 export async function fetchNexisGitHubIntelligence(year?: number | string): Promise<any | null> {

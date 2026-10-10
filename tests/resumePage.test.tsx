@@ -100,8 +100,11 @@ describe('ResumePage Component', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders published resume details when NEXIS returns valid snapshot', async () => {
-    vi.spyOn(nexisModule, 'fetchNexisResume').mockResolvedValue(mockResume as any);
+  it('renders published resume details and download actions when NEXIS returns valid snapshot', async () => {
+    vi.spyOn(nexisModule, 'fetchNexisResumeResult').mockResolvedValue({
+      status: 'published',
+      data: mockResume as any,
+    });
 
     const PageComponent = await ResumePage();
     render(PageComponent);
@@ -132,22 +135,56 @@ describe('ResumePage Component', () => {
     // Certifications & Achievements
     expect(screen.getByText('Certified Kubernetes Administrator')).toBeInTheDocument();
     expect(screen.getByText('Grand Prize Winner at HackRIT')).toBeInTheDocument();
+
+    // Verified download & print actions in published view
+    const downloadBtn = screen.getByRole('link', { name: /Download backup PDF copy/i });
+    expect(downloadBtn).toBeInTheDocument();
+    expect(downloadBtn).toHaveAttribute('href', '/KrishnaNaik.pdf');
   });
 
-  it('renders graceful fallback UI when resume is unavailable or unpublished', async () => {
-    vi.spyOn(nexisModule, 'fetchNexisResume').mockResolvedValue(null);
+  it('renders unpublished state on confirmed 404 and strictly isolates withdrawn resume without PDF download link', async () => {
+    vi.spyOn(nexisModule, 'fetchNexisResumeResult').mockResolvedValue({
+      status: 'unpublished',
+      data: null,
+      statusCode: 404,
+    });
 
     const PageComponent = await ResumePage();
     render(PageComponent);
 
-    expect(screen.getByText('Resume Currently Unavailable')).toBeInTheDocument();
-    const downloadBtn = screen.getByRole('link', { name: /Download PDF Resume/i });
-    expect(downloadBtn).toBeInTheDocument();
-    expect(downloadBtn).toHaveAttribute('href', '/KrishnaNaik.pdf');
+    expect(screen.getByText('Resume Currently Unpublished')).toBeInTheDocument();
+    expect(screen.getByText(/official resume for this profile is currently private or unpublished/i)).toBeInTheDocument();
+
+    // CRITICAL: Ensure NO link to /KrishnaNaik.pdf exists when unpublished
+    const allLinks = screen.getAllByRole('link');
+    const pdfLinks = allLinks.filter((link) => link.getAttribute('href')?.includes('.pdf'));
+    expect(pdfLinks).toHaveLength(0);
 
     const backBtn = screen.getByRole('link', { name: /Back to Portfolio/i });
     expect(backBtn).toBeInTheDocument();
     expect(backBtn).toHaveAttribute('href', '/');
+
+    const contactBtn = screen.getByRole('link', { name: /Contact Krishna/i });
+    expect(contactBtn).toBeInTheDocument();
+    expect(contactBtn).toHaveAttribute('href', '/#contact');
+  });
+
+  it('renders friendly temporary outage message on network failure without exposing private data or stack traces', async () => {
+    vi.spyOn(nexisModule, 'fetchNexisResumeResult').mockResolvedValue({
+      status: 'error',
+      data: null,
+      errorMessage: 'Network timeout',
+    });
+
+    const PageComponent = await ResumePage();
+    render(PageComponent);
+
+    expect(screen.getByText('Resume Temporarily Unavailable')).toBeInTheDocument();
+    expect(screen.getByText(/unable to connect to the live NEXIS resume service/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Network timeout/i)).not.toBeInTheDocument(); // No raw trace exposure
+
+    const backBtn = screen.getByRole('link', { name: /Back to Portfolio/i });
+    expect(backBtn).toBeInTheDocument();
   });
 
   it('sanitizes unsafe javascript URL schemes preventing XSS attacks', async () => {
@@ -170,7 +207,10 @@ describe('ResumePage Component', () => {
       ],
     };
 
-    vi.spyOn(nexisModule, 'fetchNexisResume').mockResolvedValue(maliciousResume as any);
+    vi.spyOn(nexisModule, 'fetchNexisResumeResult').mockResolvedValue({
+      status: 'published',
+      data: maliciousResume as any,
+    });
 
     const PageComponent = await ResumePage();
     render(PageComponent);
@@ -193,7 +233,10 @@ describe('ResumePage Component', () => {
       },
     };
 
-    vi.spyOn(nexisModule, 'fetchNexisResume').mockResolvedValue(minimalResume as any);
+    vi.spyOn(nexisModule, 'fetchNexisResumeResult').mockResolvedValue({
+      status: 'published',
+      data: minimalResume as any,
+    });
 
     const PageComponent = await ResumePage();
     render(PageComponent);

@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NexisResumeResponseSchema } from '../lib/nexisSchema';
-import { fetchNexisResume, _resetResumeCacheForTesting } from '../lib/nexis';
+import {
+  fetchNexisResume,
+  fetchNexisResumeResult,
+  _resetResumeCacheForTesting,
+} from '../lib/nexis';
 
 const mockResumeSnapshot = {
   slug: 'krishna-naik',
@@ -131,7 +135,7 @@ describe('NEXIS Resume Schema Validation', () => {
   });
 });
 
-describe('fetchNexisResume Server Client', () => {
+describe('fetchNexisResume and fetchNexisResumeResult Server Client', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
@@ -148,13 +152,17 @@ describe('fetchNexisResume Server Client', () => {
     vi.restoreAllMocks();
   });
 
-  it('returns null when NEXIS_API_URL is missing', async () => {
+  it('returns not-configured status when NEXIS_API_URL is missing', async () => {
     delete process.env.NEXIS_API_URL;
-    const result = await fetchNexisResume();
-    expect(result).toBeNull();
+    const result = await fetchNexisResumeResult();
+    expect(result.status).toBe('not-configured');
+    expect(result.data).toBeNull();
+
+    const resume = await fetchNexisResume();
+    expect(resume).toBeNull();
   });
 
-  it('successfully fetches and parses published resume snapshot with verified headers', async () => {
+  it('successfully fetches published resume without transmitting secret API keys to public endpoint', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -165,24 +173,25 @@ describe('fetchNexisResume Server Client', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
 
-    const result = await fetchNexisResume();
-    expect(result).not.toBeNull();
-    expect(result?.slug).toBe('krishna-naik');
-    expect(result?.profile.fullName).toBe('Krishna Naik');
+    const result = await fetchNexisResumeResult();
+    expect(result.status).toBe('published');
+    expect(result.data?.slug).toBe('krishna-naik');
+    expect(result.data?.profile.fullName).toBe('Krishna Naik');
+
+    // Verify public headers: Accept and User-Agent are present, but secret keys are NOT sent
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.nexis.test/api/v1/public/resume/krishna-naik',
       expect.objectContaining({
-        headers: expect.objectContaining({
-          'X-Nexus-Api-Key': 'test-secret-key',
-          'X-Nexis-Api-Key': 'test-secret-key',
-          'x-api-key': 'test-secret-key',
+        headers: {
           Accept: 'application/json',
-        }),
+          'User-Agent': 'Krishna-Naik-Portfolio/1.0',
+        },
+        next: { revalidate: 30 },
       })
     );
   });
 
-  it('evicts cached resume on confirmed 404 unpublish and prevents serving stale data', async () => {
+  it('evicts cached resume on confirmed 404 unpublish and distinguishes unpublished from error', async () => {
     // 1. Initial published fetch (populates cache)
     const initialFetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -194,26 +203,29 @@ describe('fetchNexisResume Server Client', () => {
     });
     vi.stubGlobal('fetch', initialFetchMock);
 
-    const publishedResult = await fetchNexisResume('krishna-naik');
-    expect(publishedResult).not.toBeNull();
-    expect(publishedResult?.profile.fullName).toBe('Krishna Naik');
+    const publishedResult = await fetchNexisResumeResult('krishna-naik');
+    expect(publishedResult.status).toBe('published');
+    expect(publishedResult.data?.profile.fullName).toBe('Krishna Naik');
 
-    // 2. NEXIS unpublishes resume (responds with 404)
+    // 2. NEXIS unpublishes resume (responds with 404 Not Found)
     const unpublishFetchMock = vi.fn().mockResolvedValue({
       ok: false,
       status: 404,
-      json: async () => ({ message: 'Resume unpublished or not found' }),
+      json: async () => ({ success: false, error: { message: 'Published resume not found', statusCode: 404 } }),
     });
     vi.stubGlobal('fetch', unpublishFetchMock);
 
-    // Advance beyond in-memory TTL or invoke unpublish check
+    // Evict via reset to simulate cache expiration / revalidation
     _resetResumeCacheForTesting();
-    const unpublishedResult = await fetchNexisResume('krishna-naik');
-    expect(unpublishedResult).toBeNull();
+    const unpublishedResult = await fetchNexisResumeResult('krishna-naik');
+    expect(unpublishedResult.status).toBe('unpublished');
+    expect(unpublishedResult.statusCode).toBe(404);
+    expect(unpublishedResult.data).toBeNull();
 
-    // 3. Verify cache was evicted and does not serve stale snapshot
-    const followUpResult = await fetchNexisResume('krishna-naik');
-    expect(followUpResult).toBeNull();
+    // 3. Verify cache was cleared and does not retain withdrawn data
+    const followUpResult = await fetchNexisResumeResult('krishna-naik');
+    expect(followUpResult.status).toBe('unpublished');
+    expect(followUpResult.data).toBeNull();
   });
 
   it('isolates cache entries per slug without cross-contamination', async () => {
@@ -239,31 +251,21 @@ describe('fetchNexisResume Server Client', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
 
-    const aliceResume = await fetchNexisResume('alice');
-    const bobResume = await fetchNexisResume('bob');
+    const aliceResult = await fetchNexisResumeResult('alice');
+    const bobResult = await fetchNexisResumeResult('bob');
 
-    expect(aliceResume?.profile.fullName).toBe('Alice Smith');
-    expect(bobResume?.profile.fullName).toBe('Bob Jones');
+    expect(aliceResult.data?.profile.fullName).toBe('Alice Smith');
+    expect(bobResult.data?.profile.fullName).toBe('Bob Jones');
   });
 
-  it('returns null on 404 unpublished resume without throwing', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: false,
-      status: 404,
-      json: async () => ({ message: 'Resume not found or not published' }),
-    });
-    vi.stubGlobal('fetch', fetchMock);
-
-    const result = await fetchNexisResume();
-    expect(result).toBeNull();
-  });
-
-  it('returns null on 500 internal server error or network failure', async () => {
+  it('distinguishes network failure / 500 error from 404 unpublishing', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error('Connection timeout'));
     vi.stubGlobal('fetch', fetchMock);
 
-    const result = await fetchNexisResume();
-    expect(result).toBeNull();
+    const result = await fetchNexisResumeResult();
+    expect(result.status).toBe('error');
+    expect(result.data).toBeNull();
+    expect(result.errorMessage).toContain('Connection timeout');
   });
 
   it('supports fetching by custom slug parameter', async () => {
@@ -277,8 +279,9 @@ describe('fetchNexisResume Server Client', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
 
-    const result = await fetchNexisResume('custom-user');
-    expect(result?.slug).toBe('custom-user');
+    const result = await fetchNexisResumeResult('custom-user');
+    expect(result.status).toBe('published');
+    expect(result.data?.slug).toBe('custom-user');
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.nexis.test/api/v1/public/resume/custom-user',
       expect.anything()

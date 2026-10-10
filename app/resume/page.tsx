@@ -18,12 +18,13 @@ import {
   Github,
   Linkedin,
   Twitter,
-  FileQuestion,
+  EyeOff,
+  AlertTriangle,
 } from 'lucide-react';
-import { fetchNexisResume } from '@/lib/nexis';
+import { fetchNexisResumeResult } from '@/lib/nexis';
 import { PrintButton } from '@/components/resume/PrintButton';
 
-export const revalidate = 60;
+export const revalidate = 30;
 
 export const metadata: Metadata = {
   title: 'Resume | Krishna Naik (Full Stack Developer & AI/ML Engineer)',
@@ -79,40 +80,76 @@ function getSocialIcon(platform: string) {
 }
 
 export default async function ResumePage() {
-  const resume = await fetchNexisResume();
+  const result = await fetchNexisResumeResult();
 
-  if (!resume || !resume.profile) {
+  // 1. Confirmed Unpublished State (404 Not Found)
+  // Strictly isolates withdrawn resume: do NOT render /KrishnaNaik.pdf or any stale resume data
+  if (result.status === 'unpublished') {
     return (
       <main className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto flex flex-col items-center justify-center text-center">
         <div className="bg-bg-surface border border-border-color rounded-2xl p-8 sm:p-12 shadow-xl max-w-lg w-full">
-          <div className="w-16 h-16 rounded-full bg-neon-indigo/10 border border-neon-indigo/30 flex items-center justify-center mx-auto mb-6 text-neon-cyan">
-            <FileQuestion className="w-8 h-8" aria-hidden="true" />
+          <div className="w-16 h-16 rounded-full bg-slate-800/60 border border-slate-700 flex items-center justify-center mx-auto mb-6 text-text-secondary">
+            <EyeOff className="w-8 h-8" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold text-text-primary mb-3">Resume Currently Unavailable</h1>
+          <h1 className="text-2xl font-bold text-text-primary mb-3">Resume Currently Unpublished</h1>
           <p className="text-text-secondary text-sm mb-8 leading-relaxed">
-            The live interactive resume is currently being updated in NEXIS. You can download the verified static PDF copy directly or return to the main portfolio.
+            The official resume for this profile is currently private or unpublished in NEXIS. Stale or withdrawn resume copies are not served. Please reach out directly for inquiries.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="/KrishnaNaik.pdf"
-              download="Krishna_Naik_Resume.pdf"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-neon-indigo hover:bg-neon-indigo/90 text-white font-medium text-sm transition-all shadow-md active:scale-95"
-            >
-              <Download className="w-4 h-4" aria-hidden="true" />
-              <span>Download PDF Resume</span>
-            </a>
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-bg-main hover:bg-border-color/30 text-text-primary border border-border-color font-medium text-sm transition-all"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-neon-indigo hover:bg-neon-indigo/90 text-white font-medium text-sm transition-all shadow-md active:scale-95"
             >
               <ArrowLeft className="w-4 h-4" aria-hidden="true" />
               <span>Back to Portfolio</span>
+            </Link>
+            <Link
+              href="/#contact"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-bg-main hover:bg-border-color/30 text-text-primary border border-border-color font-medium text-sm transition-all"
+            >
+              <Mail className="w-4 h-4" aria-hidden="true" />
+              <span>Contact Krishna</span>
             </Link>
           </div>
         </div>
       </main>
     );
   }
+
+  // 2. Upstream Network Outage, 5xx, or Configuration Error
+  if (result.status !== 'published' || !result.data || !result.data.profile) {
+    return (
+      <main className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto flex flex-col items-center justify-center text-center">
+        <div className="bg-bg-surface border border-border-color rounded-2xl p-8 sm:p-12 shadow-xl max-w-lg w-full">
+          <div className="w-16 h-16 rounded-full bg-neon-rose/10 border border-neon-rose/30 flex items-center justify-center mx-auto mb-6 text-neon-rose">
+            <AlertTriangle className="w-8 h-8" aria-hidden="true" />
+          </div>
+          <h1 className="text-2xl font-bold text-text-primary mb-3">Resume Temporarily Unavailable</h1>
+          <p className="text-text-secondary text-sm mb-8 leading-relaxed">
+            We are temporarily unable to connect to the live NEXIS resume service. Please check back shortly or reach out directly.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-neon-indigo hover:bg-neon-indigo/90 text-white font-medium text-sm transition-all shadow-md active:scale-95"
+            >
+              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+              <span>Back to Portfolio</span>
+            </Link>
+            <Link
+              href="/#contact"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-bg-main hover:bg-border-color/30 text-text-primary border border-border-color font-medium text-sm transition-all"
+            >
+              <Mail className="w-4 h-4" aria-hidden="true" />
+              <span>Contact Krishna</span>
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const resume = result.data;
 
   const {
     profile,

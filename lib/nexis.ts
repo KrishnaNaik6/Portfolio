@@ -61,16 +61,41 @@ function getNexisHeaders(apiKey: string): Record<string, string> {
   return headers;
 }
 
-export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null> {
+export type PortfolioFetchStatus =
+  | 'published'
+  | 'unauthorized'
+  | 'forbidden'
+  | 'not-found'
+  | 'error'
+  | 'not-configured';
+
+export interface PortfolioFetchResult {
+  status: PortfolioFetchStatus;
+  data: NormalizedNexisData | null;
+  statusCode?: number;
+  correlationId?: string | null;
+  errorCategory?: string;
+  errorMessage?: string;
+}
+
+export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult> {
   const now = Date.now();
   if (cachedPortfolioSnapshot && now - cachedPortfolioTimestamp < CACHE_TTL_MS) {
-    return cachedPortfolioSnapshot;
+    return {
+      status: 'published',
+      data: cachedPortfolioSnapshot,
+    };
   }
 
   const { apiUrl, apiKey } = getNexisConfig();
   if (!apiUrl) {
     console.warn('[NEXIS Client] NEXIS_API_URL is not configured.');
-    return null;
+    return {
+      status: 'not-configured',
+      data: null,
+      errorCategory: 'missing_configuration',
+      errorMessage: 'NEXIS_API_URL is not configured',
+    };
   }
 
   const endpoint = `${apiUrl}/api/v1/public/portfolio`;
@@ -82,36 +107,90 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
       next: { revalidate: 30 },
     });
 
+    const correlationId =
+      typeof res.headers?.get === 'function'
+        ? res.headers.get('x-correlation-id') || res.headers.get('x-request-id')
+        : null;
+
     if (!res.ok) {
-      console.warn(`[NEXIS Client] ${endpoint} returned HTTP ${res.status}`);
+      let category = 'upstream_error';
+      let statusType: PortfolioFetchStatus = 'error';
+
+      if (res.status === 401) {
+        category = 'unauthorized';
+        statusType = 'unauthorized';
+      } else if (res.status === 403) {
+        category = 'forbidden';
+        statusType = 'forbidden';
+      } else if (res.status === 404) {
+        category = 'not_found';
+        statusType = 'not-found';
+      }
+
+      console.warn(
+        `[NEXIS Client] Upstream portfolio fetch failed: status=${res.status}, correlationId=${correlationId || 'none'}, category=${category}`
+      );
+
       // Invalidate cache immediately on 401/403/404/5xx so stale data is never served
       cachedPortfolioSnapshot = null;
       cachedPortfolioTimestamp = 0;
-      return null;
+
+      return {
+        status: statusType,
+        data: null,
+        statusCode: res.status,
+        correlationId,
+        errorCategory: category,
+        errorMessage: `Upstream HTTP ${res.status}`,
+      };
     }
 
     const rawJson = await res.json();
     const parseResult = NexisPortfolioResponseSchema.safeParse(rawJson);
     if (!parseResult.success) {
-      console.error(`[NEXIS Client] Validation failed on ${endpoint}:`, parseResult.error);
+      console.error(
+        `[NEXIS Client] Portfolio schema validation failed on ${endpoint} (correlationId=${correlationId || 'none'}):`,
+        parseResult.error
+      );
       cachedPortfolioSnapshot = null;
       cachedPortfolioTimestamp = 0;
-      return null;
+      return {
+        status: 'error',
+        data: null,
+        statusCode: 200,
+        correlationId,
+        errorCategory: 'schema_validation_failed',
+        errorMessage: 'Validation failed on upstream payload',
+      };
     }
 
     const normalized = normalizeNexisPortfolio(parseResult.data);
     cachedPortfolioSnapshot = normalized;
     cachedPortfolioTimestamp = Date.now();
-    return normalized;
+    return {
+      status: 'published',
+      data: normalized,
+      correlationId,
+    };
   } catch (err) {
     console.warn(
-      `[NEXIS Client] Fetch failed on ${endpoint}:`,
+      `[NEXIS Client] Portfolio fetch connection failed on ${endpoint}:`,
       err instanceof Error ? err.message : 'Unknown error'
     );
     cachedPortfolioSnapshot = null;
     cachedPortfolioTimestamp = 0;
-    return null;
+    return {
+      status: 'error',
+      data: null,
+      errorCategory: 'network_or_timeout_error',
+      errorMessage: err instanceof Error ? err.message : 'Network error',
+    };
   }
+}
+
+export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null> {
+  const result = await fetchNexisPortfolioResult();
+  return result.data;
 }
 
 export type ResumeFetchStatus = 'published' | 'unpublished' | 'error' | 'not-configured';

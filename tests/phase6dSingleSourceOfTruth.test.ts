@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { fetchNexisPortfolio, _resetResumeCacheForTesting } from '@/lib/nexis';
+import { fetchNexisPortfolio, fetchNexisPortfolioResult, _resetResumeCacheForTesting } from '@/lib/nexis';
 import { GET as portfolioRouteHandler } from '@/app/api/portfolio/route';
 
 const mockValidNexisPortfolio = {
@@ -89,6 +89,7 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-success-123' }),
       json: async () => mockValidNexisPortfolio,
     });
     vi.stubGlobal('fetch', fetchMock);
@@ -124,6 +125,7 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
+      headers: new Headers(),
       json: async () => emptyProjectsPayload,
     });
     vi.stubGlobal('fetch', fetchMock);
@@ -138,42 +140,65 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     delete process.env.NEXIS_API_URL;
     const result = await fetchNexisPortfolio();
     expect(result).toBeNull();
+
+    const fetchResult = await fetchNexisPortfolioResult();
+    expect(fetchResult.status).toBe('not-configured');
+    expect(fetchResult.errorCategory).toBe('missing_configuration');
   });
 
   it('4. Fails closed and purges cache on HTTP 401 Unauthorized', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
       status: 401,
+      headers: new Headers({ 'x-correlation-id': 'corr-401-abc' }),
       json: async () => ({ success: false, error: 'Unauthorized' }),
     });
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await fetchNexisPortfolio();
     expect(result).toBeNull();
+
+    const fetchResult = await fetchNexisPortfolioResult();
+    expect(fetchResult.status).toBe('unauthorized');
+    expect(fetchResult.statusCode).toBe(401);
+    expect(fetchResult.correlationId).toBe('corr-401-abc');
+    expect(fetchResult.errorCategory).toBe('unauthorized');
   });
 
   it('5. Fails closed and purges cache on HTTP 403 Forbidden', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
       status: 403,
+      headers: new Headers({ 'x-correlation-id': 'corr-403-def' }),
       json: async () => ({ success: false, error: 'Forbidden' }),
     });
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await fetchNexisPortfolio();
     expect(result).toBeNull();
+
+    const fetchResult = await fetchNexisPortfolioResult();
+    expect(fetchResult.status).toBe('forbidden');
+    expect(fetchResult.statusCode).toBe(403);
+    expect(fetchResult.errorCategory).toBe('forbidden');
   });
 
   it('6. Fails closed and purges cache on HTTP 404 Not Found', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
       status: 404,
+      headers: new Headers({ 'x-correlation-id': 'corr-404-ghi' }),
       json: async () => ({ success: false, error: 'Not Found' }),
     });
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await fetchNexisPortfolio();
     expect(result).toBeNull();
+
+    const fetchResult = await fetchNexisPortfolioResult();
+    expect(fetchResult.status).toBe('not-found');
+    expect(fetchResult.statusCode).toBe(404);
+    expect(fetchResult.errorCategory).toBe('not_found');
   });
 
   it('7. Fails closed on HTTP 500 server error, timeout, or malformed schema', async () => {
@@ -182,13 +207,55 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
 
     const result = await fetchNexisPortfolio();
     expect(result).toBeNull();
+
+    const fetchResult = await fetchNexisPortfolioResult();
+    expect(fetchResult.status).toBe('error');
+    expect(fetchResult.errorCategory).toBe('network_or_timeout_error');
   });
 
-  it('8. /api/portfolio route returns HTTP 503 and never returns 200 or dummy data on upstream failure', async () => {
+  it('8. /api/portfolio route returns HTTP 503 and propagates correlation ID header on upstream failure', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
       status: 401,
+      headers: new Headers({ 'x-correlation-id': 'corr-503-upstream' }),
       json: async () => ({ success: false, error: 'Unauthorized' }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(503);
+    expect(res.headers.get('x-correlation-id')).toBe('corr-503-upstream');
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.error).toContain('unavailable from NEXIS upstream');
+    expect(body.category).toBe('unauthorized');
+    expect(body.correlationId).toBe('corr-503-upstream');
+    expect(body).not.toHaveProperty('details');
+  });
+
+  it('9. /api/portfolio route returns HTTP 200 with validated data and correlation ID when upstream succeeds', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-200-success' }),
+      json: async () => mockValidNexisPortfolio,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-correlation-id')).toBe('corr-200-success');
+    const body = await res.json();
+    expect(body.details.profile.fullName).toBe('Krishna Umesh Naik');
+    expect(body.projects).toHaveLength(1);
+  });
+
+  it('10. Handles malformed upstream JSON schema by failing closed with schema_validation_failed category', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-schema-bad' }),
+      json: async () => 'not-a-valid-json-object-snapshot',
     });
     vi.stubGlobal('fetch', fetchMock);
 
@@ -196,22 +263,8 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.success).toBe(false);
-    expect(body.error).toContain('unavailable from NEXIS upstream');
-    expect(body).not.toHaveProperty('details');
-  });
-
-  it('9. /api/portfolio route returns HTTP 200 with validated data when upstream succeeds', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => mockValidNexisPortfolio,
-    });
-    vi.stubGlobal('fetch', fetchMock);
-
-    const res = await portfolioRouteHandler();
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.details.profile.fullName).toBe('Krishna Umesh Naik');
-    expect(body.projects).toHaveLength(1);
+    expect(body.category).toBe('schema_validation_failed');
+    expect(body.correlationId).toBe('corr-schema-bad');
   });
 });
+

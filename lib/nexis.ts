@@ -69,36 +69,58 @@ export type PortfolioFetchStatus =
   | 'error'
   | 'not-configured';
 
+export type PortfolioFetchSource = 'cache' | 'network';
+
 export interface PortfolioFetchResult {
   status: PortfolioFetchStatus;
   data: NormalizedNexisData | null;
+  source?: PortfolioFetchSource;
   statusCode?: number;
   correlationId?: string | null;
   errorCategory?: string;
   errorMessage?: string;
   schemaSuccess?: boolean;
+  envelopeType?: 'wrapped' | 'direct' | 'unknown';
+  rawSectionCount?: number;
+  rawEnabledSectionCount?: number;
+  hasRawSectionsField?: boolean;
+  normalizedSectionCount?: number;
+  hasDetails?: boolean;
 }
 
 export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult> {
   const now = Date.now();
   if (cachedPortfolioSnapshot && now - cachedPortfolioTimestamp < CACHE_TTL_MS) {
+    const enabledSections = cachedPortfolioSnapshot.sections?.filter((s) => s.enabled) ?? [];
     return {
       status: 'published',
       data: cachedPortfolioSnapshot,
+      source: 'cache',
       statusCode: 200,
       schemaSuccess: true,
+      envelopeType: 'wrapped',
+      rawSectionCount: cachedPortfolioSnapshot.sections?.length ?? 0,
+      rawEnabledSectionCount: enabledSections.length,
+      hasRawSectionsField: true,
+      normalizedSectionCount: enabledSections.length,
+      hasDetails: Boolean(cachedPortfolioSnapshot.details && cachedPortfolioSnapshot.details.profile),
     };
   }
 
   const { apiUrl, apiKey } = getNexisConfig();
   if (!apiUrl) {
     console.warn('[NEXIS Client] NEXIS_API_URL is not configured.');
+    cachedPortfolioSnapshot = null;
+    cachedPortfolioTimestamp = 0;
     return {
       status: 'not-configured',
       data: null,
+      source: 'network',
       errorCategory: 'missing_configuration',
       errorMessage: 'NEXIS_API_URL is not configured',
       schemaSuccess: false,
+      hasDetails: false,
+      normalizedSectionCount: 0,
     };
   }
 
@@ -142,15 +164,45 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
       return {
         status: statusType,
         data: null,
+        source: 'network',
         statusCode: res.status,
         correlationId,
         errorCategory: category,
         errorMessage: `Upstream HTTP ${res.status}`,
         schemaSuccess: false,
+        hasDetails: false,
+        normalizedSectionCount: 0,
       };
     }
 
     const rawJson = await res.json();
+
+    // Inspect raw structure for diagnostics
+    let envelopeType: 'wrapped' | 'direct' | 'unknown' = 'unknown';
+    let rawSectionCount = 0;
+    let rawEnabledSectionCount = 0;
+    let hasRawSectionsField = false;
+
+    if (typeof rawJson === 'object' && rawJson !== null) {
+      if ('data' in rawJson && typeof (rawJson as any).data === 'object' && (rawJson as any).data !== null) {
+        envelopeType = 'wrapped';
+        const inner = (rawJson as any).data;
+        if (Array.isArray(inner.sections)) {
+          hasRawSectionsField = true;
+          rawSectionCount = inner.sections.length;
+          rawEnabledSectionCount = inner.sections.filter((s: any) => s && s.enabled !== false).length;
+        }
+      } else {
+        envelopeType = 'direct';
+        const direct = rawJson as any;
+        if (Array.isArray(direct.sections)) {
+          hasRawSectionsField = true;
+          rawSectionCount = direct.sections.length;
+          rawEnabledSectionCount = direct.sections.filter((s: any) => s && s.enabled !== false).length;
+        }
+      }
+    }
+
     const parseResult = NexisPortfolioResponseSchema.safeParse(rawJson);
     if (!parseResult.success) {
       console.error(
@@ -162,23 +214,72 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
       return {
         status: 'error',
         data: null,
+        source: 'network',
         statusCode: res.status,
         correlationId,
         errorCategory: 'schema_validation_failed',
         errorMessage: 'Validation failed on upstream payload',
         schemaSuccess: false,
+        envelopeType,
+        rawSectionCount,
+        rawEnabledSectionCount,
+        hasRawSectionsField,
+        normalizedSectionCount: 0,
+        hasDetails: false,
       };
     }
 
     const normalized = normalizeNexisPortfolio(parseResult.data);
-    cachedPortfolioSnapshot = normalized;
-    cachedPortfolioTimestamp = Date.now();
+    const hasDetails = Boolean(normalized.details && normalized.details.profile);
+    const enabledSections = normalized.sections?.filter((s) => s.enabled) ?? [];
+    const normalizedSectionCount = enabledSections.length;
+
+    // Validate usability before caching: must have details and at least one enabled section
+    if (hasDetails && normalizedSectionCount > 0) {
+      cachedPortfolioSnapshot = normalized;
+      cachedPortfolioTimestamp = Date.now();
+      return {
+        status: 'published',
+        data: normalized,
+        source: 'network',
+        statusCode: res.status,
+        correlationId,
+        schemaSuccess: true,
+        envelopeType,
+        rawSectionCount,
+        rawEnabledSectionCount,
+        hasRawSectionsField,
+        normalizedSectionCount,
+        hasDetails,
+      };
+    }
+
+    // Do NOT cache invalid or empty snapshots
+    cachedPortfolioSnapshot = null;
+    cachedPortfolioTimestamp = 0;
+
+    let errorCategory = 'empty_sections';
+    if (!hasRawSectionsField) {
+      errorCategory = 'missing_sections';
+    } else if (!hasDetails) {
+      errorCategory = 'missing_details';
+    }
+
     return {
       status: 'published',
       data: normalized,
+      source: 'network',
       statusCode: res.status,
       correlationId,
+      errorCategory,
+      errorMessage: 'Portfolio snapshot contains zero usable sections or missing details',
       schemaSuccess: true,
+      envelopeType,
+      rawSectionCount,
+      rawEnabledSectionCount,
+      hasRawSectionsField,
+      normalizedSectionCount,
+      hasDetails,
     };
   } catch (err) {
     console.warn(
@@ -190,9 +291,12 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
     return {
       status: 'error',
       data: null,
+      source: 'network',
       errorCategory: 'network_or_timeout_error',
       errorMessage: err instanceof Error ? err.message : 'Network error',
       schemaSuccess: false,
+      hasDetails: false,
+      normalizedSectionCount: 0,
     };
   }
 }

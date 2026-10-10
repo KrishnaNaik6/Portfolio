@@ -7,14 +7,18 @@ export async function GET() {
   try {
     const result = await fetchNexisPortfolioResult();
     const data = result.data;
-    const hasDetails = Boolean(data && data.details);
-    const enabledSections = data?.sections?.filter((s) => s.enabled) ?? [];
-    const sectionCount = enabledSections.length;
-    const isValidPublished = result.status === 'published' && hasDetails && sectionCount > 0;
+    const hasDetails = result.hasDetails ?? Boolean(data && data.details);
+    const normalizedSectionCount =
+      result.normalizedSectionCount ?? (data?.sections?.filter((s) => s.enabled).length ?? 0);
+    const isValidPublished =
+      result.status === 'published' &&
+      hasDetails &&
+      normalizedSectionCount > 0 &&
+      !result.errorCategory;
 
     if (isValidPublished && data) {
       console.log(
-        `[Portfolio API] Portfolio data retrieved successfully: status=${result.status}, statusCode=${result.statusCode ?? 200}, schemaSuccess=${result.schemaSuccess ?? true}, hasDetails=${hasDetails}, sectionCount=${sectionCount}, correlationId=${result.correlationId || 'none'}`
+        `[Portfolio API] Portfolio data retrieved successfully: source=${result.source ?? 'network'}, status=${result.status}, statusCode=${result.statusCode ?? 200}, envelopeType=${result.envelopeType ?? 'unknown'}, rawSectionCount=${result.rawSectionCount ?? 'unknown'}, rawEnabledSectionCount=${result.rawEnabledSectionCount ?? 'unknown'}, normalizedSectionCount=${normalizedSectionCount}, hasDetails=${hasDetails}, correlationId=${result.correlationId || 'none'}`
       );
 
       const responseHeaders: Record<string, string> = {
@@ -29,17 +33,12 @@ export async function GET() {
     }
 
     // Determine specific failure category
-    let category = result.errorCategory;
-    if (!category) {
-      if (result.status === 'published') {
-        category = !hasDetails || sectionCount === 0 ? 'empty_sections' : 'upstream_unavailable';
-      } else {
-        category = 'upstream_unavailable';
-      }
-    }
+    const category =
+      result.errorCategory ||
+      (result.status === 'published' ? 'empty_sections' : 'upstream_unavailable');
 
     console.warn(
-      `[Portfolio API] Portfolio data unavailable: status=${result.status}, statusCode=${result.statusCode ?? 'unknown'}, schemaSuccess=${result.schemaSuccess ?? false}, hasDetails=${hasDetails}, sectionCount=${sectionCount}, category=${category}, correlationId=${result.correlationId || 'none'}`
+      `[Portfolio API] Portfolio data unavailable: source=${result.source ?? 'network'}, status=${result.status}, statusCode=${result.statusCode ?? 'unknown'}, envelopeType=${result.envelopeType ?? 'unknown'}, rawSectionCount=${result.rawSectionCount ?? 0}, rawEnabledSectionCount=${result.rawEnabledSectionCount ?? 0}, normalizedSectionCount=${normalizedSectionCount}, hasDetails=${hasDetails}, category=${category}, correlationId=${result.correlationId || 'none'}`
     );
 
     const responseHeaders: Record<string, string> = {

@@ -88,12 +88,17 @@ export const NexisProjectSchema = z.object({
   highlightLabel: z.string().nullable().optional(),
 });
 
-export const NexisSectionConfigSchema = z.object({
-  id: z.string(),
-  label: z.string().optional(),
-  enabled: z.boolean(),
-  order: z.number(),
-});
+export const NexisSectionConfigSchema = z
+  .object({
+    id: z.string(),
+    label: z.string().optional(),
+    name: z.string().optional(),
+    title: z.string().optional(),
+    enabled: z.boolean().optional().default(true),
+    order: z.number().optional(),
+    displayOrder: z.number().optional(),
+  })
+  .passthrough();
 
 export const NexisSocialLinkSchema = z.object({
   platform: z.string(),
@@ -124,7 +129,7 @@ export const NexisPortfolioSnapshotSchema = z.object({
   educations: z.array(NexisEducationSchema).optional().default([]),
   skills: z.array(NexisSkillSchema).optional().default([]),
   projects: z.array(NexisProjectSchema).optional().default([]),
-  sections: z.array(NexisSectionConfigSchema).optional().default([]),
+  sections: z.array(NexisSectionConfigSchema).optional(),
   socialLinks: z.array(NexisSocialLinkSchema).optional().default([]),
   achievements: z.array(NexisAchievementSchema).optional().default([]),
   interests: z.array(z.string()).optional().default([]),
@@ -136,16 +141,23 @@ export const NexisPortfolioSnapshotSchema = z.object({
   githubIntelligence: z.any().optional(),
 });
 
-export const NexisPortfolioResponseSchema = z.union([
-  z.object({
-    success: z.boolean(),
+export const NexisPortfolioEnvelopeSchema = z
+  .object({
+    success: z.boolean().optional(),
     data: NexisPortfolioSnapshotSchema,
     timestamp: z.string().optional(),
-  }),
-  z.object({
-    data: NexisPortfolioSnapshotSchema,
-  }),
-  NexisPortfolioSnapshotSchema,
+    correlationId: z.string().optional(),
+  })
+  .passthrough();
+
+export const NexisPortfolioDirectSchema = NexisPortfolioSnapshotSchema.refine(
+  (val) => !('data' in val && typeof val.data === 'object' && val.data !== null),
+  { message: 'Direct snapshot cannot contain nested data envelope' }
+);
+
+export const NexisPortfolioResponseSchema = z.union([
+  NexisPortfolioEnvelopeSchema,
+  NexisPortfolioDirectSchema,
 ]);
 
 export interface NormalizedNexisData {
@@ -197,23 +209,21 @@ export function normalizeNexisPortfolio(
   rawResponse: z.infer<typeof NexisPortfolioResponseSchema>
 ): NormalizedNexisData {
   let data: z.infer<typeof NexisPortfolioSnapshotSchema>;
-  if ('success' in rawResponse && rawResponse.data) {
-    data = rawResponse.data;
-  } else if ('data' in rawResponse && rawResponse.data) {
+  if ('data' in rawResponse && rawResponse.data && typeof rawResponse.data === 'object') {
     data = rawResponse.data as any;
   } else {
     data = rawResponse as z.infer<typeof NexisPortfolioSnapshotSchema>;
   }
 
   const sections: SectionConfig[] = (data.sections || [])
-    .filter((s: any) => s.enabled !== false)
-    .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
-    .map((s: any) => ({
+    .filter((s: any) => s && s.enabled !== false)
+    .map((s: any, idx: number) => ({
       id: s.id,
-      label: s.label,
+      label: s.label || s.name || s.title || s.id,
       enabled: s.enabled !== false,
-      order: s.order,
-    }));
+      order: s.order ?? s.displayOrder ?? idx + 1,
+    }))
+    .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
 
   const educationRaw = (data.education && data.education.length > 0) ? data.education : (data.educations || []);
   const education: EducationItem[] = educationRaw

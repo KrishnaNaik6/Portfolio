@@ -341,5 +341,155 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     expect(body.success).toBe(false);
     expect(body.category).toBe('network_or_timeout_error');
   });
+
+  it('15. Valid snapshot with 10 enabled sections returns HTTP 200 and all sections normalized', async () => {
+    const mock10SectionPayload = {
+      success: true,
+      data: {
+        ...mockValidNexisPortfolio.data,
+        sections: [
+          { id: 'hero', label: 'Hero', enabled: true, order: 1 },
+          { id: 'about', label: 'About Me', enabled: true, order: 2 },
+          { id: 'education', label: 'Academic Background', enabled: true, order: 3 },
+          { id: 'experience', label: 'Work Experience', enabled: true, order: 4 },
+          { id: 'projects', label: 'Featured Projects', enabled: true, order: 5 },
+          { id: 'skills', label: 'Technical Constellation', enabled: true, order: 6 },
+          { id: 'interests', label: 'Interests', enabled: true, order: 7 },
+          { id: 'github', label: 'GitHub Intelligence', enabled: true, order: 8 },
+          { id: 'contact', label: 'Get In Touch', enabled: true, order: 9 },
+          { id: 'footer', label: 'Footer', enabled: true, order: 10 },
+        ],
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-10sec' }),
+      json: async () => mock10SectionPayload,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.details.profile.fullName).toBe('Krishna Umesh Naik');
+    expect(body.sections).toHaveLength(10);
+    expect(body.sections[0].id).toBe('hero');
+    expect(body.sections[9].id).toBe('footer');
+  });
+
+  it('16. Valid direct snapshot (unwrapped) normalizes correctly and returns HTTP 200', async () => {
+    const directPayload = {
+      ...mockValidNexisPortfolio.data,
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-direct' }),
+      json: async () => directPayload,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.details.profile.fullName).toBe('Krishna Umesh Naik');
+    expect(body.sections).toHaveLength(3);
+  });
+
+  it('17. Missing sections field returns 503 with missing_sections category', async () => {
+    const missingSectionsPayload = {
+      success: true,
+      data: {
+        profile: mockValidNexisPortfolio.data.profile,
+        projects: mockValidNexisPortfolio.data.projects,
+        // sections field completely omitted
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-missing-sec' }),
+      json: async () => missingSectionsPayload,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.category).toBe('missing_sections');
+  });
+
+  it('18. An invalid / empty_sections result is NOT cached as published, and a later valid response succeeds', async () => {
+    const emptyPayload = {
+      success: true,
+      data: {
+        ...mockValidNexisPortfolio.data,
+        sections: [],
+      },
+    };
+
+    const validPayload = {
+      success: true,
+      data: {
+        ...mockValidNexisPortfolio.data,
+      },
+    };
+
+    // First call returns empty sections -> 503
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'x-correlation-id': 'corr-first-fail' }),
+        json: async () => emptyPayload,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'x-correlation-id': 'corr-second-success' }),
+        json: async () => validPayload,
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res1 = await portfolioRouteHandler();
+    expect(res1.status).toBe(503);
+    const body1 = await res1.json();
+    expect(body1.category).toBe('empty_sections');
+
+    // Second call without cache reset MUST make a network request and succeed
+    const res2 = await portfolioRouteHandler();
+    expect(res2.status).toBe(200);
+    const body2 = await res2.json();
+    expect(body2.details.profile.fullName).toBe('Krishna Umesh Naik');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('19. Accurately identifies cache hits in diagnostics on subsequent valid requests', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-cache-test' }),
+      json: async () => mockValidNexisPortfolio,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    // Initial fetch -> network
+    const result1 = await fetchNexisPortfolioResult();
+    expect(result1.source).toBe('network');
+    expect(result1.status).toBe('published');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // Second fetch -> cache hit
+    const result2 = await fetchNexisPortfolioResult();
+    expect(result2.source).toBe('cache');
+    expect(result2.status).toBe('published');
+    expect(fetchMock).toHaveBeenCalledTimes(1); // No new network call
+  });
 });
 

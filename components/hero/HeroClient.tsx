@@ -35,7 +35,9 @@ const HeroClient: React.FC<HeroClientProps> = ({
   const [details, setDetails] = useState<PortfolioDetails | null>(initialDetails);
   const [projects, setProjects] = useState<ProjectItem[]>(initialProjects);
   const [stats, setStats] = useState<GitHubStatsResponse | null>(initialStats);
-  const [sections, setSections] = useState<SectionConfig[] | null>(initialSections ?? initialDetails?.sections ?? null);
+  const [sections, setSections] = useState<SectionConfig[] | null>(
+    initialSections ?? initialDetails?.sections ?? null
+  );
   const [showContent] = useState(true);
   const [activeSection, setActiveSection] = useState('about');
   const [atBottom, setAtBottom] = useState(false);
@@ -57,8 +59,11 @@ const HeroClient: React.FC<HeroClientProps> = ({
   const contactRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (initialSections !== undefined && initialSections !== null) setSections(initialSections);
-    else if (initialDetails?.sections) setSections(initialDetails.sections);
+    if (initialSections !== undefined && initialSections !== null) {
+      setSections(initialSections);
+    } else if (initialDetails?.sections) {
+      setSections(initialDetails.sections);
+    }
   }, [initialSections, initialDetails?.sections]);
 
   useEffect(() => setDetails(initialDetails), [initialDetails]);

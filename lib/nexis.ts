@@ -54,9 +54,12 @@ function getNexisHeaders(apiKey: string): Record<string, string> {
   };
 
   if (apiKey) {
+    headers['X-Nexus-Api-Key'] = apiKey;
     headers['X-Nexis-Api-Key'] = apiKey;
     headers['x-api-key'] = apiKey;
-    headers.Authorization = apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`;
+    if (apiKey.startsWith('Bearer ') || apiKey.startsWith('ey')) {
+      headers.Authorization = apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`;
+    }
   }
 
   return headers;

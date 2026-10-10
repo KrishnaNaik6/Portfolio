@@ -173,8 +173,9 @@ describe('fetchNexisResume Server Client', () => {
       'https://api.nexis.test/api/v1/public/resume/krishna-naik',
       expect.objectContaining({
         headers: expect.objectContaining({
+          'X-Nexus-Api-Key': 'test-secret-key',
           'X-Nexis-Api-Key': 'test-secret-key',
-          Authorization: 'Bearer test-secret-key',
+          'x-api-key': 'test-secret-key',
           Accept: 'application/json',
         }),
       })

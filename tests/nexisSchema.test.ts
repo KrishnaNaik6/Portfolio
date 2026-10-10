@@ -316,5 +316,159 @@ describe('NEXIS Schema Validation & Normalization', () => {
     expect(formatTenurePeriod('2024-01-01', '2024-04-30', false)).toBe('Jan 2024 - Apr 2024');
     expect(formatTenurePeriod('2026-07-06', null, true)).toBe('Jul 2026 - Present');
     expect(formatTenurePeriod(null, null, false)).toBe('');
+    expect(formatTenurePeriod(null, null, true)).toBe('Present');
+    expect(formatTenurePeriod(null, '2024-04-30', false)).toBe('Apr 2024');
+  });
+
+  it('successfully validates and normalizes snapshot when education and experience startDates are null', () => {
+    const wrappedSnapshotWithNullStartDates = {
+      success: true,
+      data: {
+        publishedAt: '2026-08-29T07:32:03.855Z',
+        profile: {
+          fullName: 'Krishna Umesh Naik',
+          headline: 'Full-Stack Developer',
+          bio: 'AI & ML Engineer and Full-Stack Developer.',
+          location: 'Bengaluru, Karnataka',
+          email: 'kn670423@gmail.com',
+        },
+        sections: [
+          { id: 'hero', label: 'Hero', enabled: true, order: 1 },
+          { id: 'about', label: 'About Me', enabled: true, order: 2 },
+          { id: 'education', label: 'Academic Background', enabled: true, order: 3 },
+          { id: 'experience', label: 'Work Experience', enabled: true, order: 4 },
+          { id: 'projects', label: 'Featured Projects', enabled: true, order: 5 },
+          { id: 'skills', label: 'Technical Constellation', enabled: true, order: 6 },
+          { id: 'interests', label: 'Interests', enabled: true, order: 7 },
+          { id: 'github', label: 'GitHub Intelligence', enabled: true, order: 8 },
+          { id: 'contact', label: 'Get In Touch', enabled: true, order: 9 },
+          { id: 'footer', label: 'Footer', enabled: true, order: 10 },
+        ],
+        education: [
+          {
+            id: 'd505ec90-93fb-4d21-b369-590158efbf8b',
+            institution: 'M S Ramaiah Institute Of Technology',
+            degree: 'Bachelor of Engineering',
+            fieldOfStudy: 'Computer Science and Engineering (AI/ML)',
+            startDate: null,
+            endDate: '2027',
+            status: 'Pursuing',
+            grade: 'First Class',
+            displayOrder: 0,
+          },
+          {
+            id: '769c5920-d620-4bcc-aaca-818cc1f5952f',
+            institution: 'Govt. Polytechnic Siddapur',
+            degree: 'Diploma in Computer Science',
+            fieldOfStudy: 'Computer Science and Engineering',
+            startDate: null,
+            endDate: '2024',
+            status: 'Completed',
+            grade: '9.43',
+            displayOrder: 1,
+          },
+          {
+            id: '767d1b55-c64c-47a5-b907-f2dce56bee1d',
+            institution: 'Govt. Mohan K Shetty P.U College',
+            degree: 'Pre University Education',
+            fieldOfStudy: 'Science (PCMB)',
+            startDate: null,
+            endDate: '2022',
+            status: 'Completed',
+            grade: 'First Class',
+            displayOrder: 2,
+          },
+        ],
+        experience: [
+          {
+            id: 'exp-1',
+            company: 'Intelligent Development and Programming Pvt. Ltd.',
+            position: 'Software Engineer Intern',
+            startDate: null,
+            endDate: '2026-08-20',
+            isCurrent: true,
+            description: 'Support development team.',
+            displayOrder: 0,
+          },
+          {
+            id: 'exp-2',
+            company: 'CanaraTechLabs Pvt Ltd',
+            position: 'Software Engineer Intern',
+            startDate: null,
+            endDate: '2024-04-30',
+            isCurrent: false,
+            description: 'Built full-stack applications.',
+            displayOrder: 1,
+          },
+        ],
+        projects: [
+          { id: 'p1', name: 'NEXIS OS', displayOrder: 1 },
+        ],
+        skills: [
+          { name: 'TypeScript', category: 'Programming & Development', displayOrder: 1 },
+        ],
+      },
+    };
+
+    const parseResult = NexisPortfolioResponseSchema.safeParse(wrappedSnapshotWithNullStartDates);
+    expect(parseResult.success).toBe(true);
+    if (!parseResult.success) return;
+
+    const normalized = normalizeNexisPortfolio(parseResult.data);
+    expect(normalized.sections).toHaveLength(10);
+    expect(normalized.details.education).toHaveLength(3);
+    expect(normalized.details.education[0].year).toBe('2027');
+    expect(normalized.details.education[1].year).toBe('2024');
+    expect(normalized.details.education[2].year).toBe('2022');
+    expect(normalized.details.experience).toHaveLength(2);
+    expect(normalized.details.experience[0].tenure_period).toBe('Present');
+    expect(normalized.details.experience[1].tenure_period).toBe('Apr 2024');
+  });
+
+  it('safely handles missing dates without fabricating career history or tenure', () => {
+    const entryWithoutDates = {
+      profile: { fullName: 'Krishna Naik' },
+      sections: [{ id: 'education', enabled: true, order: 1 }],
+      education: [
+        {
+          id: 'edu-nodates',
+          institution: 'Self Taught',
+          degree: 'Computer Science',
+          startDate: null,
+          endDate: null,
+        },
+      ],
+      experience: [
+        {
+          id: 'exp-nodates',
+          company: 'Independent Open Source',
+          role: 'Contributor',
+          startDate: null,
+          endDate: null,
+          isCurrent: false,
+        },
+      ],
+    };
+
+    const parsed = NexisPortfolioResponseSchema.parse(entryWithoutDates);
+    const normalized = normalizeNexisPortfolio(parsed);
+    expect(normalized.details.education[0].year).toBe('');
+    expect(normalized.details.experience[0].tenure_period).toBe('');
+  });
+
+  it('still rejects invalid non-null non-string date types', () => {
+    const invalidDateTypePayload = {
+      education: [
+        {
+          id: 'edu-bad',
+          institution: 'RIT',
+          degree: 'BE',
+          startDate: 12345, // Numbers are not allowed for date
+        },
+      ],
+    };
+
+    const parseResult = NexisPortfolioResponseSchema.safeParse(invalidDateTypePayload);
+    expect(parseResult.success).toBe(false);
   });
 });

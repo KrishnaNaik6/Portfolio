@@ -627,5 +627,124 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     expect(body2.details.profile.fullName).toBe('Krishna Umesh Naik');
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('22. Accepts valid wrapped response with null education/experience startDates, returns HTTP 200 with 10 sections, and caches cleanly', async () => {
+    const realisticPayloadWithNullStartDates = {
+      success: true,
+      data: {
+        publishedAt: '2026-08-29T07:32:03.855Z',
+        profile: {
+          fullName: 'Krishna Umesh Naik',
+          headline: 'Full-Stack Developer',
+          bio: 'AI & ML Engineer and Full-Stack Developer.',
+          location: 'Bengaluru, Karnataka',
+          email: 'kn670423@gmail.com',
+        },
+        sections: [
+          { id: 'hero', label: 'Hero', enabled: true, order: 1 },
+          { id: 'about', label: 'About Me', enabled: true, order: 2 },
+          { id: 'education', label: 'Academic Background', enabled: true, order: 3 },
+          { id: 'experience', label: 'Work Experience', enabled: true, order: 4 },
+          { id: 'projects', label: 'Featured Projects', enabled: true, order: 5 },
+          { id: 'skills', label: 'Technical Constellation', enabled: true, order: 6 },
+          { id: 'interests', label: 'Interests', enabled: true, order: 7 },
+          { id: 'github', label: 'GitHub Intelligence', enabled: true, order: 8 },
+          { id: 'contact', label: 'Get In Touch', enabled: true, order: 9 },
+          { id: 'footer', label: 'Footer', enabled: true, order: 10 },
+        ],
+        education: [
+          {
+            id: 'edu-1',
+            institution: 'M S Ramaiah Institute Of Technology',
+            degree: 'Bachelor of Engineering',
+            fieldOfStudy: 'Computer Science and Engineering (AI/ML)',
+            startDate: null,
+            endDate: '2027',
+            status: 'Pursuing',
+            grade: 'First Class',
+            displayOrder: 0,
+          },
+          {
+            id: 'edu-2',
+            institution: 'Govt. Polytechnic Siddapur',
+            degree: 'Diploma in Computer Science',
+            fieldOfStudy: 'Computer Science and Engineering',
+            startDate: null,
+            endDate: '2024',
+            status: 'Completed',
+            grade: '9.43',
+            displayOrder: 1,
+          },
+          {
+            id: 'edu-3',
+            institution: 'Govt. Mohan K Shetty P.U College',
+            degree: 'Pre University Education',
+            fieldOfStudy: 'Science (PCMB)',
+            startDate: null,
+            endDate: '2022',
+            status: 'Completed',
+            grade: 'First Class',
+            displayOrder: 2,
+          },
+        ],
+        experience: [
+          {
+            id: 'exp-1',
+            company: 'Intelligent Development and Programming Pvt. Ltd.',
+            position: 'Software Engineer Intern',
+            startDate: null,
+            endDate: '2026-08-20',
+            isCurrent: true,
+            description: 'Support development team.',
+            displayOrder: 0,
+          },
+          {
+            id: 'exp-2',
+            company: 'CanaraTechLabs Pvt Ltd',
+            position: 'Software Engineer Intern',
+            startDate: null,
+            endDate: '2024-04-30',
+            isCurrent: false,
+            description: 'Built full-stack applications.',
+            displayOrder: 1,
+          },
+        ],
+        projects: [
+          { id: 'p1', name: 'NEXIS OS', displayOrder: 1 },
+        ],
+        skills: [
+          { name: 'TypeScript', category: 'Programming & Development', displayOrder: 1 },
+        ],
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-null-start-dates' }),
+      json: async () => realisticPayloadWithNullStartDates,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    // 1. Initial request successfully validates, normalizes, and returns HTTP 200
+    const res1 = await portfolioRouteHandler();
+    expect(res1.status).toBe(200);
+    const body1 = await res1.json();
+    expect(body1.sections).toHaveLength(10);
+    expect(body1.details.education).toHaveLength(3);
+    expect(body1.details.education[0].year).toBe('2027');
+    expect(body1.details.education[1].year).toBe('2024');
+    expect(body1.details.education[2].year).toBe('2022');
+    expect(body1.details.experience[0].tenure_period).toBe('Present');
+    expect(body1.details.experience[1].tenure_period).toBe('Apr 2024');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // 2. Subsequent request is served from memory cache within TTL without extra fetch
+    const res2 = await portfolioRouteHandler();
+    expect(res2.status).toBe(200);
+    const body2 = await res2.json();
+    expect(body2.details.profile.fullName).toBe('Krishna Umesh Naik');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
 

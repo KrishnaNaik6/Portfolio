@@ -203,6 +203,34 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
       }
     }
 
+    if (typeof rawJson === 'object' && rawJson !== null && (rawJson as any).success === false) {
+      console.warn(
+        `[NEXIS Client] Upstream returned explicit failure envelope on ${endpoint} (correlationId=${correlationId || 'none'}):`,
+        (rawJson as any).error || 'success: false'
+      );
+      cachedPortfolioSnapshot = null;
+      cachedPortfolioTimestamp = 0;
+      return {
+        status: 'error',
+        data: null,
+        source: 'network',
+        statusCode: res.status,
+        correlationId,
+        errorCategory: 'upstream_error',
+        errorMessage:
+          typeof (rawJson as any).error === 'string'
+            ? (rawJson as any).error
+            : (rawJson as any).error?.message || 'Upstream returned failure envelope',
+        schemaSuccess: false,
+        envelopeType,
+        rawSectionCount,
+        rawEnabledSectionCount,
+        hasRawSectionsField,
+        normalizedSectionCount: 0,
+        hasDetails: false,
+      };
+    }
+
     const parseResult = NexisPortfolioResponseSchema.safeParse(rawJson);
     if (!parseResult.success) {
       console.error(

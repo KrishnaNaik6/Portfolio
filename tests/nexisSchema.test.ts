@@ -228,6 +228,19 @@ describe('NEXIS Schema Validation & Normalization', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects explicit failure envelopes with success: false and data even if top-level fields look valid', () => {
+    const explicitFailure = {
+      success: false,
+      error: 'Upstream account suspended',
+      data: { reason: 'Unauthorized' },
+      profile: { fullName: 'Krishna Umesh Naik' },
+      sections: [{ id: 'hero', label: 'Hero', enabled: true, order: 1 }],
+    };
+
+    const result = NexisPortfolioResponseSchema.safeParse(explicitFailure);
+    expect(result.success).toBe(false);
+  });
+
   it('normalizes full snapshot into comprehensive portfolio structures', () => {
     const parsed = NexisPortfolioResponseSchema.parse(fullSnapshot);
     const normalized = normalizeNexisPortfolio(parsed);

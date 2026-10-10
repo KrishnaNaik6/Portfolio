@@ -153,12 +153,18 @@ export const NexisPortfolioEnvelopeSchema = z
 export const NexisPortfolioResponseSchema = z.preprocess(
   (val) => {
     if (typeof val !== 'object' || val === null) return val;
-    if ('data' in val && typeof (val as any).data === 'object' && (val as any).data !== null) {
-      if ('success' in val && (val as any).success === false) {
-        return val;
-      }
-      return (val as any).data;
+    // Explicit failure envelope must NEVER be parsed as a direct snapshot
+    if ('success' in val && (val as any).success === false) {
+      return null;
     }
+    // Wrapped data envelope
+    if ('data' in val) {
+      if (typeof (val as any).data === 'object' && (val as any).data !== null) {
+        return (val as any).data;
+      }
+      return null;
+    }
+    // Direct snapshot
     return val;
   },
   NexisPortfolioSnapshotSchema

@@ -54,12 +54,8 @@ function getNexisHeaders(apiKey: string): Record<string, string> {
   };
 
   if (apiKey) {
+    // Verified contract for NEXIS AppAuthGuard
     headers['X-Nexus-Api-Key'] = apiKey;
-    headers['X-Nexis-Api-Key'] = apiKey;
-    headers['x-api-key'] = apiKey;
-    if (apiKey.startsWith('Bearer ') || apiKey.startsWith('ey')) {
-      headers.Authorization = apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`;
-    }
   }
 
   return headers;
@@ -73,8 +69,8 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
 
   const { apiUrl, apiKey } = getNexisConfig();
   if (!apiUrl) {
-    console.warn('[NEXIS Client] NEXIS_API_URL is not configured; using fallback data source.');
-    return cachedPortfolioSnapshot;
+    console.warn('[NEXIS Client] NEXIS_API_URL is not configured.');
+    return null;
   }
 
   const endpoint = `${apiUrl}/api/v1/public/portfolio`;
@@ -88,14 +84,19 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
 
     if (!res.ok) {
       console.warn(`[NEXIS Client] ${endpoint} returned HTTP ${res.status}`);
-      return cachedPortfolioSnapshot;
+      // Invalidate cache immediately on 401/403/404/5xx so stale data is never served
+      cachedPortfolioSnapshot = null;
+      cachedPortfolioTimestamp = 0;
+      return null;
     }
 
     const rawJson = await res.json();
     const parseResult = NexisPortfolioResponseSchema.safeParse(rawJson);
     if (!parseResult.success) {
-      console.error(`[NEXIS Client] Validation failed on ${endpoint}`);
-      return cachedPortfolioSnapshot;
+      console.error(`[NEXIS Client] Validation failed on ${endpoint}:`, parseResult.error);
+      cachedPortfolioSnapshot = null;
+      cachedPortfolioTimestamp = 0;
+      return null;
     }
 
     const normalized = normalizeNexisPortfolio(parseResult.data);
@@ -107,12 +108,10 @@ export async function fetchNexisPortfolio(): Promise<NormalizedNexisData | null>
       `[NEXIS Client] Fetch failed on ${endpoint}:`,
       err instanceof Error ? err.message : 'Unknown error'
     );
+    cachedPortfolioSnapshot = null;
+    cachedPortfolioTimestamp = 0;
+    return null;
   }
-
-  if (cachedPortfolioSnapshot) {
-    console.log('[NEXIS Client] Serving last known cached snapshot');
-  }
-  return cachedPortfolioSnapshot;
 }
 
 export type ResumeFetchStatus = 'published' | 'unpublished' | 'error' | 'not-configured';

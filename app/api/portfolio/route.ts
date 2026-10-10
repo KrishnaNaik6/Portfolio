@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { fetchNexisPortfolio } from '@/lib/nexis';
-import { FALLBACK_PORTFOLIO_DATA } from '@/lib/fallbackData';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,12 +14,30 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json(FALLBACK_PORTFOLIO_DATA, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=60',
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Portfolio data currently unavailable from NEXIS upstream',
       },
-    });
-  } catch {
-    return NextResponse.json(FALLBACK_PORTFOLIO_DATA, { status: 200 });
+      {
+        status: 503,
+        headers: {
+          'Cache-Control': 'no-store, must-revalidate',
+        },
+      }
+    );
+  } catch (err) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: err instanceof Error ? err.message : 'Unknown server error',
+      },
+      {
+        status: 500,
+        headers: {
+          'Cache-Control': 'no-store, must-revalidate',
+        },
+      }
+    );
   }
 }

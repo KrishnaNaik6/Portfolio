@@ -559,5 +559,73 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     expect(body2.details.profile.fullName).toBe('Krishna Umesh Naik');
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('21. Explicit failure envelope (success: false with data and top-level valid fields) is rejected, fails closed, and does not cache', async () => {
+    const failedEnvelopeWithTopLevelFields = {
+      success: false,
+      error: 'Upstream account suspended or internal failure',
+      data: {
+        somePayload: true,
+      },
+      profile: {
+        fullName: 'Krishna Umesh Naik',
+        headline: 'Full-Stack Developer',
+      },
+      sections: [
+        { id: 'hero', label: 'Hero', enabled: true, order: 1 },
+        { id: 'about', label: 'About Me', enabled: true, order: 2 },
+      ],
+      projects: [
+        { id: 'p1', name: 'NEXIS OS' },
+      ],
+    };
+
+    const validWrappedPayload = {
+      success: true,
+      data: {
+        profile: {
+          fullName: 'Krishna Umesh Naik',
+          headline: 'Full-Stack Developer',
+        },
+        sections: [
+          { id: 'hero', label: 'Hero', enabled: true, order: 1 },
+          { id: 'about', label: 'About Me', enabled: true, order: 2 },
+        ],
+        projects: [
+          { id: 'p1', name: 'NEXIS OS' },
+        ],
+      },
+    };
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'x-correlation-id': 'corr-explicit-fail' }),
+        json: async () => failedEnvelopeWithTopLevelFields,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'x-correlation-id': 'corr-valid-after-fail' }),
+        json: async () => validWrappedPayload,
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    // 1. Initial explicit failure envelope request: must NOT parse top-level fields as direct snapshot
+    const res1 = await portfolioRouteHandler();
+    expect(res1.status).toBe(503);
+    const body1 = await res1.json();
+    expect(body1.success).toBe(false);
+    expect(body1.correlationId).toBe('corr-explicit-fail');
+
+    // 2. Subsequent valid request succeeds without resetting cache (proving failure was NOT cached)
+    const res2 = await portfolioRouteHandler();
+    expect(res2.status).toBe(200);
+    const body2 = await res2.json();
+    expect(body2.details.profile.fullName).toBe('Krishna Umesh Naik');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });
 

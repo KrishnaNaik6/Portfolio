@@ -76,6 +76,7 @@ export interface PortfolioFetchResult {
   correlationId?: string | null;
   errorCategory?: string;
   errorMessage?: string;
+  schemaSuccess?: boolean;
 }
 
 export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult> {
@@ -84,6 +85,8 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
     return {
       status: 'published',
       data: cachedPortfolioSnapshot,
+      statusCode: 200,
+      schemaSuccess: true,
     };
   }
 
@@ -95,6 +98,7 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
       data: null,
       errorCategory: 'missing_configuration',
       errorMessage: 'NEXIS_API_URL is not configured',
+      schemaSuccess: false,
     };
   }
 
@@ -142,6 +146,7 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
         correlationId,
         errorCategory: category,
         errorMessage: `Upstream HTTP ${res.status}`,
+        schemaSuccess: false,
       };
     }
 
@@ -157,10 +162,11 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
       return {
         status: 'error',
         data: null,
-        statusCode: 200,
+        statusCode: res.status,
         correlationId,
         errorCategory: 'schema_validation_failed',
         errorMessage: 'Validation failed on upstream payload',
+        schemaSuccess: false,
       };
     }
 
@@ -170,7 +176,9 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
     return {
       status: 'published',
       data: normalized,
+      statusCode: res.status,
       correlationId,
+      schemaSuccess: true,
     };
   } catch (err) {
     console.warn(
@@ -184,6 +192,7 @@ export async function fetchNexisPortfolioResult(): Promise<PortfolioFetchResult>
       data: null,
       errorCategory: 'network_or_timeout_error',
       errorMessage: err instanceof Error ? err.message : 'Network error',
+      schemaSuccess: false,
     };
   }
 }

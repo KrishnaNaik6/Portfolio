@@ -266,5 +266,80 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     expect(body.category).toBe('schema_validation_failed');
     expect(body.correlationId).toBe('corr-schema-bad');
   });
+
+  it('11. Fails closed with empty_sections category when upstream published snapshot has zero sections', async () => {
+    const zeroSectionsPayload = {
+      ...mockValidNexisPortfolio,
+      data: {
+        ...mockValidNexisPortfolio.data,
+        sections: [],
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-zero-sec' }),
+      json: async () => zeroSectionsPayload,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.category).toBe('empty_sections');
+    expect(body.correlationId).toBe('corr-zero-sec');
+  });
+
+  it('12. Fails closed with empty_sections category when upstream published snapshot has all sections disabled', async () => {
+    const allDisabledSectionsPayload = {
+      ...mockValidNexisPortfolio,
+      data: {
+        ...mockValidNexisPortfolio.data,
+        sections: [
+          { id: 'hero', label: 'Hero', order: 1, enabled: false },
+          { id: 'about', label: 'About', order: 2, enabled: false },
+          { id: 'projects', label: 'Projects', order: 3, enabled: false },
+        ],
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'x-correlation-id': 'corr-all-disabled' }),
+      json: async () => allDisabledSectionsPayload,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.category).toBe('empty_sections');
+    expect(body.correlationId).toBe('corr-all-disabled');
+  });
+
+  it('13. Fails closed with missing_configuration category on /api/portfolio when NEXIS_API_URL is unset', async () => {
+    delete process.env.NEXIS_API_URL;
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.category).toBe('missing_configuration');
+  });
+
+  it('14. Fails closed with network_or_timeout_error category on /api/portfolio on upstream fetch timeout', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error('Fetch timed out'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await portfolioRouteHandler();
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.category).toBe('network_or_timeout_error');
+  });
 });
 

@@ -150,15 +150,19 @@ export const NexisPortfolioEnvelopeSchema = z
   })
   .passthrough();
 
-export const NexisPortfolioDirectSchema = NexisPortfolioSnapshotSchema.refine(
-  (val) => !('data' in val && typeof val.data === 'object' && val.data !== null),
-  { message: 'Direct snapshot cannot contain nested data envelope' }
+export const NexisPortfolioResponseSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'object' || val === null) return val;
+    if ('data' in val && typeof (val as any).data === 'object' && (val as any).data !== null) {
+      if ('success' in val && (val as any).success === false) {
+        return val;
+      }
+      return (val as any).data;
+    }
+    return val;
+  },
+  NexisPortfolioSnapshotSchema
 );
-
-export const NexisPortfolioResponseSchema = z.union([
-  NexisPortfolioEnvelopeSchema,
-  NexisPortfolioDirectSchema,
-]);
 
 export interface NormalizedNexisData {
   details: PortfolioDetails;

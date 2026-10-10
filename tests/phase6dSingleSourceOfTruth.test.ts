@@ -491,5 +491,73 @@ describe('NEXIS Phase 6D — Single Source of Truth & Dummy Data Elimination', (
     expect(result2.status).toBe('published');
     expect(fetchMock).toHaveBeenCalledTimes(1); // No new network call
   });
+
+  it('20. Wrapped response with invalid inner profile field fails closed with schema_validation_failed and does not cache', async () => {
+    const invalidWrappedPayload = {
+      success: true,
+      data: {
+        profile: {
+          fullName: 12345, // Invalid type! Must be string
+          headline: 'Full-Stack Developer',
+        },
+        sections: [
+          { id: 'hero', label: 'Hero', enabled: true, order: 1 },
+          { id: 'about', label: 'About Me', enabled: true, order: 2 },
+          { id: 'projects', label: 'Featured Projects', enabled: true, order: 3 },
+        ],
+        projects: [
+          { id: 'p1', name: 'NEXIS OS' },
+        ],
+      },
+    };
+
+    const validWrappedPayload = {
+      success: true,
+      data: {
+        profile: {
+          fullName: 'Krishna Umesh Naik',
+          headline: 'Full-Stack Developer',
+        },
+        sections: [
+          { id: 'hero', label: 'Hero', enabled: true, order: 1 },
+          { id: 'about', label: 'About Me', enabled: true, order: 2 },
+        ],
+        projects: [
+          { id: 'p1', name: 'NEXIS OS' },
+        ],
+      },
+    };
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'x-correlation-id': 'corr-bad-wrapped' }),
+        json: async () => invalidWrappedPayload,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'x-correlation-id': 'corr-good-wrapped' }),
+        json: async () => validWrappedPayload,
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    // 1. Initial invalid wrapped request: fails closed with schema_validation_failed (503)
+    const res1 = await portfolioRouteHandler();
+    expect(res1.status).toBe(503);
+    const body1 = await res1.json();
+    expect(body1.success).toBe(false);
+    expect(body1.category).toBe('schema_validation_failed');
+    expect(body1.correlationId).toBe('corr-bad-wrapped');
+
+    // 2. Subsequent valid request succeeds without resetting cache (proving invalid was NOT cached)
+    const res2 = await portfolioRouteHandler();
+    expect(res2.status).toBe(200);
+    const body2 = await res2.json();
+    expect(body2.details.profile.fullName).toBe('Krishna Umesh Naik');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });
 

@@ -146,6 +146,10 @@ export default async function ResumePage() {
   const headline = profile.headline || profile.title || null;
   const summary = profile.bio || profile.summary || null;
 
+  const nexisApiUrl = (process.env.NEXIS_API_URL ?? '').trim().replace(/\/$/, '');
+  const resumeSlug = (resume as any).slug || process.env.NEXIS_RESUME_SLUG || 'krishna-naik';
+  const htmlPrintUrl = nexisApiUrl ? `${nexisApiUrl}/api/v1/public/resume/${encodeURIComponent(resumeSlug)}/html` : null;
+
   return (
     <main className="min-h-screen py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto print:py-0 print:px-0 print:max-w-none">
       {/* Print styles injected for pristine document generation */}
@@ -209,7 +213,21 @@ export default async function ResumePage() {
           <span>Back to Portfolio</span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {htmlPrintUrl && (
+            <a
+              href={htmlPrintUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg font-medium text-xs sm:text-sm transition-all bg-bg-surface hover:bg-border-color/40 text-text-secondary hover:text-text-primary border border-border-color active:scale-95"
+              aria-label="Open printable HTML version from NEXIS"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-neon-purple" aria-hidden="true" />
+              <span className="hidden sm:inline">NEXIS Print HTML</span>
+              <span className="sm:hidden">HTML</span>
+            </a>
+          )}
+
           <a
             href="/KrishnaNaik.pdf"
             download="Krishna_Naik_Resume.pdf"

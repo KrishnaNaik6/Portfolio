@@ -11,5 +11,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
       images: [`${baseUrl}/k.svg`],
     },
+    {
+      url: `${baseUrl}/resume`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
   ];
 }

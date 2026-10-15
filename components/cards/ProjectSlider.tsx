@@ -80,45 +80,45 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
     if (diff === 0) {
       return {
         x: '0%',
-        scale: 1.03,
+        scale: 1,
         rotateY: 0,
         opacity: 1,
         zIndex: 40,
         pointerEvents: 'auto' as const,
-        filter: 'drop-shadow(0 25px 45px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 35px rgba(88, 166, 255, 0.35))',
+        filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 30px rgba(88, 166, 255, 0.35))',
       };
     }
     if (diff === -1) {
       return {
         x: '-65%',
-        scale: 0.85,
-        rotateY: 14,
-        opacity: 0.45,
-        zIndex: 20,
+        scale: 0.76,
+        rotateY: 16,
+        opacity: 0.22,
+        zIndex: 15,
         pointerEvents: 'auto' as const,
-        filter: 'drop-shadow(0 10px 25px rgba(0, 0, 0, 0.5)) blur(0.4px)',
+        filter: 'blur(6px) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7))',
       };
     }
     if (diff === 1) {
       return {
         x: '65%',
-        scale: 0.85,
-        rotateY: -14,
-        opacity: 0.45,
-        zIndex: 20,
+        scale: 0.76,
+        rotateY: -16,
+        opacity: 0.22,
+        zIndex: 15,
         pointerEvents: 'auto' as const,
-        filter: 'drop-shadow(0 10px 25px rgba(0, 0, 0, 0.5)) blur(0.4px)',
+        filter: 'blur(6px) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7))',
       };
     }
     // Offscreen
     return {
       x: diff < 0 ? '-130%' : '130%',
-      scale: 0.7,
-      rotateY: diff < 0 ? 22 : -22,
+      scale: 0.65,
+      rotateY: diff < 0 ? 25 : -25,
       opacity: 0,
       zIndex: 10,
       pointerEvents: 'none' as const,
-      filter: 'none',
+      filter: 'blur(8px)',
     };
   };
 
@@ -137,12 +137,12 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
     >
       {/* Dynamic Ambient Spotlight behind the Middle In-View Card */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <div className="w-[360px] sm:w-[520px] h-[360px] sm:h-[520px] bg-gradient-to-r from-neon-cyan/20 via-neon-indigo/25 to-neon-purple/20 rounded-full blur-3xl opacity-80 animate-pulse [animation-duration:6s]" />
+        <div className="w-[320px] sm:w-[460px] h-[320px] sm:h-[460px] bg-gradient-to-r from-neon-cyan/20 via-neon-indigo/25 to-neon-purple/20 rounded-full blur-3xl opacity-80 animate-pulse [animation-duration:6s]" />
       </div>
 
       {/* Stage for Left - Middle (in-view) - Right Cards */}
       <div
-        className="relative w-full h-[520px] sm:h-[500px] flex items-center justify-center overflow-x-clip py-4 perspective-[1200px]"
+        className="relative w-full h-[450px] sm:h-[430px] md:h-[410px] flex items-center justify-center overflow-x-clip py-4 perspective-[1200px]"
         style={{ perspective: 1200 }}
       >
         {projects.map((project, index) => {
@@ -168,7 +168,7 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
                 damping: 26,
                 mass: 0.9,
               }}
-              className="absolute top-0 w-[86vw] max-w-[340px] sm:max-w-[400px] md:max-w-[440px] h-full"
+              className="absolute top-0 w-[80vw] max-w-[280px] sm:max-w-[320px] md:max-w-[350px] h-full"
             >
               <div className="relative h-full select-none">
                 <ProjectCard
@@ -178,16 +178,16 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
                   isActive={isMiddle}
                 />
 
-                {/* Clickable overlay on Left / Right preview cards to slide them into view */}
+                {/* Clickable heavy-blur overlay on Left / Right preview cards so they do not look clearly */}
                 {!isMiddle && (
                   <button
                     type="button"
                     onClick={() => handleSelect(index)}
-                    className="absolute inset-0 z-30 w-full h-full rounded-2xl sm:rounded-3xl cursor-pointer bg-slate-950/40 hover:bg-slate-950/15 transition-all flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-neon-cyan/50"
+                    className="absolute inset-0 z-30 w-full h-full rounded-2xl sm:rounded-3xl cursor-pointer bg-slate-950/75 backdrop-blur-md hover:bg-slate-950/45 transition-all flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-neon-cyan/50"
                     aria-label={`Slide ${project.name} into center view`}
                     title={`Click to view ${project.name}`}
                   >
-                    <span className="opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-neon-cyan/60 text-neon-cyan text-xs font-mono font-bold shadow-[0_0_20px_rgba(88,166,255,0.4)] backdrop-blur-md flex items-center gap-1.5">
+                    <span className="opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 px-3.5 py-1.5 rounded-full bg-slate-900/95 border border-neon-cyan/60 text-neon-cyan text-xs font-mono font-bold shadow-[0_0_20px_rgba(88,166,255,0.5)] backdrop-blur-xl flex items-center gap-1.5">
                       Click to view
                     </span>
                   </button>

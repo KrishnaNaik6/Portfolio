@@ -230,6 +230,22 @@ describe('ProjectSlider & ProjectsSection Suite', () => {
       expect(screen.getByTestId('project-slide-left')).toHaveTextContent('Alpha Slider App');
     });
 
+    it('clearly highlights the in-view front card with an in-view badge and active styling while keeping side cards dimmed', () => {
+      render(<ProjectSlider projects={sliderOnlyProjects} />);
+
+      const middleSlide = screen.getByTestId('project-slide-middle');
+      const inViewBadge = middleSlide.querySelector('[data-testid="project-inview-badge"]');
+      expect(inViewBadge).toBeInTheDocument();
+      expect(inViewBadge).toHaveTextContent(/In View/i);
+
+      // Side cards should not display the In View badge
+      const leftSlide = screen.getByTestId('project-slide-left');
+      expect(leftSlide.querySelector('[data-testid="project-inview-badge"]')).not.toBeInTheDocument();
+
+      const rightSlide = screen.getByTestId('project-slide-right');
+      expect(rightSlide.querySelector('[data-testid="project-inview-badge"]')).not.toBeInTheDocument();
+    });
+
     it('gracefully handles 1 project without side cards', () => {
       const singleProject = [sliderOnlyProjects[0]];
       render(<ProjectSlider projects={singleProject} />);

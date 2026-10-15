@@ -35,17 +35,27 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
   return (
     <SectionWrapper ref={sectionRef} id="projects" title="Featured Projects" terminalCommand="echo $projects">
       {projects.length > 0 ? (
-        <div className="space-y-12 sm:space-y-16">
+        <div className="space-y-14 sm:space-y-20">
           {/* Featured Projects Showcase (Excluded from the slider) */}
           {featuredProjects.length > 0 && (
             <div>
-              <div className="flex items-center gap-2 mb-6">
-                <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-neon-indigo/15 border border-neon-indigo/30 text-neon-indigo">
-                  <Sparkles size={13} />
+              <div className="flex items-center justify-between gap-4 mb-6 sm:mb-8 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-neon-indigo/25 to-neon-cyan/20 border border-neon-indigo/40 text-neon-indigo shadow-[0_0_15px_rgba(99,102,241,0.25)]">
+                    <Sparkles size={16} />
+                  </span>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-mono uppercase tracking-widest text-text-primary font-bold">
+                      Featured Showcase
+                    </h3>
+                    <p className="text-xs text-text-secondary font-mono">
+                      Flagship production systems & verified deployments
+                    </p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full text-[11px] font-mono text-neon-indigo bg-neon-indigo/10 border border-neon-indigo/30 font-semibold shadow-sm">
+                  {featuredProjects.length} Featured
                 </span>
-                <h3 className="text-xs sm:text-sm font-mono uppercase tracking-widest text-neon-indigo font-bold">
-                  Featured Showcase ({featuredProjects.length})
-                </h3>
               </div>
               <div
                 className={`grid gap-6 sm:gap-8 ${
@@ -66,21 +76,41 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
             </div>
           )}
 
+          {/* Elegant Divider between Featured and Archive */}
+          {featuredProjects.length > 0 && sliderProjects.length > 0 && (
+            <div className="relative py-2">
+              <div className="h-px w-full bg-gradient-to-r from-transparent via-border-color to-transparent" />
+              <div className="absolute left-1/2 -translate-x-1/2 -top-2.5 px-3 py-0.5 rounded-full bg-slate-900 border border-border-color text-[10px] font-mono text-text-secondary uppercase tracking-widest">
+                Interactive Showcase
+              </div>
+            </div>
+          )}
+
           {/* Interactive Sliding Card Display for Remaining Projects */}
           {sliderProjects.length > 0 && (
             <div>
-              <div className="flex items-center justify-between gap-4 mb-4 sm:mb-6 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-neon-cyan/15 border border-neon-cyan/30 text-neon-cyan">
-                    <Layers size={13} />
+              <div className="flex items-center justify-between gap-4 mb-6 sm:mb-8 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-neon-cyan/25 to-neon-indigo/20 border border-neon-cyan/40 text-neon-cyan shadow-[0_0_15px_rgba(88,166,255,0.25)]">
+                    <Layers size={16} />
                   </span>
-                  <h3 className="text-xs sm:text-sm font-mono uppercase tracking-widest text-neon-cyan font-bold">
-                    Project Archive ({sliderProjects.length})
-                  </h3>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-mono uppercase tracking-widest text-text-primary font-bold">
+                      Project Archive
+                    </h3>
+                    <p className="text-xs text-text-secondary font-mono">
+                      Explore full collection in 3D interactive sliding perspective
+                    </p>
+                  </div>
                 </div>
-                <div className="text-[11px] font-mono text-text-secondary hidden sm:flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse" />
-                  <span>Interactive 3D Carousel // Click side cards or slide to view</span>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-full text-[11px] font-mono text-neon-cyan bg-neon-cyan/10 border border-neon-cyan/30 font-semibold hidden sm:inline-flex">
+                    {sliderProjects.length} In Archive
+                  </span>
+                  <div className="text-[11px] font-mono text-text-secondary hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/60 border border-border-color">
+                    <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse" />
+                    <span>Left — Middle (In-View) — Right</span>
+                  </div>
                 </div>
               </div>
 

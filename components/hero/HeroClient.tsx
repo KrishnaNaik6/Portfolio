@@ -13,6 +13,7 @@ import GitHubStatsSection from './GitHubStatsSection';
 import ContactSection from './ContactSection';
 import Footer from '../footer/Footer';
 import CustomCursor from '../ui/CustomCursor';
+import ScrollProgressBar from '../ui/ScrollProgressBar';
 import Background3DParticles from '../3d/Background3DParticles';
 import { CircleArrowDown, CircleArrowUp, Sparkles, RefreshCw, Activity } from 'lucide-react';
 import { PortfolioDetails, ProjectItem, GitHubStatsResponse, SectionConfig } from '@/lib/types';
@@ -233,6 +234,7 @@ const HeroClient: React.FC<HeroClientProps> = ({
 
   return (
     <div className="bg-bg-main min-h-screen transition-colors duration-500 selection:bg-neon-indigo/20 selection:text-neon-indigo relative overflow-hidden">
+      <ScrollProgressBar />
       <Background3DParticles />
       <CustomCursor />
       <Header activeSection={activeSection} sections={sections} fullName={details?.profile?.fullName} />
@@ -329,13 +331,19 @@ const HeroClient: React.FC<HeroClientProps> = ({
       {isReady && (
         <div className="fixed bottom-6 right-6 z-40">
           <motion.a
-            whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.12 }}
+            whileTap={{ scale: 0.92 }}
             href={atBottom ? topTarget : '#footer'}
             aria-label={atBottom ? 'Scroll to top' : 'Scroll to bottom'}
-            className="p-3 rounded-full bg-slate-900/80 backdrop-blur-lg border border-neon-indigo/30 shadow-2xl text-neon-indigo block animate-bounce"
+            className="relative p-3.5 rounded-full bg-slate-900/90 backdrop-blur-xl border border-neon-cyan/40 shadow-[0_0_20px_rgba(88,166,255,0.35)] text-neon-cyan hover:text-white hover:border-neon-cyan hover:shadow-[0_0_25px_rgba(88,166,255,0.6)] transition-all flex items-center justify-center group cursor-pointer"
           >
-            {atBottom ? <CircleArrowUp size={20} /> : <CircleArrowDown size={20} />}
+            {atBottom ? (
+              <CircleArrowUp size={20} className="group-hover:-translate-y-0.5 transition-transform duration-200" />
+            ) : (
+              <CircleArrowDown size={20} className="group-hover:translate-y-0.5 transition-transform duration-200" />
+            )}
+            {/* Subtle interactive hover pulse ring */}
+            <span className="absolute -inset-1 rounded-full border border-neon-cyan/30 animate-ping opacity-30 pointer-events-none [animation-duration:3s]" />
           </motion.a>
         </div>
       )}

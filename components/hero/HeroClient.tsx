@@ -14,6 +14,8 @@ import ContactSection from './ContactSection';
 import Footer from '../footer/Footer';
 import CustomCursor from '../ui/CustomCursor';
 import ScrollProgressBar from '../ui/ScrollProgressBar';
+import CommandPalette from '../ui/CommandPalette';
+import ScrollNavigationRail from '../ui/ScrollNavigationRail';
 import Background3DParticles from '../3d/Background3DParticles';
 import { CircleArrowDown, CircleArrowUp, Sparkles, RefreshCw, Activity } from 'lucide-react';
 import { PortfolioDetails, ProjectItem, GitHubStatsResponse, SectionConfig } from '@/lib/types';
@@ -42,6 +44,19 @@ const HeroClient: React.FC<HeroClientProps> = ({
   const [showContent] = useState(true);
   const [activeSection, setActiveSection] = useState('about');
   const [atBottom, setAtBottom] = useState(false);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+
+  // Keyboard shortcut listener for Command Palette (Cmd + K / Ctrl + K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setIsPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Polling & Retry State for Cloud Instance Wakeup
   const isReady = Boolean(details && sections && sections.length > 0);
@@ -237,7 +252,12 @@ const HeroClient: React.FC<HeroClientProps> = ({
       <ScrollProgressBar />
       <Background3DParticles />
       <CustomCursor />
-      <Header activeSection={activeSection} sections={sections} fullName={details?.profile?.fullName} />
+      <Header
+        activeSection={activeSection}
+        sections={sections}
+        fullName={details?.profile?.fullName}
+        onOpenPalette={() => setIsPaletteOpen(true)}
+      />
       <main className="pt-24 pb-12 relative z-10">
         <AnimatePresence mode="wait">
           {!isReady ? (
@@ -329,24 +349,36 @@ const HeroClient: React.FC<HeroClientProps> = ({
         </AnimatePresence>
       </main>
       {isReady && (
-        <div className="fixed bottom-6 right-6 z-40">
-          <motion.a
-            whileHover={{ scale: 1.12 }}
-            whileTap={{ scale: 0.92 }}
-            href={atBottom ? topTarget : '#footer'}
-            aria-label={atBottom ? 'Scroll to top' : 'Scroll to bottom'}
-            className="relative p-3.5 rounded-full bg-slate-900/90 backdrop-blur-xl border border-neon-cyan/40 shadow-[0_0_20px_rgba(88,166,255,0.35)] text-neon-cyan hover:text-white hover:border-neon-cyan hover:shadow-[0_0_25px_rgba(88,166,255,0.6)] transition-all flex items-center justify-center group cursor-pointer"
-          >
-            {atBottom ? (
-              <CircleArrowUp size={20} className="group-hover:-translate-y-0.5 transition-transform duration-200" />
-            ) : (
-              <CircleArrowDown size={20} className="group-hover:translate-y-0.5 transition-transform duration-200" />
-            )}
-            {/* Subtle interactive hover pulse ring */}
-            <span className="absolute -inset-1 rounded-full border border-neon-cyan/30 animate-ping opacity-30 pointer-events-none [animation-duration:3s]" />
-          </motion.a>
-        </div>
+        <>
+          <ScrollNavigationRail activeSection={activeSection} sections={sections} />
+          <div className="fixed bottom-6 right-6 z-40">
+            <motion.a
+              whileHover={{ scale: 1.12 }}
+              whileTap={{ scale: 0.92 }}
+              href={atBottom ? topTarget : '#footer'}
+              aria-label={atBottom ? 'Scroll to top' : 'Scroll to bottom'}
+              className="relative p-3.5 rounded-full bg-slate-900/90 backdrop-blur-xl border border-neon-cyan/40 shadow-[0_0_20px_rgba(88,166,255,0.35)] text-neon-cyan hover:text-white hover:border-neon-cyan hover:shadow-[0_0_25px_rgba(88,166,255,0.6)] transition-all flex items-center justify-center group cursor-pointer"
+            >
+              {atBottom ? (
+                <CircleArrowUp size={20} className="group-hover:-translate-y-0.5 transition-transform duration-200" />
+              ) : (
+                <CircleArrowDown size={20} className="group-hover:translate-y-0.5 transition-transform duration-200" />
+              )}
+              {/* Subtle interactive hover pulse ring */}
+              <span className="absolute -inset-1 rounded-full border border-neon-cyan/30 animate-ping opacity-30 pointer-events-none [animation-duration:3s]" />
+            </motion.a>
+          </div>
+        </>
       )}
+
+      {/* Interactive Command Palette HUD */}
+      <CommandPalette
+        isOpen={isPaletteOpen}
+        onClose={() => setIsPaletteOpen(false)}
+        sections={sections}
+        contactEmail={details?.contact?.msg?.Mail || details?.profile?.email || 'unkrishnanaik@gmail.com'}
+        resumeUrl={details?.profile?.resumeUrl || '/resume'}
+      />
     </div>
   );
 };

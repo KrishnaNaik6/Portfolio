@@ -17,6 +17,7 @@ vi.mock('framer-motion', async () => {
           const Tag = prop as any;
           return ({ children, className, style, ...props }: any) => {
             const {
+              layoutId,
               whileHover,
               whileTap,
               whileInView,

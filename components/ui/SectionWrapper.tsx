@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, Variants } from 'framer-motion';
+import { Copy, Check, Terminal } from 'lucide-react';
 
 interface SectionWrapperProps {
   id: string;
@@ -27,6 +28,16 @@ export const staggerContainer: Variants = {
 
 const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
   ({ id, title, terminalCommand, children }, ref) => {
+    const [copied, setCopied] = useState(false);
+
+    const copyCommand = () => {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        navigator.clipboard.writeText(terminalCommand);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1600);
+      }
+    };
+
     const sectionNumbers: Record<string, string> = {
       about: '02',
       education: '03',
@@ -81,18 +92,36 @@ const SectionWrapper = React.forwardRef<HTMLElement, SectionWrapperProps>(
                 {title || id}
               </motion.h2>
             </div>
-            <motion.div
+            <motion.button
+              type="button"
+              onClick={copyCommand}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-text-secondary mt-1"
+              title="Click to copy terminal command"
+              aria-label={`Copy terminal command: ${terminalCommand}`}
+              className="group/term inline-flex items-center gap-2 text-[11px] sm:text-xs font-mono text-text-secondary mt-1 px-2.5 py-1 rounded-lg bg-slate-950/25 border border-border-color/30 hover:border-neon-cyan/50 hover:bg-slate-900/60 transition-all cursor-pointer shadow-sm text-left"
             >
+              <Terminal size={12} className="text-neon-cyan opacity-80 group-hover/term:opacity-100" />
               <span className="text-neon-cyan">~KrishnaNaik6</span>
               <span>{'>'}</span>
-              <span className="text-neon-rose">{terminalCommand}</span>
+              <span className="text-neon-rose group-hover/term:text-neon-indigo transition-colors">{terminalCommand}</span>
               <span className="animate-pulse text-neon-cyan font-bold">_</span>
-            </motion.div>
+              <span className="ml-1.5 pl-2 border-l border-border-color/50 flex items-center gap-1 text-[10px] text-text-secondary group-hover/term:text-neon-cyan transition-colors">
+                {copied ? (
+                  <>
+                    <Check size={11} className="text-emerald-400" />
+                    <span className="text-emerald-400 font-semibold">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={11} className="opacity-60 group-hover/term:opacity-100" />
+                    <span className="opacity-0 group-hover/term:opacity-100 transition-opacity">Copy</span>
+                  </>
+                )}
+              </span>
+            </motion.button>
 
             {/* Scroll-triggered Animated Divider Line */}
             <motion.div

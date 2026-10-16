@@ -36,6 +36,7 @@ import { useTheme } from 'next-themes';
 import { GitHubUser, GitHubRepo, ExtraStats, GitHubContributionsResponse, GitHubStatsResponse } from '@/lib/types';
 import SectionWrapper from '../ui/SectionWrapper';
 import GlassCard from '../cards/GlassCard';
+import AnimatedCounter from '../ui/AnimatedCounter';
 import GitHubContributionGraph from './GitHubContributionGraph';
 import TechnologicalDNA from './TechnologicalDNA';
 
@@ -65,7 +66,9 @@ const MetricRow: React.FC<MetricRowProps> = ({ label, value, icon: Icon, colorCl
       <Icon className={`w-4 h-4 ${colorClass}`} />
       <span className="text-xs font-mono text-text-secondary uppercase tracking-wider">{label}</span>
     </div>
-    <span className="text-sm font-mono font-bold text-text-primary">{value}</span>
+    <span className="text-sm font-mono font-bold text-text-primary">
+      <AnimatedCounter value={value} />
+    </span>
   </div>
 );
 

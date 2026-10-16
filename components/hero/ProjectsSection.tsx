@@ -109,7 +109,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ initialProjects = [],
                   </span>
                   <div className="text-[11px] font-mono text-text-secondary hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/60 border border-border-color">
                     <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse" />
-                    <span>Left — Middle (In-View) — Right</span>
+                    <span>Responsive 3D Slider • Auto-adapts In-View</span>
                   </div>
                 </div>
               </div>

@@ -255,5 +255,34 @@ describe('ProjectSlider & ProjectsSection Suite', () => {
       expect(screen.queryByTestId('project-slide-right')).not.toBeInTheDocument();
       expect(screen.queryByTestId('slider-next-btn')).not.toBeInTheDocument();
     });
+
+    it('responsively adapts the in-view project count based on screen size (1 on mobile, 2 on tablet, 3 on desktop)', () => {
+      // 1. Desktop default (1024px)
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1200 });
+      const { rerender } = render(<ProjectSlider projects={sliderOnlyProjects} />);
+
+      const slider = screen.getByTestId('project-slider');
+      expect(slider).toHaveAttribute('data-screen-mode', 'desktop');
+      expect(slider).toHaveAttribute('data-inview-count', '3');
+      expect(screen.getByTestId('slider-inview-count-badge')).toHaveTextContent(/3 In-View/i);
+
+      // 2. Resize to Mobile (400px)
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 400 });
+      fireEvent(window, new Event('resize'));
+      expect(slider).toHaveAttribute('data-screen-mode', 'mobile');
+      expect(slider).toHaveAttribute('data-inview-count', '1');
+      expect(screen.getByTestId('slider-inview-count-badge')).toHaveTextContent(/1 In-View/i);
+
+      // 3. Resize to Tablet (768px)
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 768 });
+      fireEvent(window, new Event('resize'));
+      expect(slider).toHaveAttribute('data-screen-mode', 'tablet');
+      expect(slider).toHaveAttribute('data-inview-count', '2');
+      expect(screen.getByTestId('slider-inview-count-badge')).toHaveTextContent(/2 In-View/i);
+
+      // Reset back to 1024px
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 });
+      fireEvent(window, new Event('resize'));
+    });
   });
 });

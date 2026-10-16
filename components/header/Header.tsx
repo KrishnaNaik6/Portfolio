@@ -17,9 +17,11 @@ import {
   Compass,
   Activity,
   Mail,
+  Search,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import AnchorLink from '../ui/AnchorLink';
+import Magnetic from '../ui/Magnetic';
 import { SectionConfig } from '@/lib/types';
 import { normalizeSectionId, getOrderedBodySections } from '@/lib/sectionConfig';
 
@@ -27,6 +29,7 @@ interface HeaderProps {
   activeSection: string;
   sections?: SectionConfig[] | null;
   fullName?: string;
+  onOpenPalette?: () => void;
 }
 
 const defaultNavItems = [
@@ -53,7 +56,12 @@ const iconMap: Record<string, any> = {
   contact: Mail,
 };
 
-const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KRISHNA' }) => {
+const Header: React.FC<HeaderProps> = ({
+  activeSection,
+  sections,
+  fullName = 'KRISHNA',
+  onOpenPalette,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -181,21 +189,41 @@ const Header: React.FC<HeaderProps> = ({ activeSection, sections, fullName = 'KR
               </div>
             )}
 
+            {/* Command Palette HUD Trigger */}
+            {onOpenPalette && (
+              <Magnetic strength={0.25}>
+                <button
+                  type="button"
+                  onClick={onOpenPalette}
+                  aria-label="Open command palette"
+                  title="Open Command Palette (⌘K / Ctrl+K)"
+                  className="p-2 sm:px-3 rounded-full text-text-primary hover:text-neon-cyan transition-all bg-slate-950/20 dark:bg-slate-950/40 border border-border-color hover:border-neon-cyan/40 focus-visible:ring-2 focus-visible:ring-neon-cyan flex items-center gap-1.5 cursor-pointer group"
+                >
+                  <Search size={14} className="text-neon-cyan group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] font-mono text-text-secondary hidden md:inline font-semibold">
+                    ⌘K
+                  </span>
+                </button>
+              </Magnetic>
+            )}
+
             {/* Theme Toggle Button */}
             {mounted && (
-              <button
-                onClick={cycleTheme}
-                aria-label={`Current theme: ${theme}. Click to switch theme.`}
-                title={`Theme: ${theme?.toUpperCase()}`}
-                className="p-2 rounded-full text-text-primary hover:text-neon-indigo transition-all bg-slate-950/20 dark:bg-slate-950/40 border border-border-color hover:border-neon-indigo/40 focus-visible:ring-2 focus-visible:ring-neon-indigo flex items-center gap-1.5 px-3"
-              >
-                <motion.div key={theme} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}>
-                  {getThemeIcon()}
-                </motion.div>
-                <span className="text-[10px] font-mono uppercase text-text-secondary hidden md:inline font-semibold">
-                  {theme}
-                </span>
-              </button>
+              <Magnetic strength={0.25}>
+                <button
+                  onClick={cycleTheme}
+                  aria-label={`Current theme: ${theme}. Click to switch theme.`}
+                  title={`Theme: ${theme?.toUpperCase()}`}
+                  className="p-2 rounded-full text-text-primary hover:text-neon-indigo transition-all bg-slate-950/20 dark:bg-slate-950/40 border border-border-color hover:border-neon-indigo/40 focus-visible:ring-2 focus-visible:ring-neon-indigo flex items-center gap-1.5 px-3 cursor-pointer"
+                >
+                  <motion.div key={theme} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}>
+                    {getThemeIcon()}
+                  </motion.div>
+                  <span className="text-[10px] font-mono uppercase text-text-secondary hidden md:inline font-semibold">
+                    {theme}
+                  </span>
+                </button>
+              </Magnetic>
             )}
 
             {navItems.length > 0 && (

@@ -25,8 +25,15 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ expData = [], sec
     <SectionWrapper ref={sectionRef} id="experience" title="Work Experience" terminalCommand="echo $experience">
       {expData && expData.length > 0 ? (
         <div className="relative max-w-4xl mx-auto pl-4 md:pl-8">
-          {/* Vertical Connecting 3D Glow Line */}
-          <div className="absolute left-2.5 md:left-6 top-6 bottom-6 w-1 bg-gradient-to-b from-neon-indigo via-neon-cyan to-transparent opacity-80 rounded-full shadow-[0_0_12px_#388bfd]" />
+          {/* Vertical Connecting Radiant Progress Line with Ambient Laser Glow */}
+          <div
+            className="absolute left-[13px] md:left-[27px] top-6 bottom-6 w-2 bg-gradient-to-b from-neon-indigo/30 via-neon-cyan/40 to-transparent blur-sm rounded-full pointer-events-none"
+            aria-hidden="true"
+          />
+          <div
+            className="absolute left-[15px] md:left-[29px] top-6 bottom-6 w-1 bg-gradient-to-b from-neon-indigo via-neon-cyan to-neon-indigo/40 rounded-full shadow-[0_0_15px_rgba(88,166,255,0.7)]"
+            aria-hidden="true"
+          />
 
           <motion.div variants={staggerContainer} className="space-y-8">
             {expData.map((exp, i) => (

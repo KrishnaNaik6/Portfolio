@@ -281,26 +281,26 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
 
   const stageWidthClass =
     screenMode === 'mobile'
-      ? 'w-[240px] xs:w-[260px]'
+      ? 'w-[84vw] max-w-[310px] sm:max-w-[330px]'
       : screenMode === 'tablet'
-      ? 'w-[500px] md:w-[560px]'
+      ? 'w-[580px] md:w-[640px]'
       : screenMode === 'wide'
-      ? 'w-[860px] xl:w-[940px]'
-      : 'w-[740px] lg:w-[800px]';
+      ? 'w-[960px] xl:w-[1040px]'
+      : 'w-[820px] lg:w-[900px]';
 
   const cardWidthClass =
     screenMode === 'mobile'
-      ? 'w-[78vw] max-w-[220px]'
+      ? 'w-[84vw] max-w-[300px] sm:max-w-[320px]'
       : screenMode === 'tablet'
-      ? 'w-[230px] md:w-[240px]'
-      : 'w-[220px] lg:w-[235px]';
+      ? 'w-[270px] md:w-[295px]'
+      : 'w-[280px] lg:w-[310px]';
 
   const stageHeightClass =
     screenMode === 'mobile'
-      ? 'h-[250px]'
+      ? 'h-[315px] sm:h-[325px]'
       : screenMode === 'tablet'
-      ? 'h-[245px]'
-      : 'h-[235px]';
+      ? 'h-[315px] md:h-[325px]'
+      : 'h-[315px] lg:h-[325px]';
 
   return (
     <div
@@ -315,10 +315,10 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       data-testid="project-slider"
-      className="relative w-full max-w-5xl mx-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-indigo/50 rounded-3xl"
+      className="relative w-full max-w-6xl mx-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-indigo/50 rounded-3xl"
     >
       {/* Cards Deck Stage flanked by Arrow Buttons at both ends */}
-      <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 w-full py-2">
+      <div className="relative flex items-center justify-center gap-2 sm:gap-4 md:gap-6 w-full py-4">
         {/* Left Arrow Button at the left end of the card */}
         {projects.length > 1 && (
           <button
@@ -326,9 +326,9 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
             onClick={handlePrev}
             aria-label="Previous project"
             data-testid="slider-prev-btn"
-            className="z-50 p-2 sm:p-2.5 md:p-3 rounded-full bg-slate-900/95 backdrop-blur-xl border border-neon-cyan/50 text-neon-cyan hover:text-white hover:bg-neon-cyan/20 hover:border-neon-cyan hover:scale-110 active:scale-95 shadow-[0_0_20px_rgba(88,166,255,0.35)] transition-all cursor-pointer flex items-center justify-center shrink-0"
+            className="z-50 p-2.5 sm:p-3 rounded-full bg-slate-900/95 backdrop-blur-xl border border-neon-cyan/50 text-neon-cyan hover:text-white hover:bg-neon-cyan/20 hover:border-neon-cyan hover:scale-110 active:scale-95 shadow-[0_0_20px_rgba(88,166,255,0.35)] transition-all cursor-pointer flex items-center justify-center shrink-0"
           >
-            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
         )}
 
@@ -339,7 +339,7 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
         >
           {/* Dynamic Ambient Spotlight behind the Middle In-View Card */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-            <div className="w-[220px] sm:w-[320px] lg:w-[420px] h-[220px] sm:h-[320px] lg:h-[420px] bg-gradient-to-r from-neon-cyan/20 via-neon-indigo/25 to-neon-purple/20 rounded-full blur-3xl opacity-80 animate-pulse [animation-duration:6s]" />
+            <div className="w-[300px] sm:w-[420px] lg:w-[500px] h-[300px] sm:h-[420px] lg:h-[500px] bg-gradient-to-r from-neon-cyan/20 via-neon-indigo/25 to-neon-purple/20 rounded-full blur-3xl opacity-80 animate-pulse [animation-duration:6s]" />
           </div>
 
           {projects.map((project, index) => {
@@ -407,9 +407,9 @@ const ProjectSlider: React.FC<ProjectSliderProps> = ({ projects }) => {
             onClick={handleNext}
             aria-label="Next project"
             data-testid="slider-next-btn"
-            className="z-50 p-2 sm:p-2.5 md:p-3 rounded-full bg-slate-900/95 backdrop-blur-xl border border-neon-cyan/50 text-neon-cyan hover:text-white hover:bg-neon-cyan/20 hover:border-neon-cyan hover:scale-110 active:scale-95 shadow-[0_0_20px_rgba(88,166,255,0.35)] transition-all cursor-pointer flex items-center justify-center shrink-0"
+            className="z-50 p-2.5 sm:p-3 rounded-full bg-slate-900/95 backdrop-blur-xl border border-neon-cyan/50 text-neon-cyan hover:text-white hover:bg-neon-cyan/20 hover:border-neon-cyan hover:scale-110 active:scale-95 shadow-[0_0_20px_rgba(88,166,255,0.35)] transition-all cursor-pointer flex items-center justify-center shrink-0"
           >
-            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         )}
       </div>

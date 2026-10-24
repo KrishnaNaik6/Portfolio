@@ -23,7 +23,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const maxChars = featured ? 85 : 65;
+  const maxChars = featured ? 130 : 105;
 
   const safeDescription = project.description || 'No description provided.';
   const needsTruncation = safeDescription.length > maxChars;
@@ -84,25 +84,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         rotateX,
         rotateY,
       }}
-      className={`rounded-xl sm:rounded-2xl transition-shadow duration-300 relative z-10 h-full flex flex-col ${className}`}
+      className={`rounded-2xl transition-shadow duration-300 relative z-10 h-full flex flex-col ${className}`}
     >
       <div
         className={`
-          relative ${featured ? 'p-5 sm:p-6' : 'p-3 sm:p-3.5 md:p-4'} rounded-xl sm:rounded-2xl h-full flex flex-col justify-between
-          backdrop-blur-2xl sm:backdrop-blur-3xl transition-all duration-300 group overflow-hidden
+          relative ${featured ? 'p-5 sm:p-6' : 'p-4 sm:p-5'} rounded-2xl h-full flex flex-col justify-between
+          backdrop-blur-2xl sm:backdrop-blur-3xl transition-all duration-300 group
           ${
             featured
               ? 'bg-slate-900/90 border border-neon-indigo/50 hover:border-neon-indigo/80 shadow-[0_0_25px_rgba(99,102,241,0.2)] ring-1 ring-neon-indigo/30'
               : isActive
-              ? 'bg-slate-900/95 border-2 border-neon-cyan/70 shadow-[0_0_30px_rgba(88,166,255,0.35)] ring-1 ring-neon-cyan/50'
-              : 'bg-slate-950/80 border border-border-color/50 shadow-lg hover:border-neon-indigo/40'
+              ? 'bg-slate-900/95 border-2 border-neon-cyan/70 shadow-[0_0_35px_rgba(88,166,255,0.4)] ring-1 ring-neon-cyan/50'
+              : 'bg-slate-950/85 border border-border-color/60 shadow-lg hover:border-neon-indigo/40'
           }
         `}
       >
         {/* Interactive mouse spotlight aura */}
         {spotlightPos && (
           <div
-            className="pointer-events-none absolute -inset-px rounded-xl sm:rounded-2xl transition-opacity duration-200"
+            className="pointer-events-none absolute -inset-px rounded-2xl overflow-hidden transition-opacity duration-200"
             style={{
               background: `radial-gradient(280px circle at ${spotlightPos.x}px ${spotlightPos.y}px, ${
                 isActive ? 'rgba(88, 166, 255, 0.22)' : 'rgba(99, 102, 241, 0.16)'
@@ -113,76 +113,80 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
         {/* Top Highlight Line */}
         {featured ? (
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-neon-indigo via-neon-cyan to-neon-rose opacity-90" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-neon-indigo via-neon-cyan to-neon-rose opacity-90 rounded-t-2xl" />
         ) : isActive ? (
-          <div className="absolute top-0 left-0 right-0 h-0.5 sm:h-1 bg-gradient-to-r from-neon-cyan via-neon-indigo to-neon-purple opacity-100 shadow-[0_0_12px_rgba(88,166,255,0.8)]" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-neon-cyan via-neon-indigo to-neon-purple opacity-100 shadow-[0_0_12px_rgba(88,166,255,0.8)] rounded-t-2xl" />
         ) : null}
 
         {/* Neon Glow Hover Ring */}
-        <div className={`absolute inset-0 rounded-xl sm:rounded-2xl pointer-events-none transition-all duration-500 ${
+        <div className={`absolute inset-0 rounded-2xl pointer-events-none transition-all duration-500 ${
           isActive
             ? 'ring-1 ring-neon-cyan/50 shadow-[0_0_25px_var(--shadow-cyan)]'
             : 'group-hover:ring-2 group-hover:ring-neon-indigo/70 group-hover:shadow-[0_0_25px_var(--shadow-indigo)]'
         }`} />
 
-        <div className={`flex flex-col ${featured ? 'gap-2.5 sm:gap-3' : 'gap-1.5 sm:gap-2'} relative z-10`}>
+        <div className={`flex flex-col ${featured ? 'gap-2.5 sm:gap-3' : 'gap-2'} relative z-10 flex-1 min-h-0`}>
           <div className="flex justify-between items-start gap-2">
             <div className="min-w-0 flex-1">
-              <span className={`text-[9px] sm:text-[10px] font-mono font-bold block mb-0.5 ${
+              <span className={`text-[10px] sm:text-[11px] font-mono font-bold block mb-1 ${
                 isActive ? 'text-neon-cyan' : 'text-neon-indigo'
               }`}>
                 {projectNum} / PROJECT
               </span>
-              <div className="flex flex-wrap items-center gap-1.5 mb-1">
+              <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                 {highlightLabel && (
                   <span
                     data-testid="project-highlight-badge"
-                    className="inline-flex items-center px-2 py-0.5 rounded-full bg-neon-cyan/15 border border-neon-cyan/35 text-neon-cyan text-[8px] sm:text-[9px] font-mono font-semibold uppercase tracking-wider max-w-full truncate"
+                    className="inline-flex items-center px-2 py-0.5 rounded-full bg-neon-cyan/15 border border-neon-cyan/35 text-neon-cyan text-[9px] sm:text-[10px] font-mono font-semibold uppercase tracking-wider max-w-full truncate"
                   >
                     {highlightLabel}
                   </span>
                 )}
                 {featured && (
-                  <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-neon-indigo/20 border border-neon-indigo/40 text-neon-indigo text-[8px] sm:text-[9px] font-mono font-semibold uppercase tracking-wider">
-                    <Sparkles size={10} />
+                  <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-neon-indigo/20 border border-neon-indigo/40 text-neon-indigo text-[9px] sm:text-[10px] font-mono font-semibold uppercase tracking-wider">
+                    <Sparkles size={11} />
                     <span>Featured Project</span>
                   </div>
                 )}
                 {isActive && (
                   <div
                     data-testid="project-inview-badge"
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-neon-cyan/20 border border-neon-cyan/50 text-neon-cyan text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(88,166,255,0.4)]"
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-neon-cyan/20 border border-neon-cyan/50 text-neon-cyan text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(88,166,255,0.4)]"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-ping" />
                     <span>In View</span>
                   </div>
                 )}
               </div>
-              <h3 className={`text-sm sm:text-base md:text-lg font-black font-sora tracking-tight truncate transition-colors duration-300 ${
-                isActive ? 'text-text-primary group-hover:text-neon-cyan' : 'text-text-primary group-hover:text-neon-indigo'
-              }`}>
+              <h3
+                title={project.name}
+                className={`text-base sm:text-lg font-black font-sora tracking-tight line-clamp-1 transition-colors duration-300 ${
+                  isActive ? 'text-text-primary group-hover:text-neon-cyan' : 'text-text-primary group-hover:text-neon-indigo'
+                }`}
+              >
                 {project.name}
               </h3>
             </div>
 
             {project.collabed && (
-              <span className="text-[8px] sm:text-[9px] uppercase font-mono tracking-widest px-1.5 py-0.5 rounded-full bg-neon-cyan/15 text-neon-cyan border border-neon-cyan/30 shrink-0 font-semibold">
+              <span className="text-[9px] sm:text-[10px] uppercase font-mono tracking-widest px-2 py-0.5 rounded-full bg-neon-cyan/15 text-neon-cyan border border-neon-cyan/30 shrink-0 font-semibold">
                 Collab
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-mono uppercase text-text-secondary tracking-wider">
-            <Code2 className="w-3 h-3 text-neon-rose shrink-0" />
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono uppercase text-text-secondary tracking-wider">
+            <Code2 className="w-3.5 h-3.5 text-neon-rose shrink-0" />
             <span>{project.type || 'Repository'}</span>
           </div>
 
-          <p className="text-text-primary text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 mt-0.5">
+          <p className="text-text-secondary text-xs sm:text-[13px] leading-relaxed line-clamp-2 sm:line-clamp-3 mt-1 font-sans">
             {displayDescription}
             {needsTruncation && (
               <button
+                type="button"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-neon-indigo hover:text-neon-cyan ml-1 text-[10px] font-semibold transition-colors duration-200 focus:outline-none"
+                className="text-neon-indigo hover:text-neon-cyan ml-1 text-[11px] font-semibold transition-colors duration-200 focus:outline-none cursor-pointer"
               >
                 {isExpanded ? '(Less)' : '...'}
               </button>
@@ -190,34 +194,40 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="mt-2.5 pt-2 sm:mt-3 sm:pt-2.5 flex flex-wrap items-center gap-1.5 sm:gap-2 border-t border-border-color/60 relative z-10">
+        {/* Action Buttons: Always anchored at bottom with guaranteed side-by-side visibility */}
+        <div
+          className={`shrink-0 mt-auto pt-3 border-t border-border-color/60 relative z-10 w-full ${
+            project.link.git ? 'grid grid-cols-2 gap-2' : 'flex'
+          }`}
+        >
           {project.link.live ? (
             <a
               href={project.link.live}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] sm:text-[11px] font-sora font-bold px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-neon-indigo text-white hover:bg-neon-indigo/90 transition-all duration-300 flex items-center gap-1 shadow-[0_0_12px_rgba(99,102,241,0.3)]"
+              className="text-[11px] sm:text-xs font-sora font-bold py-2 px-2.5 rounded-xl bg-neon-indigo text-white hover:bg-neon-indigo/90 hover:shadow-[0_0_15px_rgba(99,102,241,0.45)] transition-all duration-300 flex items-center justify-center gap-1.5 text-center truncate group/btn cursor-pointer"
             >
-              <ExternalLink className="w-3 h-3" />
-              <span>Live App</span>
+              <ExternalLink className="w-3.5 h-3.5 shrink-0 group-hover/btn:scale-110 transition-transform" />
+              <span className="truncate">Live App</span>
             </a>
           ) : (
-            <span className="text-[10px] sm:text-[11px] font-sora font-medium px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-slate-950/40 text-text-secondary border border-border-color/60 cursor-not-allowed flex items-center gap-1">
-              <ExternalLink className="w-3 h-3" />
-              <span>Code Only</span>
+            <span className="text-[11px] sm:text-xs font-sora font-medium py-2 px-2.5 rounded-xl bg-slate-950/50 text-text-secondary/70 border border-border-color/60 cursor-not-allowed flex items-center justify-center gap-1.5 text-center truncate">
+              <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-50" />
+              <span className="truncate">Code Only</span>
             </span>
           )}
 
-          {project.link.git ? <a
-            href={project.link.git}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] sm:text-[11px] font-sora font-semibold px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border border-border-color text-text-secondary hover:border-neon-indigo hover:text-neon-indigo transition-all duration-300 flex items-center gap-1"
-          >
-            <Github className="w-3 h-3" />
-            <span>Repository</span>
-          </a> : null}
+          {project.link.git ? (
+            <a
+              href={project.link.git}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] sm:text-xs font-sora font-semibold py-2 px-2.5 rounded-xl border border-border-color/80 text-text-secondary hover:border-neon-cyan hover:text-neon-cyan hover:bg-neon-cyan/10 transition-all duration-300 flex items-center justify-center gap-1.5 text-center truncate group/btn cursor-pointer"
+            >
+              <Github className="w-3.5 h-3.5 shrink-0 group-hover/btn:scale-110 transition-transform" />
+              <span className="truncate">Repository</span>
+            </a>
+          ) : null}
         </div>
       </div>
     </motion.div>
